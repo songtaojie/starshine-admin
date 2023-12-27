@@ -4,42 +4,36 @@
 /// 系统作业信息表
 /// </summary>
 [SugarTable(null, "系统作业信息表")]
-[SystemTable]
-public class SysJobDetail : EntityBaseId
+public class SysJobDetail : EntityBase
 {
     /// <summary>
     /// 作业Id
     /// </summary>
     [SugarColumn(ColumnDescription = "作业Id", Length = 64)]
-    [Required, MaxLength(64)]
-    public virtual string JobId { get; set; }
+    public string JobId { get; set; }
 
     /// <summary>
     /// 组名称
     /// </summary>
-    [SugarColumn(ColumnDescription = "组名称", Length = 128)]
-    [MaxLength(128)]
+    [SugarColumn(ColumnDescription = "组名称",IsNullable =true, Length = 128)]
     public string? GroupName { get; set; } = "default";
 
     /// <summary>
     /// 作业类型FullName
     /// </summary>
-    [SugarColumn(ColumnDescription = "作业类型", Length = 128)]
-    [MaxLength(128)]
+    [SugarColumn(ColumnDescription = "作业类型", IsNullable = true, Length = 128)]
     public string? JobType { get; set; }
 
     /// <summary>
     /// 程序集Name
     /// </summary>
-    [SugarColumn(ColumnDescription = "程序集", Length = 128)]
-    [MaxLength(128)]
+    [SugarColumn(ColumnDescription = "程序集", IsNullable = true, Length = 128)]
     public string? AssemblyName { get; set; }
 
     /// <summary>
     /// 描述信息
     /// </summary>
-    [SugarColumn(ColumnDescription = "描述信息", Length = 128)]
-    [MaxLength(128)]
+    [SugarColumn(ColumnDescription = "描述信息", IsNullable = true, Length = 128)]
     public string? Description { get; set; }
 
     /// <summary>
@@ -57,7 +51,7 @@ public class SysJobDetail : EntityBaseId
     /// <summary>
     /// 额外数据
     /// </summary>
-    [SugarColumn(ColumnDescription = "额外数据", ColumnDataType = StaticConfig.CodeFirst_BigString)]
+    [SugarColumn(ColumnDescription = "额外数据", IsNullable = true, ColumnDataType = StaticConfig.CodeFirst_BigString)]
     public string? Properties { get; set; } = "{}";
 
     /// <summary>
@@ -75,6 +69,6 @@ public class SysJobDetail : EntityBaseId
     /// <summary>
     /// 脚本代码
     /// </summary>
-    [SugarColumn(ColumnDescription = "脚本代码", ColumnDataType = StaticConfig.CodeFirst_BigString)]
+    [SugarColumn(ColumnDescription = "脚本代码", IsNullable = true, ColumnDataType = StaticConfig.CodeFirst_BigString)]
     public string? ScriptCode { get; set; }
 }

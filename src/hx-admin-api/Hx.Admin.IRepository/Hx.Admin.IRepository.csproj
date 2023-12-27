@@ -3,12 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-	  <NoWarn>1701;1702;1591;8632;8618;</NoWarn>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Hx.Admin.Core\Hx.Admin.Core.csproj" />
-  </ItemGroup>
 
 </Project>

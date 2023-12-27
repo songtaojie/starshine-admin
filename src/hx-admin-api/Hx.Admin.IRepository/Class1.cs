@@ -4,7 +4,7 @@
 //
 // 电话/微信：song977601042
 
-namespace Hx.Admin.Models;
+namespace Hx.Admin.IRepository;
 public class Class1
 {
 

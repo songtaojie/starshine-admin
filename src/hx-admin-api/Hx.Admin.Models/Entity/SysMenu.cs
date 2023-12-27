@@ -4,8 +4,7 @@
 /// 系统菜单表
 /// </summary>
 [SugarTable(null, "系统菜单表")]
-[SystemTable]
-public class SysMenu : EntityBase
+public class SysMenu : AuditedEntityBase
 {
     /// <summary>
     /// 父Id
@@ -22,50 +21,43 @@ public class SysMenu : EntityBase
     /// <summary>
     /// 路由名称
     /// </summary>
-    [SugarColumn(ColumnDescription = "路由名称", Length = 64)]
-    [MaxLength(64)]
+    [SugarColumn(ColumnDescription = "路由名称",IsNullable =true, Length = 64)]
     public string? Name { get; set; }
 
     /// <summary>
     /// 路由地址
     /// </summary>
-    [SugarColumn(ColumnDescription = "路由地址", Length = 128)]
-    [MaxLength(128)]
+    [SugarColumn(ColumnDescription = "路由地址", IsNullable = true, Length = 128)]
     public string? Path { get; set; }
 
     /// <summary>
     /// 组件路径
     /// </summary>
-    [SugarColumn(ColumnDescription = "组件路径", Length = 128)]
-    [MaxLength(128)]
+    [SugarColumn(ColumnDescription = "组件路径", IsNullable = true, Length = 128)]
     public string? Component { get; set; }
 
     /// <summary>
     /// 重定向
     /// </summary>
-    [SugarColumn(ColumnDescription = "重定向", Length = 128)]
-    [MaxLength(128)]
+    [SugarColumn(ColumnDescription = "重定向", IsNullable = true, Length = 128)]
     public string? Redirect { get; set; }
 
     /// <summary>
     /// 权限标识
     /// </summary>
-    [SugarColumn(ColumnDescription = "权限标识", Length = 128)]
-    [MaxLength(128)]
+    [SugarColumn(ColumnDescription = "权限标识", IsNullable = true, Length = 128)]
     public string? Permission { get; set; }
 
     /// <summary>
     /// 菜单名称
     /// </summary>
     [SugarColumn(ColumnDescription = "菜单名称", Length = 64)]
-    [Required, MaxLength(64)]
-    public virtual string Title { get; set; }
+    public string Title { get; set; }
 
     /// <summary>
     /// 图标
     /// </summary>
-    [SugarColumn(ColumnDescription = "图标", Length = 128)]
-    [MaxLength(128)]
+    [SugarColumn(ColumnDescription = "图标", IsNullable = true, Length = 128)]
     public string? Icon { get; set; }
 
     /// <summary>
@@ -77,8 +69,7 @@ public class SysMenu : EntityBase
     /// <summary>
     /// 外链链接
     /// </summary>
-    [SugarColumn(ColumnDescription = "外链链接", Length = 256)]
-    [MaxLength(256)]
+    [SugarColumn(ColumnDescription = "外链链接", IsNullable = true, Length = 256)]
     public string? OutLink { get; set; }
 
     /// <summary>
@@ -103,7 +94,7 @@ public class SysMenu : EntityBase
     /// 排序
     /// </summary>
     [SugarColumn(ColumnDescription = "排序")]
-    public int OrderNo { get; set; } = 100;
+    public int Sort { get; set; } = 100;
 
     /// <summary>
     /// 状态
@@ -114,8 +105,7 @@ public class SysMenu : EntityBase
     /// <summary>
     /// 备注
     /// </summary>
-    [SugarColumn(ColumnDescription = "备注", Length = 256)]
-    [MaxLength(256)]
+    [SugarColumn(ColumnDescription = "备注", IsNullable = true, Length = 256)]
     public string? Remark { get; set; }
 
     /// <summary>

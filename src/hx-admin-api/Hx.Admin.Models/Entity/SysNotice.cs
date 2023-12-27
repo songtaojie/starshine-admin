@@ -4,24 +4,20 @@
 /// 系统通知公告表
 /// </summary>
 [SugarTable(null, "系统通知公告表")]
-[SystemTable]
-public class SysNotice : EntityBase
+public class SysNotice : AuditedEntityBase
 {
     /// <summary>
     /// 标题
     /// </summary>
     [SugarColumn(ColumnDescription = "标题", Length = 32)]
     [Required, MaxLength(32)]
-    [SensitiveDetection('*')]
-    public virtual string Title { get; set; }
+    public string Title { get; set; }
 
     /// <summary>
     /// 内容
     /// </summary>
     [SugarColumn(ColumnDescription = "内容", ColumnDataType = StaticConfig.CodeFirst_BigString)]
-    [Required]
-    [SensitiveDetection('*')]
-    public virtual string Content { get; set; }
+    public string Content { get; set; }
 
     /// <summary>
     /// 类型（1通知 2公告）
@@ -38,8 +34,7 @@ public class SysNotice : EntityBase
     /// <summary>
     /// 发布人姓名
     /// </summary>
-    [SugarColumn(ColumnDescription = "发布人姓名", Length = 32)]
-    [MaxLength(32)]
+    [SugarColumn(ColumnDescription = "发布人姓名",IsNullable =true, Length = 32)]
     public string? PublicUserName { get; set; }
 
     /// <summary>
@@ -51,8 +46,7 @@ public class SysNotice : EntityBase
     /// <summary>
     /// 发布机构名称
     /// </summary>
-    [SugarColumn(ColumnDescription = "发布机构名称", Length = 64)]
-    [MaxLength(64)]
+    [SugarColumn(ColumnDescription = "发布机构名称", IsNullable = true, Length = 64)]
     public string? PublicOrgName { get; set; }
 
     /// <summary>

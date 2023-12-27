@@ -4,56 +4,49 @@
 /// 系统作业触发器表
 /// </summary>
 [SugarTable(null, "系统作业触发器表")]
-[SystemTable]
-public class SysJobTrigger : EntityBaseId
+public class SysJobTrigger : EntityBase
 {
     /// <summary>
     /// 触发器Id
     /// </summary>
     [SugarColumn(ColumnDescription = "触发器Id", Length = 64)]
-    [Required, MaxLength(64)]
-    public virtual string TriggerId { get; set; }
+    public string TriggerId { get; set; }
 
     /// <summary>
     /// 作业Id
     /// </summary>
     [SugarColumn(ColumnDescription = "作业Id", Length = 64)]
-    [Required, MaxLength(64)]
-    public virtual string JobId { get; set; }
+    public string JobId { get; set; }
 
     /// <summary>
     /// 触发器类型FullName
     /// </summary>
-    [SugarColumn(ColumnDescription = "触发器类型", Length = 128)]
-    [MaxLength(128)]
+    [SugarColumn(ColumnDescription = "触发器类型",IsNullable =true, Length = 128)]
     public string? TriggerType { get; set; }
 
     /// <summary>
     /// 程序集Name
     /// </summary>
-    [SugarColumn(ColumnDescription = "程序集", Length = 128)]
-    [MaxLength(128)]
+    [SugarColumn(ColumnDescription = "程序集", IsNullable = true, Length = 128)]
     public string? AssemblyName { get; set; } = "Furion.Pure";
 
     /// <summary>
     /// 参数
     /// </summary>
-    [SugarColumn(ColumnDescription = "参数", Length = 128)]
-    [MaxLength(128)]
+    [SugarColumn(ColumnDescription = "参数", IsNullable = true, Length = 128)]
     public string? Args { get; set; }
 
     /// <summary>
     /// 描述信息
     /// </summary>
-    [SugarColumn(ColumnDescription = "描述信息", Length = 128)]
-    [MaxLength(128)]
+    [SugarColumn(ColumnDescription = "描述信息", IsNullable = true, Length = 128)]
     public string? Description { get; set; }
 
     /// <summary>
     /// 状态
     /// </summary>
     [SugarColumn(ColumnDescription = "状态")]
-    public TriggerStatus Status { get; set; } = TriggerStatus.Ready;
+    public int Status { get; set; }
 
     /// <summary>
     /// 起始时间
