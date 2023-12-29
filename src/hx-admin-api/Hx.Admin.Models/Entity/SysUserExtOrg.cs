@@ -4,8 +4,7 @@
 /// 系统用户扩展机构表
 /// </summary>
 [SugarTable(null, "系统用户扩展机构表")]
-[SystemTable]
-public class SysUserExtOrg : EntityBaseId
+public class SysUserExtOrg : EntityBase
 {
     /// <summary>
     /// 用户Id
@@ -42,15 +41,13 @@ public class SysUserExtOrg : EntityBaseId
     /// <summary>
     /// 工号
     /// </summary>
-    [SugarColumn(ColumnDescription = "工号", Length = 32)]
-    [MaxLength(32)]
+    [SugarColumn(ColumnDescription = "工号",IsNullable =true, Length = 32)]
     public string? JobNum { get; set; }
 
     /// <summary>
     /// 职级
     /// </summary>
-    [SugarColumn(ColumnDescription = "职级", Length = 32)]
-    [MaxLength(32)]
+    [SugarColumn(ColumnDescription = "职级", IsNullable = true, Length = 32)]
     public string? PosLevel { get; set; }
 
     /// <summary>

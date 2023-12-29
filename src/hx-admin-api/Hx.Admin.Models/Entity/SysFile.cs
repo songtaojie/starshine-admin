@@ -4,7 +4,6 @@ namespace Hx.Admin.Models;
 /// 系统文件表
 /// </summary>
 [SugarTable(null, "系统文件表")]
-[SystemTable]
 public class SysFile : CreationEntityBase
 {
     /// <summary>

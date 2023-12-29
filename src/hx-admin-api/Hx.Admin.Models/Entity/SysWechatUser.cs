@@ -4,8 +4,7 @@
 /// 系统微信用户表
 /// </summary>
 [SugarTable(null, "系统微信用户表")]
-[SystemTable]
-public class SysWechatUser : EntityBase
+public class SysWechatUser : AuditedEntityBase
 {
     /// <summary>
     /// 系统用户Id
@@ -30,88 +29,78 @@ public class SysWechatUser : EntityBase
     /// OpenId
     /// </summary>
     [SugarColumn(ColumnDescription = "OpenId", Length = 64)]
-    [Required, MaxLength(64)]
-    public virtual string OpenId { get; set; }
+    public string OpenId { get; set; }
 
     /// <summary>
     /// 会话密钥
     /// </summary>
-    [SugarColumn(ColumnDescription = "会话密钥", Length = 256)]
-    [MaxLength(256)]
+    [SugarColumn(ColumnDescription = "会话密钥",IsNullable =true, Length = 256)]
     public string? SessionKey { get; set; }
 
     /// <summary>
     /// UnionId
     /// </summary>
-    [SugarColumn(ColumnDescription = "UnionId", Length = 64)]
-    [MaxLength(64)]
+    [SugarColumn(ColumnDescription = "UnionId",IsNullable =true, Length = 64)]
     public string? UnionId { get; set; }
 
     /// <summary>
     /// 昵称
     /// </summary>
-    [SugarColumn(ColumnDescription = "昵称", Length = 64)]
-    [MaxLength(64)]
+    [SugarColumn(ColumnDescription = "昵称", IsNullable = true, Length = 64)]
     public string? NickName { get; set; }
 
     /// <summary>
     /// 头像
     /// </summary>
-    [SugarColumn(ColumnDescription = "头像", Length = 256)]
-    [MaxLength(256)]
+    [SugarColumn(ColumnDescription = "头像", IsNullable = true, Length = 256)]
     public string? Avatar { get; set; }
 
     /// <summary>
     /// 手机号码
     /// </summary>
-    [SugarColumn(ColumnDescription = "手机号码", Length = 16)]
-    [MaxLength(16)]
+    [SugarColumn(ColumnDescription = "手机号码", IsNullable = true, Length = 16)]
     public string? Mobile { get; set; }
 
     /// <summary>
     /// 性别
     /// </summary>
     [SugarColumn(ColumnDescription = "性别")]
-    public int? Sex { get; set; }
+    public int Sex { get; set; }
 
     /// <summary>
     /// 语言
     /// </summary>
-    [SugarColumn(ColumnDescription = "语言", Length = 64)]
-    [MaxLength(64)]
+    [SugarColumn(ColumnDescription = "语言", IsNullable = true, Length = 64)]
     public string? Language { get; set; }
 
     /// <summary>
     /// 城市
     /// </summary>
-    [SugarColumn(ColumnDescription = "城市", Length = 64)]
-    [MaxLength(64)]
+    [SugarColumn(ColumnDescription = "城市", IsNullable = true, Length = 64)]
     public string? City { get; set; }
 
     /// <summary>
     /// 省
     /// </summary>
-    [SugarColumn(ColumnDescription = "省", Length = 64)]
-    [MaxLength(64)]
+    [SugarColumn(ColumnDescription = "省", IsNullable = true, Length = 64)]
     public string? Province { get; set; }
 
     /// <summary>
     /// 国家
     /// </summary>
-    [SugarColumn(ColumnDescription = "国家", Length = 64)]
-    [MaxLength(64)]
+    [SugarColumn(ColumnDescription = "国家", IsNullable = true, Length = 64)]
     public string? Country { get; set; }
 
     /// <summary>
     /// AccessToken
     /// </summary>
-    [SugarColumn(ColumnDescription = "AccessToken", ColumnDataType = StaticConfig.CodeFirst_BigString)]
+    [SugarColumn(ColumnDescription = "AccessToken",IsNullable =true, ColumnDataType = StaticConfig.CodeFirst_BigString)]
     public string? AccessToken { get; set; }
 
     /// <summary>
     /// RefreshToken
     /// </summary>
-    [SugarColumn(ColumnDescription = "RefreshToken", ColumnDataType = StaticConfig.CodeFirst_BigString)]
+    [SugarColumn(ColumnDescription = "RefreshToken", IsNullable = true, ColumnDataType = StaticConfig.CodeFirst_BigString)]
     public string? RefreshToken { get; set; }
 
     /// <summary>
@@ -123,7 +112,6 @@ public class SysWechatUser : EntityBase
     /// <summary>
     /// 用户授权的作用域，使用逗号分隔
     /// </summary>
-    [SugarColumn(ColumnDescription = "授权作用域", Length = 64)]
-    [MaxLength(64)]
+    [SugarColumn(ColumnDescription = "授权作用域", IsNullable = true, Length = 64)]
     public string? Scope { get; set; }
 }

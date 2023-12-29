@@ -4,44 +4,36 @@ namespace Hx.Admin.Models;
 /// 系统用户表
 /// </summary>
 [SugarTable(null, "系统用户表")]
-[SystemTable]
-public class SysUser : EntityTenant
+public class SysUser : AuditedEntityBase
 {
     /// <summary>
     /// 账号
     /// </summary>
     [SugarColumn(ColumnDescription = "账号", Length = 32)]
-    [Required, MaxLength(32)]
-    public virtual string Account { get; set; }
+    public string Account { get; set; }
 
     /// <summary>
     /// 密码
     /// </summary>
     [SugarColumn(ColumnDescription = "密码", Length = 512)]
-    [MaxLength(512)]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [JsonIgnore]
-    public virtual string Password { get; set; }
+    public string Password { get; set; }
 
     /// <summary>
     /// 真实姓名
     /// </summary>
     [SugarColumn(ColumnDescription = "真实姓名", Length = 32)]
-    [MaxLength(32)]
-    public virtual string RealName { get; set; }
+    public string RealName { get; set; }
 
     /// <summary>
     /// 昵称
     /// </summary>
-    [SugarColumn(ColumnDescription = "昵称", Length = 32)]
-    [MaxLength(32)]
+    [SugarColumn(ColumnDescription = "昵称",IsNullable =true, Length = 32)]
     public string? NickName { get; set; }
 
     /// <summary>
     /// 头像
     /// </summary>
-    [SugarColumn(ColumnDescription = "头像", Length = 512)]
-    [MaxLength(512)]
+    [SugarColumn(ColumnDescription = "头像", IsNullable = true, Length = 512)]
     public string? Avatar { get; set; }
 
     /// <summary>
@@ -59,21 +51,19 @@ public class SysUser : EntityTenant
     /// <summary>
     /// 出生日期
     /// </summary>
-    [SugarColumn(ColumnDescription = "出生日期")]
+    [SugarColumn(ColumnDescription = "出生日期", IsNullable = true)]
     public DateTime? Birthday { get; set; }
 
     /// <summary>
     /// 民族
     /// </summary>
-    [SugarColumn(ColumnDescription = "民族", Length = 32)]
-    [MaxLength(32)]
+    [SugarColumn(ColumnDescription = "民族", IsNullable = true, Length = 32)]
     public string? Nation { get; set; }
 
     /// <summary>
     /// 手机号码
     /// </summary>
-    [SugarColumn(ColumnDescription = "手机号码", Length = 16)]
-    [MaxLength(16)]
+    [SugarColumn(ColumnDescription = "手机号码", IsNullable = true, Length = 16)]
     public string? Phone { get; set; }
 
     /// <summary>
@@ -85,22 +75,19 @@ public class SysUser : EntityTenant
     /// <summary>
     /// 身份证号
     /// </summary>
-    [SugarColumn(ColumnDescription = "身份证号", Length = 32)]
-    [MaxLength(32)]
-    public string? IdCardNum { get; set; }
+    [SugarColumn(ColumnDescription = "身份证号", IsNullable = true, Length = 32)]
+    public string? IdCard { get; set; }
 
     /// <summary>
     /// 邮箱
     /// </summary>
-    [SugarColumn(ColumnDescription = "邮箱", Length = 64)]
-    [MaxLength(64)]
+    [SugarColumn(ColumnDescription = "邮箱", IsNullable = true, Length = 64)]
     public string? Email { get; set; }
 
     /// <summary>
     /// 地址
     /// </summary>
-    [SugarColumn(ColumnDescription = "地址", Length = 256)]
-    [MaxLength(256)]
+    [SugarColumn(ColumnDescription = "地址", IsNullable = true, Length = 256)]
     public string? Address { get; set; }
 
     /// <summary>
@@ -112,57 +99,50 @@ public class SysUser : EntityTenant
     /// <summary>
     /// 政治面貌
     /// </summary>
-    [SugarColumn(ColumnDescription = "政治面貌", Length = 16)]
-    [MaxLength(16)]
+    [SugarColumn(ColumnDescription = "政治面貌", IsNullable = true, Length = 16)]
     public string? PoliticalOutlook { get; set; }
 
     /// <summary>
     /// 毕业院校
     /// </summary>COLLEGE
-    [SugarColumn(ColumnDescription = "毕业院校", Length = 128)]
-    [MaxLength(128)]
+    [SugarColumn(ColumnDescription = "毕业院校", IsNullable = true, Length = 128)]
     public string? College { get; set; }
 
     /// <summary>
     /// 办公电话
     /// </summary>
-    [SugarColumn(ColumnDescription = "办公电话", Length = 16)]
-    [MaxLength(16)]
+    [SugarColumn(ColumnDescription = "办公电话", IsNullable = true, Length = 16)]
     public string? OfficePhone { get; set; }
 
     /// <summary>
     /// 紧急联系人
     /// </summary>
-    [SugarColumn(ColumnDescription = "紧急联系人", Length = 32)]
-    [MaxLength(32)]
+    [SugarColumn(ColumnDescription = "紧急联系人", IsNullable = true, Length = 32)]
     public string? EmergencyContact { get; set; }
 
     /// <summary>
     /// 紧急联系人电话
     /// </summary>
-    [SugarColumn(ColumnDescription = "紧急联系人电话", Length = 16)]
-    [MaxLength(16)]
+    [SugarColumn(ColumnDescription = "紧急联系人电话", IsNullable = true, Length = 16)]
     public string? EmergencyPhone { get; set; }
 
     /// <summary>
     /// 紧急联系人地址
     /// </summary>
-    [SugarColumn(ColumnDescription = "紧急联系人地址", Length = 256)]
-    [MaxLength(256)]
+    [SugarColumn(ColumnDescription = "紧急联系人地址", IsNullable = true, Length = 256)]
     public string? EmergencyAddress { get; set; }
 
     /// <summary>
     /// 个人简介
     /// </summary>
-    [SugarColumn(ColumnDescription = "个人简介", Length = 512)]
-    [MaxLength(512)]
+    [SugarColumn(ColumnDescription = "个人简介", IsNullable = true, Length = 512)]
     public string? Introduction { get; set; }
 
     /// <summary>
     /// 排序
     /// </summary>
     [SugarColumn(ColumnDescription = "排序")]
-    public int OrderNo { get; set; } = 100;
+    public int Sort { get; set; } = 100;
 
     /// <summary>
     /// 状态
@@ -173,8 +153,7 @@ public class SysUser : EntityTenant
     /// <summary>
     /// 备注
     /// </summary>
-    [SugarColumn(ColumnDescription = "备注", Length = 128)]
-    [MaxLength(128)]
+    [SugarColumn(ColumnDescription = "备注", IsNullable = true, Length = 128)]
     public string? Remark { get; set; }
 
     /// <summary>
@@ -212,54 +191,48 @@ public class SysUser : EntityTenant
     /// <summary>
     /// 工号
     /// </summary>
-    [SugarColumn(ColumnDescription = "工号", Length = 32)]
-    [MaxLength(32)]
+    [SugarColumn(ColumnDescription = "工号", IsNullable = true, Length = 32)]
     public string? JobNum { get; set; }
 
     /// <summary>
     /// 职级
     /// </summary>
-    [SugarColumn(ColumnDescription = "职级", Length = 32)]
-    [MaxLength(32)]
+    [SugarColumn(ColumnDescription = "职级", IsNullable = true, Length = 32)]
     public string? PosLevel { get; set; }
 
     /// <summary>
     /// 入职日期
     /// </summary>
-    [SugarColumn(ColumnDescription = "入职日期")]
+    [SugarColumn(ColumnDescription = "入职日期", IsNullable = true)]
     public DateTime? JoinDate { get; set; }
 
     /// <summary>
     /// 最新登录Ip
     /// </summary>
-    [SugarColumn(ColumnDescription = "最新登录Ip", Length = 256)]
-    [MaxLength(256)]
+    [SugarColumn(ColumnDescription = "最新登录Ip", IsNullable = true, Length = 256)]
     public string? LastLoginIp { get; set; }
 
     /// <summary>
     /// 最新登录地点
     /// </summary>
-    [SugarColumn(ColumnDescription = "最新登录地点", Length = 128)]
-    [MaxLength(128)]
+    [SugarColumn(ColumnDescription = "最新登录地点", IsNullable = true, Length = 128)]
     public string? LastLoginAddress { get; set; }
 
     /// <summary>
     /// 最新登录时间
     /// </summary>
-    [SugarColumn(ColumnDescription = "最新登录时间")]
+    [SugarColumn(ColumnDescription = "最新登录时间", IsNullable = true)]
     public DateTime? LastLoginTime { get; set; }
 
     /// <summary>
     /// 最新登录设备
     /// </summary>
-    [SugarColumn(ColumnDescription = "最新登录设备", Length = 128)]
-    [MaxLength(128)]
+    [SugarColumn(ColumnDescription = "最新登录设备", IsNullable = true, Length = 128)]
     public string? LastLoginDevice { get; set; }
 
     /// <summary>
     /// 电子签名
     /// </summary>
-    [SugarColumn(ColumnDescription = "电子签名", Length = 512)]
-    [MaxLength(512)]
+    [SugarColumn(ColumnDescription = "电子签名", IsNullable = true, Length = 512)]
     public string? Signature { get; set; }
 }
