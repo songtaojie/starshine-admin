@@ -1,11 +1,18 @@
-﻿namespace Hx.Admin.Core;
+﻿using Hx.Cache;
+
+namespace Hx.Admin.Core;
 
 /// <summary>
 /// SqlSugar二级缓存
 /// </summary>
 public class SqlSugarCache : ICacheService
 {
-    private static readonly ICache _cache = App.GetService(typeof(ICache)) as ICache;
+    private readonly ICache _cache;
+
+    public SqlSugarCache(ICache cache)
+    {
+        _cache = cache;
+    }
 
     public void Add<V>(string key, V value)
     {
@@ -29,17 +36,25 @@ public class SqlSugarCache : ICacheService
 
     public IEnumerable<string> GetAllKey<V>()
     {
-        return _cache.Keys;
+        return _cache.GetAllKeys();
     }
 
     public V GetOrCreate<V>(string cacheKey, Func<V> create, int cacheDurationInSeconds = int.MaxValue)
     {
-        if (!_cache.TryGetValue<V>(cacheKey, out V value))
+        if (!_cache.ContainsKey(cacheKey))
         {
-            value = create();
-            _cache.Set(cacheKey, value, cacheDurationInSeconds);
+            var value = create();
+            if (cacheDurationInSeconds <= 0)
+            {
+                _cache.Set(cacheKey, value);
+            }
+            else
+            {
+                _cache.Set(cacheKey, value, cacheDurationInSeconds);
+            }
+            return value;
         }
-        return value;
+        return _cache.Get<V>(cacheKey);
     }
 
     public void Remove<V>(string key)

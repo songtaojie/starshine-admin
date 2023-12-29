@@ -17,8 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Hx.Admin.Application\Hx.Admin.Application.csproj" />
-    <ProjectReference Include="..\Hx.Admin.Core\Hx.Admin.Core.csproj" />
+    <ProjectReference Include="..\Hx.Admin.Repository\Hx.Admin.Repository.csproj" />
+    <ProjectReference Include="..\Hx.Admin.Services\Hx.Admin.Services.csproj" />
   </ItemGroup>
 
 </Project>

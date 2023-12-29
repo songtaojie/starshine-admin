@@ -3,7 +3,7 @@
 /// <summary>
 /// 支付回调配置选项
 /// </summary>
-public sealed class PayCallBackOptions : IConfigurableOptions
+public sealed class PayCallBackOptions 
 {
     /// <summary>
     /// 微信支付回调

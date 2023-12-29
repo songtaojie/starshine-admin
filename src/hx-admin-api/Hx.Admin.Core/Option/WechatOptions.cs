@@ -3,7 +3,7 @@
 /// <summary>
 /// 微信相关配置选项
 /// </summary>
-public sealed class WechatOptions : IConfigurableOptions
+public sealed class WechatOptions 
 {
     //公众号
     public string WechatAppId { get; set; }

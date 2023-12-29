@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Hx.Admin.IServices\Hx.Admin.IServices.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -3,7 +3,7 @@
 /// <summary>
 /// 文件上传配置选项
 /// </summary>
-public sealed class UploadOptions : IConfigurableOptions
+public sealed class UploadOptions 
 {
     /// <summary>
     /// 路径

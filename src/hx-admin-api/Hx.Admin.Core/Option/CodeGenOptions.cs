@@ -3,7 +3,7 @@ namespace Hx.Admin.Core;
 /// <summary>
 /// 代码生成配置选项
 /// </summary>
-public sealed class CodeGenOptions : IConfigurableOptions
+public sealed class CodeGenOptions 
 {
     /// <summary>
     /// 数据库实体程序集名称集合

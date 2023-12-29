@@ -3,7 +3,7 @@
 /// <summary>
 /// 邮件配置选项
 /// </summary>
-public sealed class EmailOptions : IConfigurableOptions
+public sealed class EmailOptions 
 {
     /// <summary>
     /// 主机

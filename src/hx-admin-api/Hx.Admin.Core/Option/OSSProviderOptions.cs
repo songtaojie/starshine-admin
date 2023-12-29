@@ -5,7 +5,7 @@ namespace Hx.Admin.Core;
 /// <summary>
 /// 对象存储配置选项
 /// </summary>
-public sealed class OSSProviderOptions : OSSOptions, IConfigurableOptions
+public sealed class OSSProviderOptions : OSSOptions
 {
     /// <summary>
     /// 是否启用OSS存储
