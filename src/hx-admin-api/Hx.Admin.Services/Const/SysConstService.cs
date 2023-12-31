@@ -1,28 +1,30 @@
-﻿namespace Hx.Admin.Core.Service;
+﻿using Hx.Admin.IService;
+using Hx.Cache;
+using Hx.Common.Extensions;
+using System.Reflection;
+
+namespace Hx.Admin.Core.Service;
 
 /// <summary>
 /// 系统常量服务
 /// </summary>
-[ApiDescriptionSettings(Order = 280)]
-[AllowAnonymous]
-public class SysConstService : IDynamicApiController, ITransient
+public class SysConstService : ISysConstService
 {
-    private readonly SysCacheService _sysCacheService;
+    private readonly ICache _cache;
 
-    public SysConstService(SysCacheService sysCacheService)
+    public SysConstService(ICache cache)
     {
-        _sysCacheService = sysCacheService;
+        _cache = cache;
     }
 
     /// <summary>
     /// 获取所有常量列表
     /// </summary>
     /// <returns></returns>
-    [DisplayName("获取所有常量列表")]
-    public async Task<List<ConstOutput>> GetList()
+    public async Task<IEnumerable<ConstOutput>> GetList()
     {
         var key = $"{CacheConst.KeyConst}list";
-        var constlist = _sysCacheService.Get<List<ConstOutput>>(key);
+        var constlist = _cache.Get<List<ConstOutput>>(key);
         if (constlist == null)
         {
             var typeList = GetConstAttributeList();
@@ -32,7 +34,7 @@ public class SysConstService : IDynamicApiController, ITransient
                 Code = x.Name,
                 Data = GetData(Convert.ToString(x.Name))
             }).ToList();
-            _sysCacheService.Set(key, constlist);
+            _cache.Set(key, constlist);
         }
         return await Task.FromResult(constlist);
     }
@@ -42,27 +44,21 @@ public class SysConstService : IDynamicApiController, ITransient
     /// </summary>
     /// <param name="typeName"></param>
     /// <returns></returns>
-    [DisplayName("根据类名获取常量数据")]
-    public async Task<List<ConstOutput>> GetData([Required] string typeName)
+    public async Task<IEnumerable<ConstOutput>> GetData(string typeName)
     {
         var key = $"{CacheConst.KeyConst}{typeName.ToUpper()}";
-        var constlist = _sysCacheService.Get<List<ConstOutput>>(key);
-        if (constlist == null)
-        {
-            var typeList = GetConstAttributeList();
-            var type = typeList.FirstOrDefault(x => x.Name == typeName);
-
-            var isEnum = type.BaseType.Name == "Enum";
-            constlist = type.GetFields()?
-                .Where(isEnum, x => x.FieldType.Name == typeName)
-                .Select(x => new ConstOutput
-                {
-                    Name = x.Name,
-                    Code = isEnum ? (int)x.GetValue(BindingFlags.Instance) : x.GetValue(BindingFlags.Instance)
-                }).ToList();
-            _sysCacheService.Set(key, constlist);
-        }
-        return await Task.FromResult(constlist);
+        var typeList = GetConstAttributeList();
+        var type = typeList.FirstOrDefault(x => x.Name == typeName);
+        if(type == null) return await Task.FromResult(Array.Empty<ConstOutput>());
+        var isEnum = type.BaseType!.Name == "Enum";
+        var constlist = type.GetFields()?
+            .Where(isEnum, x => x.FieldType.Name == typeName)
+            .Select(x => new ConstOutput
+            {
+                Name = x.Name,
+                Code = isEnum ? (int)x.GetValue(BindingFlags.Instance)! : x.GetValue(BindingFlags.Instance)!
+            }).ToArray();
+        return await Task.FromResult(constlist ?? Array.Empty<ConstOutput>());
     }
 
     /// <summary>

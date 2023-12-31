@@ -1,6 +1,6 @@
 ﻿namespace Hx.Admin.Core.Service;
 
-public class UserInput : BaseIdInput
+public class UserInput : BaseIdParam
 {
     /// <summary>
     /// 状态
@@ -8,7 +8,7 @@ public class UserInput : BaseIdInput
     public StatusEnum Status { get; set; }
 }
 
-public class PageUserInput : BasePageInput
+public class PageUserInput : BasePageParam
 {
     /// <summary>
     /// 账号
@@ -60,7 +60,7 @@ public class UpdateUserInput : AddUserInput
 {
 }
 
-public class DeleteUserInput : BaseIdInput
+public class DeleteUserInput : BaseIdParam
 {
     /// <summary>
     /// 机构Id
@@ -68,7 +68,7 @@ public class DeleteUserInput : BaseIdInput
     public long OrgId { get; set; }
 }
 
-public class ResetPwdUserInput : BaseIdInput
+public class ResetPwdUserInput : BaseIdParam
 {
 }
 

@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Hx.Admin.IRepository\Hx.Admin.IRepository.csproj" />
     <ProjectReference Include="..\Hx.Admin.Models\Hx.Admin.Models.csproj" />
   </ItemGroup>
 

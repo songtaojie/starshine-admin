@@ -26,6 +26,6 @@ public class UpdatePosInput : AddPosInput
 {
 }
 
-public class DeletePosInput : BaseIdInput
+public class DeletePosInput : BaseIdParam
 {
 }

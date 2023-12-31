@@ -1,6 +1,6 @@
 ﻿namespace Hx.Admin.Core.Service;
 
-public class PageNoticeInput : BasePageInput
+public class PageNoticeInput : BasePageParam
 {
     /// <summary>
     /// 标题
@@ -21,10 +21,10 @@ public class UpdateNoticeInput : AddNoticeInput
 {
 }
 
-public class DeleteNoticeInput : BaseIdInput
+public class DeleteNoticeInput : BaseIdParam
 {
 }
 
-public class NoticeInput : BaseIdInput
+public class NoticeInput : BaseIdParam
 {
 }

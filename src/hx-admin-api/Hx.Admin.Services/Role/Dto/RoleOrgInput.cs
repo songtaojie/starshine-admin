@@ -3,7 +3,7 @@
 /// <summary>
 /// 授权角色机构
 /// </summary>
-public class RoleOrgInput : BaseIdInput
+public class RoleOrgInput : BaseIdParam
 {
     /// <summary>
     /// 数据范围

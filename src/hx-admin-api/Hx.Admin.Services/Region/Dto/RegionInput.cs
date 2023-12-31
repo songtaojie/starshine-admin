@@ -1,6 +1,6 @@
 ﻿namespace Hx.Admin.Core.Service;
 
-public class PageRegionInput : BasePageInput
+public class PageRegionInput : BasePageParam
 {
     /// <summary>
     /// 父节点Id
@@ -18,7 +18,7 @@ public class PageRegionInput : BasePageInput
     public string Code { get; set; }
 }
 
-public class RegionInput : BaseIdInput
+public class RegionInput : BaseIdParam
 {
 }
 
@@ -35,6 +35,6 @@ public class UpdateRegionInput : AddRegionInput
 {
 }
 
-public class DeleteRegionInput : BaseIdInput
+public class DeleteRegionInput : BaseIdParam
 {
 }

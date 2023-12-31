@@ -1,4 +1,4 @@
-﻿namespace Hx.Admin.Core;
+﻿namespace Hx.Admin.Models;
 
 /// <summary>
 /// 系统用户扩展机构表种子数据

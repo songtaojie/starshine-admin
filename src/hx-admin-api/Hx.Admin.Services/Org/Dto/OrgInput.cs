@@ -1,6 +1,6 @@
 ﻿namespace Hx.Admin.Core.Service;
 
-public class OrgInput : BaseIdInput
+public class OrgInput : BaseIdParam
 {
     /// <summary>
     /// 名称
@@ -26,6 +26,6 @@ public class UpdateOrgInput : AddOrgInput
 {
 }
 
-public class DeleteOrgInput : BaseIdInput
+public class DeleteOrgInput : BaseIdParam
 {
 }

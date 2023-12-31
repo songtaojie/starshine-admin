@@ -1,6 +1,6 @@
 ﻿namespace Hx.Admin.Core.Service;
 
-public class PageOnlineUserInput : BasePageInput
+public class PageOnlineUserInput : BasePageParam
 {
     /// <summary>
     /// 账号名称

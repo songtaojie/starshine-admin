@@ -3,7 +3,7 @@
 /// <summary>
 /// 授权角色菜单
 /// </summary>
-public class RoleMenuInput : BaseIdInput
+public class RoleMenuInput : BaseIdParam
 {
     /// <summary>
     /// 菜单Id集合

@@ -1,4 +1,4 @@
-namespace Hx.Admin.Core;
+namespace Hx.Admin.Models;
 
 /// <summary>
 /// 系统角色菜单表种子数据

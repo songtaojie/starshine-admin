@@ -1,7 +1,7 @@
 using Hx.Admin.Models;
 using Hx.Sqlsugar;
 
-namespace Hx.Admin.Core;
+namespace Hx.Admin.Models;
 
 /// <summary>
 /// 系统配置表种子数据

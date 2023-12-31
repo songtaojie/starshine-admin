@@ -1,19 +1,16 @@
+using Hx.Admin.IService;
+using Hx.Admin.Models;
+using Hx.Admin.Models.ViewModels.Config;
+
 namespace Hx.Admin.Core.Service;
 
 /// <summary>
 /// 系统参数配置服务
 /// </summary>
-[ApiDescriptionSettings(Order = 440)]
-public class SysConfigService : IDynamicApiController, ITransient
+public class SysConfigService :BaseService<SysConfig>, ISysConfigService
 {
-    private readonly SqlSugarRepository<SysConfig> _sysConfigRep;
-    private readonly SysCacheService _sysCacheService;
-
-    public SysConfigService(SqlSugarRepository<SysConfig> sysConfigRep,
-        SysCacheService sysCacheService)
+    public SysConfigService(ISqlSugarRepository<SysConfig> rep):base(rep)
     {
-        _sysConfigRep = sysConfigRep;
-        _sysCacheService = sysCacheService;
     }
 
     /// <summary>
@@ -21,59 +18,63 @@ public class SysConfigService : IDynamicApiController, ITransient
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [DisplayName("获取参数配置分页列表")]
-    public async Task<SqlSugarPagedList<SysConfig>> Page(PageConfigInput input)
+    public async Task<PagedListResult<PageConfigOutput>> GetPage(PageConfigInput input)
     {
-        return await _sysConfigRep.AsQueryable()
-            .WhereIF(!string.IsNullOrWhiteSpace(input.Name?.Trim()), u => u.Name.Contains(input.Name))
-            .WhereIF(!string.IsNullOrWhiteSpace(input.Code?.Trim()), u => u.Code.Contains(input.Code))
-            .WhereIF(!string.IsNullOrWhiteSpace(input.GroupCode?.Trim()), u => u.GroupCode.Equals(input.GroupCode))
-            .OrderBy(u => u.OrderNo).ToPagedListAsync(input.Page, input.PageSize);
+        return await _rep.AsQueryable()
+            .WhereIF(!string.IsNullOrWhiteSpace(input.Name), u => u.Name.Contains(input.Name))
+            .WhereIF(!string.IsNullOrWhiteSpace(input.Code), u => u.Code!.Contains(input.Code))
+            .WhereIF(!string.IsNullOrWhiteSpace(input.GroupCode), u => u.GroupCode!.Equals(input.GroupCode))
+            .OrderBy(u => u.Sort)
+            .Select(u => new PageConfigOutput
+            { 
+                Id = u.Id,
+                Name = u.Name,
+                Code = u.Code,
+                GroupCode = u.GroupCode,
+                Sort = u.Sort,
+                SysFlag = u.SysFlag,
+                Remark = u.Remark,
+                Value = u.Value
+            })
+            .ToPagedListAsync(input.Page, input.PageSize);
     }
 
     /// <summary>
     /// 获取参数配置列表
     /// </summary>
     /// <returns></returns>
-    [DisplayName("获取参数配置列表")]
-    public async Task<List<SysConfig>> GetList()
+    public async Task<IEnumerable<ListConfigOutput>> GetList()
     {
-        return await _sysConfigRep.GetListAsync();
+        return await _rep.AsQueryable()
+            .OrderBy(u => u.Sort)
+            .Select<ListConfigOutput>()
+            .ToListAsync();
     }
 
-    /// <summary>
-    /// 增加参数配置
-    /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
-    [ApiDescriptionSettings(Name = "Add"), HttpPost]
-    [DisplayName("增加参数配置")]
-    public async Task AddConfig(AddConfigInput input)
+    public override async Task<bool> BeforeInsertAsync(SysConfig entity)
     {
-        var isExist = await _sysConfigRep.IsAnyAsync(u => u.Name == input.Name || u.Code == input.Code);
+        var isExist = await _rep.AsQueryable()
+           .AnyAsync(u => u.Name == entity.Name);
         if (isExist)
-            throw Oops.Oh(ErrorCodeEnum.D9000);
-
-        await _sysConfigRep.InsertAsync(input.Adapt<SysConfig>());
+            throw new UserFriendlyException($"已存在名称为【{entity.Name}】的参数配置");
+        isExist = await _rep.AsQueryable()
+            .AnyAsync(u => u.Code == entity.Code);
+        if (isExist)
+            throw new UserFriendlyException($"已存在编码为【{entity.Code}】的参数配置");
+        return await base.BeforeInsertAsync(entity);
     }
 
-    /// <summary>
-    /// 更新参数配置
-    /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
-    [ApiDescriptionSettings(Name = "Update"), HttpPost]
-    [DisplayName("更新参数配置")]
-    public async Task UpdateConfig(UpdateConfigInput input)
+    public override async Task<bool> BeforeUpdateAsync(SysConfig entity)
     {
-        var isExist = await _sysConfigRep.IsAnyAsync(u => (u.Name == input.Name || u.Code == input.Code) && u.Id != input.Id);
+        var isExist = await _rep.AsQueryable()
+           .AnyAsync(u => u.Name == entity.Name && u.Id != entity.Id);
         if (isExist)
-            throw Oops.Oh(ErrorCodeEnum.D9000);
-
-        var config = input.Adapt<SysConfig>();
-        await _sysConfigRep.AsUpdateable(config).IgnoreColumns(true).ExecuteCommandAsync();
-
-        _sysCacheService.Remove(config.Code);
+            throw new UserFriendlyException($"已存在名称为【{entity.Name}】的参数配置");
+        isExist = await _rep.AsQueryable()
+            .AnyAsync(u => u.Code == entity.Code && u.Id != entity.Id);
+        if (isExist)
+            throw new UserFriendlyException($"已存在编码为【{entity.Code}】的参数配置");
+        return await base.BeforeUpdateAsync(entity);
     }
 
     /// <summary>
@@ -81,17 +82,16 @@ public class SysConfigService : IDynamicApiController, ITransient
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [ApiDescriptionSettings(Name = "Delete"), HttpPost]
-    [DisplayName("删除参数配置")]
-    public async Task DeleteConfig(DeleteConfigInput input)
+    public async Task<bool> DeleteConfig(DeleteConfigInput input)
     {
-        var config = await _sysConfigRep.GetFirstAsync(u => u.Id == input.Id);
+        var config = await _rep.AsQueryable()
+            .Where(u => u.Id == input.Id)
+            .Select(u => new {u.Id,u.SysFlag })
+            .FirstAsync();
+        if (config == null) throw new UserFriendlyException("当前配置信息不存在");
         if (config.SysFlag == YesNoEnum.Y) // 禁止删除系统参数
-            throw Oops.Oh(ErrorCodeEnum.D9001);
-
-        await _sysConfigRep.DeleteAsync(config);
-
-        _sysCacheService.Remove(config.Code);
+            throw new UserFriendlyException("禁止删除系统参数");
+        return await DeleteAsync(config.Id);
     }
 
     /// <summary>
@@ -99,10 +99,12 @@ public class SysConfigService : IDynamicApiController, ITransient
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [DisplayName("获取参数配置详情")]
-    public async Task<SysConfig> GetDetail([FromQuery] ConfigInput input)
+    public async Task<DetailConfigOutput> GetDetail(long id)
     {
-        return await _sysConfigRep.GetFirstAsync(u => u.Id == input.Id);
+        return await _rep.AsQueryable()
+            .Where(u => u.Id == id)
+            .Select<DetailConfigOutput>()
+            .FirstAsync();
     }
 
     /// <summary>
@@ -110,16 +112,10 @@ public class SysConfigService : IDynamicApiController, ITransient
     /// </summary>
     /// <param name="code"></param>
     /// <returns></returns>
-    [ApiDescriptionSettings(false)]
-    public async Task<T> GetConfigValue<T>(string code)
+    public async Task<T?> GetConfigValue<T>(string code)
     {
-        var value = _sysCacheService.Get<string>(code);
-        if (string.IsNullOrEmpty(value))
-        {
-            var config = await _sysConfigRep.GetFirstAsync(u => u.Code == code);
-            value = config != null ? config.Value : default;
-            _sysCacheService.Set(code, value);
-        }
+        var config = await _rep.FirstOrDefaultAsync(u => u.Code == code);
+        var value = config != null ? config.Value : default;
         if (string.IsNullOrWhiteSpace(value)) return default;
         return (T)Convert.ChangeType(value, typeof(T));
     }
@@ -128,17 +124,15 @@ public class SysConfigService : IDynamicApiController, ITransient
     /// 获取分组列表
     /// </summary>
     /// <returns></returns>
-    [DisplayName("获取分组列表")]
-    public async Task<List<string>> GetGroupList()
+    public async Task<List<string?>> GetGroupList()
     {
-        return await _sysConfigRep.AsQueryable().GroupBy(u => u.GroupCode).Select(u => u.GroupCode).ToListAsync();
+        return await _rep.AsQueryable().GroupBy(u => u.GroupCode).Select(u => u.GroupCode).ToListAsync();
     }
 
     /// <summary>
     /// 获取 Token 过期时间
     /// </summary>
     /// <returns></returns>
-    [ApiDescriptionSettings(false)]
     public async Task<int> GetTokenExpire()
     {
         var tokenExpireStr = await GetConfigValue<string>(CommonConst.SysTokenExpire);
@@ -150,7 +144,6 @@ public class SysConfigService : IDynamicApiController, ITransient
     /// 获取 RefreshToken 过期时间
     /// </summary>
     /// <returns></returns>
-    [ApiDescriptionSettings(false)]
     public async Task<int> GetRefreshTokenExpire()
     {
         var refreshTokenExpireStr = await GetConfigValue<string>(CommonConst.SysRefreshTokenExpire);

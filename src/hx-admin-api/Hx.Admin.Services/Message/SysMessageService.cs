@@ -1,25 +1,29 @@
 ﻿using FluentEmail.Core;
+using Hx.Admin.IService;
+using Hx.Admin.Models;
+using Hx.Admin.Models.ViewModels.Message;
+using Hx.Cache;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Options;
 
 namespace Hx.Admin.Core.Service;
 
 /// <summary>
 /// 系统消息发送服务
 /// </summary>
-[ApiDescriptionSettings(Order = 370)]
-public class SysMessageService : IDynamicApiController, ITransient
+public class SysMessageService : ISysMessageService
 {
-    private readonly SysCacheService _sysCacheService;
+    private readonly ICache _cache;
     private readonly EmailOptions _emailOptions;
     private readonly IFluentEmail _fluentEmail;
     private readonly IHubContext<OnlineUserHub, IOnlineUserHub> _chatHubContext;
 
-    public SysMessageService(SysCacheService sysCacheService,
+    public SysMessageService(ICache cache,
         IOptions<EmailOptions> emailOptions,
         IFluentEmail fluentEmail,
         IHubContext<OnlineUserHub, IOnlineUserHub> chatHubContext)
     {
-        _sysCacheService = sysCacheService;
+        _cache = cache;
         _emailOptions = emailOptions.Value;
         _fluentEmail = fluentEmail;
         _chatHubContext = chatHubContext;
@@ -30,7 +34,6 @@ public class SysMessageService : IDynamicApiController, ITransient
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [DisplayName("发送消息给所有人")]
     public async Task SendAllUser(MessageInput input)
     {
         await _chatHubContext.Clients.All.ReceiveMessage(input);
@@ -41,10 +44,9 @@ public class SysMessageService : IDynamicApiController, ITransient
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [DisplayName("发送消息给除了发送人的其他人")]
     public async Task SendOtherUser(MessageInput input)
     {
-        var user = _sysCacheService.Get<SysOnlineUser>(CacheConst.KeyOnlineUser + input.UserId);
+        var user = _cache.Get<SysOnlineUser>($"{CacheConst.KeyOnlineUser}{input.UserId}");
         if (user != null)
         {
             await _chatHubContext.Clients.AllExcept(user.ConnectionId).ReceiveMessage(input);
@@ -56,10 +58,9 @@ public class SysMessageService : IDynamicApiController, ITransient
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [DisplayName("发送消息给某个人")]
     public async Task SendUser(MessageInput input)
     {
-        var user = _sysCacheService.Get<SysOnlineUser>(CacheConst.KeyOnlineUser + input.UserId);
+        var user = _cache.Get<SysOnlineUser>($"{CacheConst.KeyOnlineUser}{input.UserId}");
         if (user == null) return;
         await _chatHubContext.Clients.Client(user.ConnectionId).ReceiveMessage(input);
     }
@@ -69,13 +70,12 @@ public class SysMessageService : IDynamicApiController, ITransient
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [DisplayName("发送消息给某些人")]
     public async Task SendUsers(MessageInput input)
     {
         var userlist = new List<string>();
         foreach (var userid in input.UserIds)
         {
-            var user = _sysCacheService.Get<SysOnlineUser>(CacheConst.KeyOnlineUser + userid);
+            var user = _cache.Get<SysOnlineUser>($"{CacheConst.KeyOnlineUser}{userid}");
             if (user != null) userlist.Add(user.ConnectionId);
         }
         await _chatHubContext.Clients.Clients(userlist).ReceiveMessage(input);
@@ -86,7 +86,6 @@ public class SysMessageService : IDynamicApiController, ITransient
     /// </summary>
     /// <param name="message"></param>
     /// <returns></returns>
-    [DisplayName("发送邮件")]
     public async Task SendEmail([Required] string message)
     {
         await _fluentEmail.To(_emailOptions.DefaultToEmail).Body(message).SendAsync();

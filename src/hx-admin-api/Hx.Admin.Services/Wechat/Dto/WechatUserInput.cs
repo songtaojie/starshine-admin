@@ -1,6 +1,6 @@
 ﻿namespace Hx.Admin.Core.Service;
 
-public class WechatUserInput : BasePageInput
+public class WechatUserInput : BasePageParam
 {
     /// <summary>
     /// 昵称
@@ -13,6 +13,6 @@ public class WechatUserInput : BasePageInput
     public string PhoneNumber { get; set; }
 }
 
-public class DeleteWechatUserInput : BaseIdInput
+public class DeleteWechatUserInput : BaseIdParam
 {
 }

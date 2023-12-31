@@ -1,4 +1,6 @@
-﻿using Org.BouncyCastle.Utilities.Encoders;
+﻿using Hx.Core;
+using Hx.Core.DataEncryption;
+using Org.BouncyCastle.Utilities.Encoders;
 
 namespace Hx.Admin.Core;
 

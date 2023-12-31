@@ -1,6 +1,14 @@
+using Hx.Admin.IService;
+using Hx.Admin.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
+using SqlSugar;
+using System.ComponentModel;
+using System.Reflection;
+
 namespace Hx.Admin.Core.Service;
 
-public class CommonService : ICommonService, IScoped
+public class CommonService : ICommonService
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly CodeGenOptions _codeGenOptions;

@@ -1,6 +1,6 @@
 ﻿namespace Hx.Admin.Core.Service;
 
-public class UserExtOrgInput : BaseIdInput
+public class UserExtOrgInput : BaseIdParam
 {
     /// <summary>
     /// 机构Id

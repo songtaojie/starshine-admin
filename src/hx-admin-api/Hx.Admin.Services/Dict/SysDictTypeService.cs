@@ -1,35 +1,35 @@
-﻿namespace Hx.Admin.Core.Service;
+﻿using Hx.Admin.IService;
+using Hx.Admin.Models;
+using Hx.Admin.Models.ViewModels.Dict;
+using Hx.Common;
+using Hx.Sqlsugar;
+
+namespace Hx.Admin.Core.Service;
 
 /// <summary>
 /// 系统字典类型服务
 /// </summary>
-[ApiDescriptionSettings(Order = 430)]
-[AllowAnonymous]
-public class SysDictTypeService : IDynamicApiController, ITransient
-{
-    private readonly SqlSugarRepository<SysDictType> _sysDictTypeRep;
-    private readonly SysDictDataService _sysDictDataService;
-
-    public SysDictTypeService(SqlSugarRepository<SysDictType> sysDictTypeRep,
-        SysDictDataService sysDictDataService)
+public class SysDictTypeService : BaseService<SysDictType>, ISysDictTypeService
+{ 
+    private readonly ISysDictDataService _sysDictDataService;
+    public SysDictTypeService(ISqlSugarRepository<SysDictType> sysDictTypeRep, 
+        ISysDictDataService sysDictDataService) : base(sysDictTypeRep)
     {
-        _sysDictTypeRep = sysDictTypeRep;
         _sysDictDataService = sysDictDataService;
+
     }
 
     /// <summary>
     /// 获取字典类型分页列表
     /// </summary>
     /// <returns></returns>
-    [DisplayName("获取字典类型分页列表")]
-    public async Task<SqlSugarPagedList<SysDictType>> Page(PageDictTypeInput input)
+    public async Task<PagedListResult<PageDictTypeOutput>> GetPage(PageDictTypeInput input)
     {
-        var code = !string.IsNullOrEmpty(input.Code?.Trim());
-        var name = !string.IsNullOrEmpty(input.Name?.Trim());
-        return await _sysDictTypeRep.AsQueryable()
-            .WhereIF(code, u => u.Code.Contains(input.Code))
-            .WhereIF(name, u => u.Name.Contains(input.Name))
-            .OrderBy(u => u.OrderNo)
+        return await _rep.AsQueryable()
+            .WhereIF(!string.IsNullOrWhiteSpace(input.Code), u => u.Code.Contains(input.Code.Trim()))
+            .WhereIF(!string.IsNullOrWhiteSpace(input.Name), u => u.Name.Contains(input.Name.Trim()))
+            .OrderBy(u => u.Sort)
+            .Select<PageDictTypeOutput>()
             .ToPagedListAsync(input.Page, input.PageSize);
     }
 
@@ -37,90 +37,40 @@ public class SysDictTypeService : IDynamicApiController, ITransient
     /// 获取字典类型列表
     /// </summary>
     /// <returns></returns>
-    [DisplayName("获取字典类型列表")]
-    public async Task<List<SysDictType>> GetList()
+    public async Task<IEnumerable<ListDictTypeOutput>> GetList()
     {
-        return await _sysDictTypeRep.AsQueryable().OrderBy(u => u.OrderNo).ToListAsync();
+        return await _rep.AsQueryable()
+            .Where(u => u.Status == StatusEnum.Enable)
+            .OrderBy(u => u.Sort)
+            .Select<ListDictTypeOutput>()
+            .ToListAsync();
     }
 
-    /// <summary>
-    /// 获取字典类型-值列表
-    /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
-    [AllowAnonymous]
-    [DisplayName("获取字典类型-值列表")]
-    public async Task<List<SysDictData>> GetDataList([FromQuery] GetDataDictTypeInput input)
+    public override async Task<bool> BeforeInsertAsync(SysDictType entity)
     {
-        var dictType = await _sysDictTypeRep.GetFirstAsync(u => u.Code == input.Code);
-        if (dictType == null)
-            throw Oops.Oh(ErrorCodeEnum.D3000);
-        return await _sysDictDataService.GetDictDataListByDictTypeId(dictType.Id);
-    }
-
-    /// <summary>
-    /// 添加字典类型
-    /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
-    [ApiDescriptionSettings(Name = "Add"), HttpPost]
-    [DisplayName("添加字典类型")]
-    public async Task AddDictType(AddDictTypeInput input)
-    {
-        var isExist = await _sysDictTypeRep.IsAnyAsync(u => u.Code == input.Code);
+        var isExist = await ExistAsync(u => u.Code == entity.Code);
         if (isExist)
-            throw Oops.Oh(ErrorCodeEnum.D3001);
-
-        await _sysDictTypeRep.InsertAsync(input.Adapt<SysDictType>());
+            throw new UserFriendlyException($"已存在编号为【{entity.Code}】的字典");
+        return await base.BeforeInsertAsync(entity);
     }
 
-    /// <summary>
-    /// 更新字典类型
-    /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
-    [ApiDescriptionSettings(Name = "Update"), HttpPost]
-    [DisplayName("更新字典类型")]
-    public async Task UpdateDictType(UpdateDictTypeInput input)
+    public override async Task<bool> BeforeUpdateAsync(SysDictType entity)
     {
-        var isExist = await _sysDictTypeRep.IsAnyAsync(u => u.Id == input.Id);
+        var isExist = await ExistAsync(u => u.Id == entity.Id);
         if (!isExist)
-            throw Oops.Oh(ErrorCodeEnum.D3000);
-
-        isExist = await _sysDictTypeRep.IsAnyAsync(u => u.Code == input.Code && u.Id != input.Id);
+            throw new UserFriendlyException($"当前字典信息不存在");
+        isExist = await ExistAsync(u => u.Code == entity.Code && u.Id != entity.Id);
         if (isExist)
-            throw Oops.Oh(ErrorCodeEnum.D3001);
-
-        await _sysDictTypeRep.UpdateAsync(input.Adapt<SysDictType>());
+            throw new UserFriendlyException($"已存在编号为【{entity.Code}】的字典");
+        return await base.BeforeUpdateAsync(entity);
     }
 
-    /// <summary>
-    /// 删除字典类型
-    /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
-    [ApiDescriptionSettings(Name = "Delete"), HttpPost]
-    [DisplayName("删除字典类型")]
-    public async Task DeleteDictType(DeleteDictTypeInput input)
+    public override async Task<bool> BeforeDeleteAsync(long id)
     {
-        var dictType = await _sysDictTypeRep.GetFirstAsync(u => u.Id == input.Id);
+        var dictType = await FirstOrDefaultAsync(u => u.Id == id);
         if (dictType == null)
-            throw Oops.Oh(ErrorCodeEnum.D3000);
-
-        //删除字典值
-        await _sysDictTypeRep.DeleteAsync(dictType);
-        await _sysDictDataService.DeleteDictData(input.Id);
-    }
-
-    /// <summary>
-    /// 获取字典类型详情
-    /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
-    [DisplayName("获取字典类型详情")]
-    public async Task<SysDictType> GetDetail([FromQuery] DictTypeInput input)
-    {
-        return await _sysDictTypeRep.GetFirstAsync(u => u.Id == input.Id);
+            throw new UserFriendlyException($"当前字典信息不存在");
+        return await base.BeforeDeleteAsync(id);
     }
 
     /// <summary>
@@ -128,17 +78,15 @@ public class SysDictTypeService : IDynamicApiController, ITransient
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [DisplayName("修改字典类型状态")]
-    public async Task SetStatus(DictTypeInput input)
+    public async Task SetStatus(SetDictTypeStatusInput input)
     {
-        var dictType = await _sysDictTypeRep.GetFirstAsync(u => u.Id == input.Id);
+        var dictType = await FirstOrDefaultAsync(u => u.Id == input.Id);
         if (dictType == null)
-            throw Oops.Oh(ErrorCodeEnum.D3000);
+            throw new UserFriendlyException($"当前字典信息不存在");
 
         if (!Enum.IsDefined(typeof(StatusEnum), input.Status))
-            throw Oops.Oh(ErrorCodeEnum.D3005);
-
+            throw new UserFriendlyException($"状态值不正确");
         dictType.Status = (StatusEnum)input.Status;
-        await _sysDictTypeRep.UpdateAsync(dictType);
+        await UpdateAsync(dictType);
     }
 }

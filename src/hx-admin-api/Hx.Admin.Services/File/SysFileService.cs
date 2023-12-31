@@ -1,33 +1,39 @@
-using Furion.VirtualFileServer;
+using Hx.Admin.IService;
+using Hx.Admin.Models;
+using Hx.Admin.Models.ViewModels.File;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 using OnceMi.AspNetCore.OSS;
+using System.Text.RegularExpressions;
+using Yitter.IdGenerator;
 
 namespace Hx.Admin.Core.Service;
 
 /// <summary>
 /// 系统文件服务
 /// </summary>
-[ApiDescriptionSettings(Order = 410)]
-public class SysFileService : IDynamicApiController, ITransient
+public class SysFileService : BaseService<SysFile>, ISysFileService
 {
     private readonly UserManager _userManager;
-    private readonly SqlSugarRepository<SysFile> _sysFileRep;
     private readonly OSSProviderOptions _OSSProviderOptions;
     private readonly UploadOptions _uploadOptions;
     private readonly ICommonService _commonService;
     private readonly IOSSService _OSSService;
-
+    private readonly IWebHostEnvironment _webHostEnvironment;
     public SysFileService(UserManager userManager,
-        SqlSugarRepository<SysFile> sysFileRep,
+        ISqlSugarRepository<SysFile> sysFileRep,
         IOptions<OSSProviderOptions> oSSProviderOptions,
         IOptions<UploadOptions> uploadOptions,
         ICommonService commonService,
-        IOSSServiceFactory ossServiceFactory)
+        IOSSServiceFactory ossServiceFactory,
+        IWebHostEnvironment webHostEnvironment) :base(sysFileRep)
     {
         _userManager = userManager;
-        _sysFileRep = sysFileRep;
         _OSSProviderOptions = oSSProviderOptions.Value;
         _uploadOptions = uploadOptions.Value;
         _commonService = commonService;
+        _webHostEnvironment = webHostEnvironment;
         if (_OSSProviderOptions.IsEnable)
             _OSSService = ossServiceFactory.Create(Enum.GetName(_OSSProviderOptions.Provider));
     }
@@ -37,13 +43,12 @@ public class SysFileService : IDynamicApiController, ITransient
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [DisplayName("获取文件分页列表")]
-    public async Task<SqlSugarPagedList<SysFile>> Page(PageFileInput input)
+    public async Task<PagedListResult<SysFile>> GetPage(PageFileInput input)
     {
-        return await _sysFileRep.AsQueryable()
-            .WhereIF(!string.IsNullOrWhiteSpace(input.FileName), u => u.FileName.Contains(input.FileName.Trim()))
-            .WhereIF(!string.IsNullOrWhiteSpace(input.StartTime.ToString()) && !string.IsNullOrWhiteSpace(input.EndTime.ToString()),
-                        u => u.CreateTime >= input.StartTime && u.CreateTime <= input.EndTime)
+        return await _rep.AsQueryable()
+            .WhereIF(!string.IsNullOrWhiteSpace(input.FileName), u => u.FileName!.Contains(input.FileName.Trim()))
+            .WhereIF(input.StartTime.HasValue, u => u.CreateTime >= input.StartTime )
+            .WhereIF(input.EndTime.HasValue, u => u.CreateTime <= input.EndTime)
             .OrderBy(u => u.CreateTime, OrderByType.Desc)
             .ToPagedListAsync(input.Page, input.PageSize);
     }
@@ -54,8 +59,7 @@ public class SysFileService : IDynamicApiController, ITransient
     /// <param name="file"></param>
     /// <param name="path"></param>
     /// <returns></returns>
-    [DisplayName("上传文件")]
-    public async Task<FileOutput> UploadFile([Required] IFormFile file, [FromQuery] string? path)
+    public async Task<FileOutput> UploadFile(IFormFile file,  string? path)
     {
         var sysFile = await HandleUploadFile(file, path);
         return new FileOutput
@@ -74,8 +78,7 @@ public class SysFileService : IDynamicApiController, ITransient
     /// </summary>
     /// <param name="files"></param>
     /// <returns></returns>
-    [DisplayName("上传多文件")]
-    public async Task<List<FileOutput>> UploadFiles([Required] List<IFormFile> files)
+    public async Task<List<FileOutput>> UploadFiles(List<IFormFile> files)
     {
         var filelist = new List<FileOutput>();
         foreach (var file in files)
@@ -85,66 +88,52 @@ public class SysFileService : IDynamicApiController, ITransient
         return filelist;
     }
 
-    /// <summary>
-    /// 下载文件(文件流)
-    /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
-    [DisplayName("下载文件(文件流)")]
-    public async Task<IActionResult> DownloadFile(FileInput input)
-    {
-        var file = await GetFile(input);
-        var fileName = HttpUtility.UrlEncode(file.FileName, Encoding.GetEncoding("UTF-8"));
-        if (_OSSProviderOptions.IsEnable)
-        {
-            var filePath = string.Concat(file.FilePath, "/", input.Id.ToString() + file.Suffix);
-            var stream = await (await _OSSService.PresignedGetObjectAsync(file.BucketName.ToString(), filePath, 5)).GetAsStreamAsync();
-            return new FileStreamResult(stream.Stream, "application/octet-stream") { FileDownloadName = fileName + file.Suffix };
-        }
-        else
-        {
-            var filePath = Path.Combine(file.FilePath, input.Id.ToString() + file.Suffix);
-            var path = Path.Combine(App.WebHostEnvironment.WebRootPath, filePath);
-            return new FileStreamResult(new FileStream(path, FileMode.Open), "application/octet-stream") { FileDownloadName = fileName + file.Suffix };
-        }
-    }
+    ///// <summary>
+    ///// 下载文件(文件流)
+    ///// </summary>
+    ///// <param name="input"></param>
+    ///// <returns></returns>
+    //public async Task<IActionResult> DownloadFile(FileInput input)
+    //{
+    //    var file = await GetFile(input);
+    //    var fileName = HttpUtility.UrlEncode(file.FileName, Encoding.GetEncoding("UTF-8"));
+    //    if (_OSSProviderOptions.IsEnable)
+    //    {
+    //        var filePath = string.Concat(file.FilePath, "/", input.Id.ToString() + file.Suffix);
+    //        var stream = await (await _OSSService.PresignedGetObjectAsync(file.BucketName.ToString(), filePath, 5)).GetAsStreamAsync();
+    //        return new FileStreamResult(stream.Stream, "application/octet-stream") { FileDownloadName = fileName + file.Suffix };
+    //    }
+    //    else
+    //    {
+    //        var filePath = Path.Combine(file.FilePath, input.Id.ToString() + file.Suffix);
+    //        var path = Path.Combine(App.WebHostEnvironment.WebRootPath, filePath);
+    //        return new FileStreamResult(new FileStream(path, FileMode.Open), "application/octet-stream") { FileDownloadName = fileName + file.Suffix };
+    //    }
+    //}
 
     /// <summary>
     /// 删除文件
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [ApiDescriptionSettings(Name = "Delete"), HttpPost]
-    [DisplayName("删除文件")]
     public async Task DeleteFile(DeleteFileInput input)
     {
-        var file = await _sysFileRep.GetFirstAsync(u => u.Id == input.Id);
+        var file = await FirstOrDefaultAsync(u => u.Id == input.Id);
         if (file != null)
         {
-            await _sysFileRep.DeleteAsync(file);
+            await DeleteAsync(file);
 
             if (_OSSProviderOptions.IsEnable)
             {
-                await _OSSService.RemoveObjectAsync(file.BucketName.ToString(), string.Concat(file.FilePath, "/", $"{input.Id}{file.Suffix}"));
+                await _OSSService.RemoveObjectAsync(file.BucketName?.ToString(), string.Concat(file.FilePath, "/", $"{input.Id}{file.Suffix}"));
             }
             else
             {
-                var filePath = Path.Combine(App.WebHostEnvironment.WebRootPath, file.FilePath, input.Id.ToString() + file.Suffix);
+                var filePath = Path.Combine(_webHostEnvironment.WebRootPath, file.FilePath, input.Id.ToString() + file.Suffix);
                 if (File.Exists(filePath))
                     File.Delete(filePath);
             }
         }
-    }
-
-    /// <summary>
-    /// 获取文件
-    /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
-    private async Task<SysFile> GetFile([FromQuery] FileInput input)
-    {
-        var file = await _sysFileRep.GetFirstAsync(u => u.Id == input.Id);
-        return file ?? throw Oops.Oh(ErrorCodeEnum.D8000);
     }
 
     /// <summary>
@@ -155,7 +144,8 @@ public class SysFileService : IDynamicApiController, ITransient
     /// <returns></returns>
     private async Task<SysFile> HandleUploadFile(IFormFile file, string savePath)
     {
-        if (file == null) throw Oops.Oh(ErrorCodeEnum.D8000);
+        if (file == null) 
+            throw new UserFriendlyException("上传文件不能为空");
 
         var path = savePath;
         if (string.IsNullOrWhiteSpace(savePath))
@@ -171,20 +161,20 @@ public class SysFileService : IDynamicApiController, ITransient
         }
 
         if (!_uploadOptions.ContentType.Contains(file.ContentType))
-            throw Oops.Oh(ErrorCodeEnum.D8001);
+            throw new UserFriendlyException("不支持的文件类型");
 
         var sizeKb = (long)(file.Length / 1024.0); // 大小KB
         if (sizeKb > _uploadOptions.MaxSize)
-            throw Oops.Oh(ErrorCodeEnum.D8002);
+            throw new UserFriendlyException($"已超过最大文件限制({_uploadOptions.MaxSize}KB)");
 
         var suffix = Path.GetExtension(file.FileName).ToLower(); // 后缀
         if (string.IsNullOrWhiteSpace(suffix))
         {
-            var contentTypeProvider = FS.GetFileExtensionContentTypeProvider();
+            var contentTypeProvider = FileContentTypeUtil.GetFileExtensionContentTypeProvider();
             suffix = contentTypeProvider.Mappings.FirstOrDefault(u => u.Value == file.ContentType).Key;
         }
         if (string.IsNullOrWhiteSpace(suffix))
-            throw Oops.Oh(ErrorCodeEnum.D8003);
+            throw new UserFriendlyException("不支持的文件类型");
 
         var newFile = new SysFile
         {
@@ -222,7 +212,7 @@ public class SysFileService : IDynamicApiController, ITransient
         else
         {
             newFile.Provider = ""; // 本地存储 Provider 显示为空
-            var filePath = Path.Combine(App.WebHostEnvironment.WebRootPath, path);
+            var filePath = Path.Combine(_webHostEnvironment.WebRootPath, path);
             if (!Directory.Exists(filePath))
                 Directory.CreateDirectory(filePath);
 
@@ -246,7 +236,7 @@ public class SysFileService : IDynamicApiController, ITransient
             // 生成外链
             newFile.Url = _commonService.GetFileUrl(newFile);
         }
-        await _sysFileRep.AsInsertable(newFile).ExecuteCommandAsync();
+        await InsertAsync(newFile);
         return newFile;
     }
 
@@ -266,11 +256,10 @@ public class SysFileService : IDynamicApiController, ITransient
     /// </summary>
     /// <param name="file"></param>
     /// <returns></returns>
-    [DisplayName("上传头像")]
     public async Task<FileOutput> UploadAvatar([Required] IFormFile file)
     {
-        var sysUserRep = _sysFileRep.ChangeRepository<SqlSugarRepository<SysUser>>();
-        var user = sysUserRep.GetFirst(u => u.Id == _userManager.UserId);
+        var sysUserRep = _rep.Change<SysUser>();
+        var user = await sysUserRep.FirstOrDefaultAsync(u => u.Id == _userManager.UserId);
         // 删除当前用户已有头像
         if (!string.IsNullOrWhiteSpace(user.Avatar))
         {
@@ -279,7 +268,8 @@ public class SysFileService : IDynamicApiController, ITransient
         }
 
         var res = await UploadFile(file, "Avatar");
-        await sysUserRep.UpdateAsync(u => new SysUser() { Avatar = res.Url }, u => u.Id == user.Id);
+        user.Avatar = res.Url;
+        await sysUserRep.Context.Updateable<SysUser>(user).UpdateColumns(u => new { u.Avatar }).ExecuteCommandAsync();
         return res;
     }
 
@@ -288,11 +278,10 @@ public class SysFileService : IDynamicApiController, ITransient
     /// </summary>
     /// <param name="file"></param>
     /// <returns></returns>
-    [DisplayName("上传电子签名")]
     public async Task<FileOutput> UploadSignature([Required] IFormFile file)
     {
-        var sysUserRep = _sysFileRep.ChangeRepository<SqlSugarRepository<SysUser>>();
-        var user = sysUserRep.GetFirst(u => u.Id == _userManager.UserId);
+        var sysUserRep = _rep.Change<SysUser>();
+        var user = await sysUserRep.FirstOrDefaultAsync(u => u.Id == _userManager.UserId);
         // 删除当前用户已有电子签名
         if (!string.IsNullOrWhiteSpace(user.Signature) && user.Signature.EndsWith(".png"))
         {
@@ -301,7 +290,8 @@ public class SysFileService : IDynamicApiController, ITransient
         }
 
         var res = await UploadFile(file, "Signature");
-        await sysUserRep.UpdateAsync(u => new SysUser() { Signature = res.Url }, u => u.Id == user.Id);
+        user.Signature = res.Url;
+        await sysUserRep.Context.Updateable<SysUser>(user).UpdateColumns(u => new { u.Signature }).ExecuteCommandAsync();
         return res;
     }
 }

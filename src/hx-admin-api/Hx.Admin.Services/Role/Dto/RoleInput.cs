@@ -1,6 +1,6 @@
 ﻿namespace Hx.Admin.Core.Service;
 
-public class RoleInput : BaseIdInput
+public class RoleInput : BaseIdParam
 {
     /// <summary>
     /// 状态
@@ -8,7 +8,7 @@ public class RoleInput : BaseIdInput
     public virtual StatusEnum Status { get; set; }
 }
 
-public class PageRoleInput : BasePageInput
+public class PageRoleInput : BasePageParam
 {
     /// <summary>
     /// 名称
@@ -39,6 +39,6 @@ public class UpdateRoleInput : AddRoleInput
 {
 }
 
-public class DeleteRoleInput : BaseIdInput
+public class DeleteRoleInput : BaseIdParam
 {
 }

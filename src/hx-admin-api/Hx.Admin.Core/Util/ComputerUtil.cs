@@ -15,7 +15,7 @@ public static class ComputerUtil
         memoryMetrics.UsedRam = Math.Round(memoryMetrics.Used / 1024, 2) + "GB";
         memoryMetrics.TotalRam = Math.Round(memoryMetrics.Total / 1024, 2) + "GB";
         memoryMetrics.RamRate = Math.Ceiling(100 * memoryMetrics.Used / memoryMetrics.Total).ToString() + "%";
-        memoryMetrics.CpuRate = Math.Ceiling(GetCPURate().ParseToDouble()) + "%";
+        memoryMetrics.CpuRate = Math.Ceiling(double.Parse(GetCPURate())) + "%";
         return memoryMetrics;
     }
 
@@ -72,14 +72,15 @@ public static class ComputerUtil
     /// 获取外网IP地址
     /// </summary>
     /// <returns></returns>
-    public static string GetIpFromOnline()
-    {
-        var url = "http://myip.ipip.net";
-        var stream = url.GetAsStreamAsync().GetAwaiter().GetResult();
-        var streamReader = new StreamReader(stream.Stream, stream.Encoding);
-        var html = streamReader.ReadToEnd();
-        return html.Replace("当前 IP：", "").Replace("来自于：", "");
-    }
+    //public static string GetIpFromOnline()
+    //{
+    //    var url = "http://myip.ipip.net";
+    //    //var stream = url.GetAsStreamAsync().GetAwaiter().GetResult();
+    //    Stream stream = new MemoryStream();
+    //    var streamReader = new StreamReader(stream.Stream, stream.Encoding);
+    //    var html = streamReader.ReadToEnd();
+    //    return html.Replace("当前 IP：", "").Replace("来自于：", "");
+    //}
 
     public static bool IsUnix()
     {
@@ -112,14 +113,24 @@ public static class ComputerUtil
         if (IsUnix())
         {
             string output = ShellUtil.Bash("uptime -s").Trim();
-            runTime = DateTimeUtil.FormatTime((DateTime.Now - output.ParseToDateTime()).TotalMilliseconds.ToString().Split('.')[0].ParseToLong());
+            DateTime.TryParse(output, out DateTime outputDate);
+            var secondsStr = (DateTime.Now - outputDate).TotalMilliseconds.ToString().Split('.')[0];
+            long.TryParse(secondsStr, out long seconds);
+            runTime = DateTimeUtil.FormatTime(seconds);
         }
         else
         {
             string output = ShellUtil.Cmd("wmic", "OS get LastBootUpTime/Value");
             string[] outputArr = output.Split('=', (char)StringSplitOptions.RemoveEmptyEntries);
             if (outputArr.Length == 2)
-                runTime = DateTimeUtil.FormatTime((DateTime.Now - outputArr[1].Split('.')[0].ParseToDateTime()).TotalMilliseconds.ToString().Split('.')[0].ParseToLong());
+            {
+                var outputDateStr = outputArr[1].Split('.')[0];
+                DateTime.TryParse(outputDateStr, out DateTime outputDate);
+                var secondsStr = (DateTime.Now - outputDate).TotalMilliseconds.ToString().Split('.')[0];
+                long.TryParse(secondsStr, out long seconds);
+                runTime = DateTimeUtil.FormatTime(seconds);
+            }
+                
         }
         return runTime;
     }
