@@ -1,4 +1,4 @@
-﻿namespace Hx.Admin.IService;
+﻿namespace Hx.Admin.Models.ViewModels.Role;
 
 public class RoleInput : BaseIdParam
 {
@@ -23,12 +23,6 @@ public class PageRoleInput : BasePageParam
 
 public class AddRoleInput : SysRole
 {
-    /// <summary>
-    /// 名称
-    /// </summary>
-    [Required(ErrorMessage = "角色名称不能为空")]
-    public override string Name { get; set; }
-
     /// <summary>
     /// 菜单Id集合
     /// </summary>

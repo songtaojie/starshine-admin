@@ -1,18 +1,21 @@
-﻿namespace Hx.Admin.Core.Service;
+﻿using Hx.Admin.IService;
+using Hx.Admin.Models;
+using Hx.Admin.Models.ViewModels.Role;
+using Hx.Cache;
+
+namespace Hx.Admin.Core.Service;
 
 /// <summary>
 /// 系统角色菜单服务
 /// </summary>
-public class SysRoleMenuService : ITransient
+public class SysRoleMenuService : BaseService<SysRoleMenu>, ISysRoleMenuService
 {
-    private readonly SqlSugarRepository<SysRoleMenu> _sysRoleMenuRep;
-    private readonly SysCacheService _sysCacheService;
+    private readonly ICache _cache;
 
-    public SysRoleMenuService(SqlSugarRepository<SysRoleMenu> sysRoleMenuRep,
-        SysCacheService sysCacheService)
+    public SysRoleMenuService(ISqlSugarRepository<SysRoleMenu> sysRoleMenuRep,
+        ICache cache):base(sysRoleMenuRep)
     {
-        _sysRoleMenuRep = sysRoleMenuRep;
-        _sysCacheService = sysCacheService;
+        _cache = cache;
     }
 
     /// <summary>
@@ -20,9 +23,9 @@ public class SysRoleMenuService : ITransient
     /// </summary>
     /// <param name="roleIdList"></param>
     /// <returns></returns>
-    public async Task<List<long>> GetRoleMenuIdList(List<long> roleIdList)
+    public async Task<IEnumerable<long>> GetRoleMenuIdList(IEnumerable<long> roleIdList)
     {
-        return await _sysRoleMenuRep.AsQueryable()
+        return await _rep.AsQueryable()
             .Where(u => roleIdList.Contains(u.RoleId))
             .Select(u => u.MenuId).ToListAsync();
     }
@@ -32,20 +35,19 @@ public class SysRoleMenuService : ITransient
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [UnitOfWork]
     public async Task GrantRoleMenu(RoleMenuInput input)
     {
-        await _sysRoleMenuRep.DeleteAsync(u => u.RoleId == input.Id);
+        await _rep.DeleteAsync(u => u.RoleId == input.Id);
         var menus = input.MenuIdList.Select(u => new SysRoleMenu
         {
             RoleId = input.Id,
             MenuId = u
         }).ToList();
-        await _sysRoleMenuRep.InsertRangeAsync(menus);
+        await _rep.InsertAsync(menus);
 
         // 清除缓存
-        _sysCacheService.RemoveByPrefixKey(CacheConst.KeyMenu);
-        _sysCacheService.RemoveByPrefixKey(CacheConst.KeyPermission);
+        _cache.RemoveByPrefix(CacheConst.KeyMenu);
+        _cache.RemoveByPrefix(CacheConst.KeyPermission);
     }
 
     /// <summary>
@@ -53,9 +55,9 @@ public class SysRoleMenuService : ITransient
     /// </summary>
     /// <param name="menuIdList"></param>
     /// <returns></returns>
-    public async Task DeleteRoleMenuByMenuIdList(List<long> menuIdList)
+    public async Task DeleteRoleMenuByMenuIdList(IEnumerable<long> menuIdList)
     {
-        await _sysRoleMenuRep.DeleteAsync(u => menuIdList.Contains(u.MenuId));
+        await _rep.DeleteAsync(u => menuIdList.Contains(u.MenuId));
     }
 
     /// <summary>
@@ -65,6 +67,6 @@ public class SysRoleMenuService : ITransient
     /// <returns></returns>
     public async Task DeleteRoleMenuByRoleId(long roleId)
     {
-        await _sysRoleMenuRep.DeleteAsync(u => u.RoleId == roleId);
+        await _rep.DeleteAsync(u => u.RoleId == roleId);
     }
 }

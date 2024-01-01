@@ -57,9 +57,9 @@ public abstract class BaseService<TEntity> where TEntity : class, new()
     /// <summary>
     /// 增加实体
     /// </summary>
-    /// <param name="entity"></param>
+    /// <param name="model"></param>
     /// <returns></returns>
-    public virtual async Task<bool> InsertAsync<T>([NotNull]T model) where T : class,new()
+    public virtual async Task<bool> InsertAsync<TModel>([NotNull] TModel model) where TModel : class,new()
     {
         return await InsertAsync(model.Adapt<TEntity>());
     }
@@ -73,9 +73,20 @@ public abstract class BaseService<TEntity> where TEntity : class, new()
     {
         if (await BeforeInsertAsync(entity))
         {
-            return await _rep.InsertAsync(entity) > 0;
+            await _rep.InsertAsync(entity);
+            return await AfterInsertAsync(entity);
         }
         return false;  
+    }
+
+    /// <summary>
+    /// 增加实体
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <returns></returns>
+    public virtual async Task<bool> AfterInsertAsync(TEntity entity)
+    {
+        return await Task.FromResult(true);
     }
 
     /// <summary>

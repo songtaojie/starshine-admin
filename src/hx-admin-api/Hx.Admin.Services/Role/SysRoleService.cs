@@ -1,30 +1,32 @@
-﻿namespace Hx.Admin.Core.Service;
+﻿using Hx.Admin.IService;
+using Hx.Admin.Models;
+using Hx.Admin.Models.ViewModels.Role;
+using System.Diagnostics.CodeAnalysis;
+
+namespace Hx.Admin.Core.Service;
 
 /// <summary>
 /// 系统角色服务
 /// </summary>
-[ApiDescriptionSettings(Order = 480)]
-public class SysRoleService : IDynamicApiController, ITransient
+public class SysRoleService : BaseService<SysRole>, ISysRoleService
 {
     private readonly UserManager _userManager;
-    private readonly SqlSugarRepository<SysRole> _sysRoleRep;
-    private readonly SysCacheService _sysCacheService;
+    private readonly ICache _cache;
     private readonly SysRoleOrgService _sysRoleOrgService;
     private readonly SysRoleMenuService _sysRoleMenuService;
     private readonly SysOrgService _sysOrgService;
     private readonly SysUserRoleService _sysUserRoleService;
 
     public SysRoleService(UserManager userManager,
-        SqlSugarRepository<SysRole> sysRoleRep,
-        SysCacheService sysCacheService,
+        ISqlSugarRepository<SysRole> sysRoleRep,
+        ICache cache,
         SysRoleOrgService sysRoleOrgService,
         SysRoleMenuService sysRoleMenuService,
         SysOrgService sysOrgService,
-        SysUserRoleService sysUserRoleService)
+        SysUserRoleService sysUserRoleService):base(sysRoleRep)
     {
         _userManager = userManager;
-        _sysRoleRep = sysRoleRep;
-        _sysCacheService = sysCacheService;
+        _cache = cache;
         _sysRoleOrgService = sysRoleOrgService;
         _sysRoleMenuService = sysRoleMenuService;
         _sysOrgService = sysOrgService;
@@ -36,13 +38,12 @@ public class SysRoleService : IDynamicApiController, ITransient
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [DisplayName("获取角色分页列表")]
-    public async Task<SqlSugarPagedList<SysRole>> Page(PageRoleInput input)
+    public async Task<PagedListResult<SysRole>> GetPage(PageRoleInput input)
     {
-        return await _sysRoleRep.AsQueryable()
+        return await _rep.AsQueryable()
             .WhereIF(!string.IsNullOrWhiteSpace(input.Name), u => u.Name.Contains(input.Name))
-            .WhereIF(!string.IsNullOrWhiteSpace(input.Code), u => u.Code.Contains(input.Code))
-            .OrderBy(u => u.OrderNo)
+            .WhereIF(!string.IsNullOrWhiteSpace(input.Code), u => u.Code!.Contains(input.Code))
+            .OrderBy(u => u.Sort)
             .ToPagedListAsync(input.Page, input.PageSize);
     }
 
@@ -50,80 +51,47 @@ public class SysRoleService : IDynamicApiController, ITransient
     /// 获取角色列表
     /// </summary>
     /// <returns></returns>
-    [DisplayName("获取角色列表")]
-    public async Task<List<RoleOutput>> GetList()
+    public async Task<IEnumerable<RoleOutput>> GetList()
     {
-        return await _sysRoleRep.AsQueryable().OrderBy(u => u.OrderNo).Select<RoleOutput>().ToListAsync();
+        return await _rep.AsQueryable().OrderBy(u => u.Sort).Select<RoleOutput>().ToListAsync();
     }
 
-    /// <summary>
-    /// 增加角色
-    /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
-    [ApiDescriptionSettings(Name = "Add"), HttpPost]
-    [DisplayName("增加角色")]
-    public async Task AddRole(AddRoleInput input)
+    public override async Task<bool> BeforeInsertAsync(SysRole entity)
     {
-        var isExist = await _sysRoleRep.IsAnyAsync(u => u.Name == input.Name && u.Code == input.Code);
+        var isExist = await ExistAsync(u => u.Name == entity.Name);
         if (isExist)
-            throw Oops.Oh(ErrorCodeEnum.D1006);
-
-        var newRole = await _sysRoleRep.AsInsertable(input.Adapt<SysRole>()).ExecuteReturnEntityAsync();
-        input.Id = newRole.Id;
-        await UpdateRoleMenu(input);
-    }
-
-    /// <summary>
-    /// 更新角色菜单权限
-    /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
-    private async Task UpdateRoleMenu(AddRoleInput input)
-    {
-        if (input.MenuIdList == null || input.MenuIdList.Count < 1)
-            return;
-        await GrantMenu(new RoleMenuInput()
-        {
-            Id = input.Id,
-            MenuIdList = input.MenuIdList
-        });
-    }
-
-    /// <summary>
-    /// 更新角色
-    /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
-    [ApiDescriptionSettings(Name = "Update"), HttpPost]
-    [DisplayName("更新角色")]
-    public async Task UpdateRole(UpdateRoleInput input)
-    {
-        var isExist = await _sysRoleRep.IsAnyAsync(u => u.Name == input.Name && u.Code == input.Code && u.Id != input.Id);
+            throw new UserFriendlyException($"已存在名称为【{entity.Name}】的角色");
+        isExist = await ExistAsync(u => u.Code == entity.Code);
         if (isExist)
-            throw Oops.Oh(ErrorCodeEnum.D1006);
+            throw new UserFriendlyException($"已存在编号为【{entity.Name}】的角色");
 
-        await _sysRoleRep.AsUpdateable(input.Adapt<SysRole>()).IgnoreColumns(true)
-            .IgnoreColumns(u => new { u.DataScope }).ExecuteCommandAsync();
-
-        await UpdateRoleMenu(input);
+        return await base.BeforeInsertAsync(entity);
     }
+
+    public override async Task<bool> BeforeUpdateAsync(SysRole entity)
+    {
+        var isExist = await ExistAsync(u => u.Name == entity.Name && u.Id != entity.Id);
+        if (isExist)
+            throw new UserFriendlyException($"已存在名称为【{entity.Name}】的角色");
+        isExist = await ExistAsync(u => u.Code == entity.Code && u.Id != entity.Id);
+        if (isExist)
+            throw new UserFriendlyException($"已存在编号为【{entity.Name}】的角色");
+
+        return await base.BeforeUpdateAsync(entity);
+    }
+
 
     /// <summary>
     /// 删除角色
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [UnitOfWork]
-    [ApiDescriptionSettings(Name = "Delete"), HttpPost]
-    [DisplayName("删除角色")]
     public async Task DeleteRole(DeleteRoleInput input)
     {
-        var sysRole = await _sysRoleRep.GetFirstAsync(u => u.Id == input.Id);
+        var sysRole = await FirstOrDefaultAsync(u => u.Id == input.Id);
         if (sysRole.Code == CommonConst.SysAdminRole)
-            throw Oops.Oh(ErrorCodeEnum.D1019);
-
-        await _sysRoleRep.DeleteAsync(sysRole);
+            throw new UserFriendlyException("禁止删除管理员角色");
+        await DeleteAsync(sysRole);
 
         // 级联删除角色机构数据
         await _sysRoleOrgService.DeleteRoleOrgByRoleId(sysRole.Id);
@@ -135,35 +103,24 @@ public class SysRoleService : IDynamicApiController, ITransient
         await _sysRoleMenuService.DeleteRoleMenuByRoleId(sysRole.Id);
     }
 
-    /// <summary>
-    /// 授权角色菜单
-    /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
-    [DisplayName("授权角色菜单")]
-    public async Task GrantMenu(RoleMenuInput input)
-    {
-        await _sysRoleMenuService.GrantRoleMenu(input);
-    }
-
+    
     /// <summary>
     /// 授权角色数据范围
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [DisplayName("授权角色数据范围")]
     public async Task GrantDataScope(RoleOrgInput input)
     {
         // 删除所有用户机构缓存
-        _sysCacheService.RemoveByPrefixKey(CacheConst.KeyOrgIdList);
+        _cache.RemoveByPrefix(CacheConst.KeyOrgIdList);
 
-        var role = await _sysRoleRep.GetFirstAsync(u => u.Id == input.Id);
+        var role = await FirstOrDefaultAsync(u => u.Id == input.Id);
         var dataScope = input.DataScope;
         if (!_userManager.SuperAdmin)
         {
             // 非超级管理员没有全部数据范围权限
             if (dataScope == (int)DataScopeEnum.All)
-                throw Oops.Oh(ErrorCodeEnum.D1016);
+                throw new UserFriendlyException("无该机构权限");
 
             // 若数据范围自定义，则判断授权数据范围是否有权限
             if (dataScope == (int)DataScopeEnum.Define)
@@ -173,14 +130,14 @@ public class SysRoleService : IDynamicApiController, ITransient
                 {
                     var orgIdList = await _sysOrgService.GetUserOrgIdList();
                     if (orgIdList.Count < 1)
-                        throw Oops.Oh(ErrorCodeEnum.D1016);
+                        throw new UserFriendlyException("无该机构权限");
                     else if (!grantOrgIdList.All(u => orgIdList.Any(c => c == u)))
-                        throw Oops.Oh(ErrorCodeEnum.D1016);
+                        throw new UserFriendlyException("无该机构权限");
                 }
             }
         }
         role.DataScope = (DataScopeEnum)dataScope;
-        await _sysRoleRep.AsUpdateable(role).UpdateColumns(u => new { u.DataScope }).ExecuteCommandAsync();
+        await _rep.Context.Updateable(role).UpdateColumns(u => new { u.DataScope }).ExecuteCommandAsync();
         await _sysRoleOrgService.GrantRoleOrg(input);
     }
 
@@ -189,8 +146,7 @@ public class SysRoleService : IDynamicApiController, ITransient
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [DisplayName("根据角色Id获取菜单Id集合")]
-    public async Task<List<long>> GetOwnMenuList([FromQuery] RoleInput input)
+    public async Task<IEnumerable<long>> GetOwnMenuList(RoleInput input)
     {
         return await _sysRoleMenuService.GetRoleMenuIdList(new List<long> { input.Id });
     }
@@ -200,8 +156,7 @@ public class SysRoleService : IDynamicApiController, ITransient
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [DisplayName("根据角色Id获取机构Id集合")]
-    public async Task<List<long>> GetOwnOrgList([FromQuery] RoleInput input)
+    public async Task<IEnumerable<long>> GetOwnOrgList(RoleInput input)
     {
         return await _sysRoleOrgService.GetRoleOrgIdList(new List<long> { input.Id });
     }
@@ -211,13 +166,12 @@ public class SysRoleService : IDynamicApiController, ITransient
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [DisplayName("设置角色状态")]
     public async Task<int> SetStatus(RoleInput input)
     {
         if (!Enum.IsDefined(typeof(StatusEnum), input.Status))
-            throw Oops.Oh(ErrorCodeEnum.D3005);
+            throw new UserFriendlyException("状态值异常");
 
-        return await _sysRoleRep.AsUpdateable()
+        return await _rep.Context.Updateable<SysRole>()
             .SetColumns(u => u.Status == input.Status)
             .Where(u => u.Id == input.Id)
             .ExecuteCommandAsync();

@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Hx.Admin.Core;
 
 public static class ComputerUtil

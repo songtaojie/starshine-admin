@@ -6,3 +6,4 @@ global using Hx.Common;
 global using Hx.Sqlsugar;
 global using Hx.Core.FriendlyException;
 global using Mapster;
+global using Hx.Cache;

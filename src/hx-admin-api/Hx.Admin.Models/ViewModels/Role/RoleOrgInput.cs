@@ -1,4 +1,4 @@
-﻿namespace Hx.Admin.IService;
+﻿namespace Hx.Admin.Models.ViewModels.Role;
 
 /// <summary>
 /// 授权角色机构

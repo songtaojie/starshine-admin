@@ -1,50 +1,51 @@
+using Hx.Admin.IService;
+using Hx.Admin.Models;
+using Hx.Admin.Models.ViewModels.Menu;
+using Hx.Cache;
+
 namespace Hx.Admin.Core.Service;
 
 /// <summary>
 /// 系统菜单服务
 /// </summary>
-[ApiDescriptionSettings(Order = 450)]
-public class SysMenuService : IDynamicApiController, ITransient
+public class SysMenuService : BaseService<SysMenu>, ISysLogVisService
 {
     private readonly UserManager _userManager;
-    private readonly SqlSugarRepository<SysMenu> _sysMenuRep;
-    private readonly SysRoleMenuService _sysRoleMenuService;
-    private readonly SysUserRoleService _sysUserRoleService;
-    private readonly SysCacheService _sysCacheService;
+    private readonly ISysRoleMenuService _sysRoleMenuService;
+    private readonly ISysUserRoleService _sysUserRoleService;
+    private readonly ICache _cache;
 
     public SysMenuService(UserManager userManager,
-        SqlSugarRepository<SysMenu> sysMenuRep,
+        ISqlSugarRepository<SysMenu> sysMenuRep,
         SysRoleMenuService sysRoleMenuService,
         SysUserRoleService sysUserRoleService,
-        SysCacheService sysCacheService)
+        ICache cache):base(sysMenuRep)
     {
         _userManager = userManager;
-        _sysMenuRep = sysMenuRep;
         _sysRoleMenuService = sysRoleMenuService;
         _sysUserRoleService = sysUserRoleService;
-        _sysCacheService = sysCacheService;
+        _cache = cache;
     }
 
     /// <summary>
     /// 获取登录菜单树
     /// </summary>
     /// <returns></returns>
-    [DisplayName("获取登录菜单树")]
-    public async Task<List<MenuOutput>> GetLoginMenuTree()
+    public async Task<IEnumerable<MenuOutput>> GetLoginMenuTree()
     {
         if (_userManager.SuperAdmin)
         {
-            var menuList = await _sysMenuRep.AsQueryable()
+            var menuList = await _rep.AsQueryable()
                 .Where(u => u.Type != MenuTypeEnum.Btn && u.Status == StatusEnum.Enable)
-                .OrderBy(u => u.OrderNo).ToTreeAsync(u => u.Children, u => u.Pid, 0);
+                .OrderBy(u => u.Sort).ToTreeAsync(u => u.Children, u => u.Pid, 0);
             return menuList.Adapt<List<MenuOutput>>();
         }
         else
         {
             var menuIdList = await GetMenuIdList();
-            var menuTree = await _sysMenuRep.AsQueryable()
+            var menuTree = await _rep.AsQueryable()
                 .Where(u => u.Status == StatusEnum.Enable)
-                .OrderBy(u => u.OrderNo).ToTreeAsync(u => u.Children, u => u.Pid, 0, menuIdList.Select(d => (object)d).ToArray());
+                .OrderBy(u => u.Sort).ToTreeAsync(u => u.Children, u => u.Pid, 0, menuIdList.Select(d => (object)d).ToArray());
             DeleteBtnFromMenuTree(menuTree);
             return menuTree.Adapt<List<MenuOutput>>();
         }
@@ -70,26 +71,24 @@ public class SysMenuService : IDynamicApiController, ITransient
     /// 获取菜单列表
     /// </summary>
     /// <returns></returns>
-    [AllowAnonymous]
-    [DisplayName("获取菜单列表")]
-    public async Task<List<SysMenu>> GetList([FromQuery] MenuInput input)
+    public async Task<IEnumerable<SysMenu>> GetList( MenuInput input)
     {
         var menuIdList = _userManager.SuperAdmin ? new List<long>() : await GetMenuIdList();
 
         // 有筛选条件时返回list列表（防止构造不出树）
         if (!string.IsNullOrWhiteSpace(input.Title) || input.Type is > 0)
         {
-            return await _sysMenuRep.AsQueryable()
+            return await _rep.AsQueryable()
                 .WhereIF(!string.IsNullOrWhiteSpace(input.Title), u => u.Title.Contains(input.Title))
                 .WhereIF(input.Type is > 0, u => u.Type == input.Type)
                 .WhereIF(menuIdList.Count > 1, u => menuIdList.Contains(u.Id))
-                .OrderBy(u => u.OrderNo).ToListAsync();
+                .OrderBy(u => u.Sort).ToListAsync();
         }
 
         return _userManager.SuperAdmin ?
-            await _sysMenuRep.AsQueryable().OrderBy(u => u.OrderNo).ToTreeAsync(u => u.Children, u => u.Pid, 0) :
-            await _sysMenuRep.AsQueryable()
-                .OrderBy(u => u.OrderNo).ToTreeAsync(u => u.Children, u => u.Pid, 0, menuIdList.Select(d => (object)d).ToArray()); // 角色菜单授权时
+            await _rep.AsQueryable().OrderBy(u => u.Sort).ToTreeAsync(u => u.Children, u => u.Pid, 0) :
+            await _rep.AsQueryable()
+                .OrderBy(u => u.Sort).ToTreeAsync(u => u.Children, u => u.Pid, 0, menuIdList.Select(d => (object)d).ToArray()); // 角色菜单授权时
     }
 
     /// <summary>
@@ -97,22 +96,20 @@ public class SysMenuService : IDynamicApiController, ITransient
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [ApiDescriptionSettings(Name = "Add"), HttpPost]
-    [DisplayName("增加菜单")]
     public async Task AddMenu(AddMenuInput input)
     {
         var isExist = input.Type != MenuTypeEnum.Btn
-            ? await _sysMenuRep.IsAnyAsync(u => u.Title == input.Title)
-            : await _sysMenuRep.IsAnyAsync(u => u.Permission == input.Permission);
+            ? await ExistAsync(u => u.Title == input.Title)
+            : await ExistAsync(u => u.Permission == input.Permission);
 
         if (isExist)
-            throw Oops.Oh(ErrorCodeEnum.D4000);
+            throw new UserFriendlyException("已存在同名的菜单");
 
         // 校验菜单参数
         var sysMenu = input.Adapt<SysMenu>();
         CheckMenuParam(sysMenu);
 
-        await _sysMenuRep.InsertAsync(sysMenu);
+        await InsertAsync(sysMenu);
 
         // 清除缓存
         DeleteMenuCache();
@@ -123,21 +120,19 @@ public class SysMenuService : IDynamicApiController, ITransient
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [ApiDescriptionSettings(Name = "Update"), HttpPost]
-    [DisplayName("更新菜单")]
     public async Task UpdateMenu(UpdateMenuInput input)
     {
         var isExist = input.Type != MenuTypeEnum.Btn
-            ? await _sysMenuRep.IsAnyAsync(u => u.Title == input.Title && u.Type == input.Type && u.Id != input.Id)
-            : await _sysMenuRep.IsAnyAsync(u => u.Permission == input.Permission && u.Type == input.Type && u.Id != input.Id);
+            ? await ExistAsync(u => u.Title == input.Title && u.Type == input.Type && u.Id != input.Id)
+            : await ExistAsync(u => u.Permission == input.Permission && u.Type == input.Type && u.Id != input.Id);
         if (isExist)
-            throw Oops.Oh(ErrorCodeEnum.D4000);
+            throw new UserFriendlyException("已存在同名的菜单");
 
         // 校验菜单参数
         var sysMenu = input.Adapt<SysMenu>();
         CheckMenuParam(sysMenu);
 
-        await _sysMenuRep.AsUpdateable(sysMenu).ExecuteCommandAsync();
+        await _rep.UpdateAsync(sysMenu);
 
         // 清除缓存
         DeleteMenuCache();
@@ -148,15 +143,12 @@ public class SysMenuService : IDynamicApiController, ITransient
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [UnitOfWork]
-    [ApiDescriptionSettings(Name = "Delete"), HttpPost]
-    [DisplayName("删除菜单")]
     public async Task DeleteMenu(DeleteMenuInput input)
     {
-        var menuTreeList = await _sysMenuRep.AsQueryable().ToChildListAsync(u => u.Pid, input.Id, true);
+        var menuTreeList = await _rep.AsQueryable().ToChildListAsync(u => u.Pid, input.Id, true);
         var menuIdList = menuTreeList.Select(u => u.Id).ToList();
 
-        await _sysMenuRep.DeleteAsync(u => menuIdList.Contains(u.Id));
+        await _rep.DeleteAsync(u => menuIdList.Contains(u.Id));
 
         // 级联删除角色菜单数据
         await _sysRoleMenuService.DeleteRoleMenuByMenuIdList(menuIdList);

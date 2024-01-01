@@ -9,16 +9,16 @@ public class SysOrgService : IDynamicApiController, ITransient
     private readonly UserManager _userManager;
     private readonly SqlSugarRepository<SysOrg> _sysOrgRep;
     private readonly ISysCacheService _sysCacheService;
-    private readonly SysUserExtOrgService _sysUserExtOrgService;
-    private readonly SysUserRoleService _sysUserRoleService;
-    private readonly SysRoleOrgService _sysRoleOrgService;
+    private readonly ISysUserExtOrgService _sysUserExtOrgService;
+    private readonly ISysUserRoleService _sysUserRoleService;
+    private readonly ISysRoleOrgService _sysRoleOrgService;
 
     public SysOrgService(UserManager userManager,
         SqlSugarRepository<SysOrg> sysOrgRep,
         ISysCacheService sysCacheService,
-        SysUserExtOrgService sysUserExtOrgService,
-        SysUserRoleService sysUserRoleService,
-        SysRoleOrgService sysRoleOrgService)
+        ISysUserExtOrgService sysUserExtOrgService,
+        ISysUserRoleService sysUserRoleService,
+        ISysRoleOrgService sysRoleOrgService)
     {
         _sysOrgRep = sysOrgRep;
         _userManager = userManager;

@@ -7,10 +7,10 @@
 public class SysPosService : IDynamicApiController, ITransient
 {
     private readonly SqlSugarRepository<SysPos> _sysPosRep;
-    private readonly SysUserExtOrgService _sysUserExtOrgService;
+    private readonly ISysUserExtOrgService _sysUserExtOrgService;
 
     public SysPosService(SqlSugarRepository<SysPos> sysPosRep,
-        SysUserExtOrgService sysUserExtOrgService)
+        ISysUserExtOrgService sysUserExtOrgService)
     {
         _sysPosRep = sysPosRep;
         _sysUserExtOrgService = sysUserExtOrgService;

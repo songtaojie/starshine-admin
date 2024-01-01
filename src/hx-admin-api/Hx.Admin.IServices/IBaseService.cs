@@ -1,5 +1,7 @@
 ﻿using Hx.Common;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
+using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
 
 namespace Hx.Admin.IService;
 
@@ -40,7 +42,7 @@ public interface IBaseService<TEntity> where TEntity : EntityBase, new()
     /// <typeparam name="T"></typeparam>
     /// <param name="entity"></param>
     /// <returns></returns>
-    Task<bool> InsertAsync<T>(T entity) where T : class, new();
+    Task<bool> InsertAsync<TModel>([NotNull] TModel model) where TModel : class, new();
 
     /// <summary>
     /// 插入集合

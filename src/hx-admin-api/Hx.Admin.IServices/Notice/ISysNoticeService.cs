@@ -4,7 +4,7 @@ namespace Hx.Admin.IService;
 /// 系统通知公告服务
 /// </summary>
 [ApiDescriptionSettings(Order = 380)]
-public class SysNoticeService : IDynamicApiController, ITransient
+public class ISysNoticeService : IDynamicApiController, ITransient
 {
     private readonly UserManager _userManager;
     private readonly SqlSugarRepository<SysUser> _sysUserRep;
@@ -12,7 +12,7 @@ public class SysNoticeService : IDynamicApiController, ITransient
     private readonly SqlSugarRepository<SysNoticeUser> _sysNoticeUserRep;
     private readonly SysOnlineUserService _sysOnlineUserService;
 
-    public SysNoticeService(
+    public ISysNoticeService(
         UserManager userManager,
         SqlSugarRepository<SysUser> sysUserRep,
         SqlSugarRepository<SysNotice> sysNoticeRep,

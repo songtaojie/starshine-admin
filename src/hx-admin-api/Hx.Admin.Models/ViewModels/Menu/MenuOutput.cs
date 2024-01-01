@@ -1,4 +1,6 @@
-﻿namespace Hx.Admin.Core.Service;
+﻿using Mapster;
+
+namespace Hx.Admin.Models.ViewModels.Menu;
 
 /// <summary>
 /// 系统菜单返回结果

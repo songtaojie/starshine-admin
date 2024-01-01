@@ -1,4 +1,4 @@
-﻿namespace Hx.Admin.Core.Service;
+﻿namespace Hx.Admin.Models.ViewModels.Menu;
 
 public class MenuInput
 {
@@ -15,11 +15,7 @@ public class MenuInput
 
 public class AddMenuInput : SysMenu
 {
-    /// <summary>
-    /// 名称
-    /// </summary>
-    [Required(ErrorMessage = "菜单名称不能为空")]
-    public override string Title { get; set; }
+
 }
 
 public class UpdateMenuInput : AddMenuInput

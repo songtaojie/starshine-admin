@@ -14,7 +14,7 @@ public interface ISysLogVisService : IBaseService<SysLogVis>, IScopedDependency
     /// 获取访问日志分页列表
     /// </summary>
     /// <returns></returns>
-    Task<PagedListResult<SysLogVis>> Page(PageLogInput input);
+    Task<PagedListResult<SysLogVis>> GetPage(PageLogInput input);
 
     /// <summary>
     /// 清空访问日志

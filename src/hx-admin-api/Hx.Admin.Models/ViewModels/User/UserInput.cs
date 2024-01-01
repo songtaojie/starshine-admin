@@ -1,4 +1,4 @@
-﻿namespace Hx.Admin.IService;
+﻿namespace Hx.Admin.Models.ViewModels.Menu;
 
 public class UserInput : BaseIdParam
 {
@@ -33,18 +33,6 @@ public class PageUserInput : BasePageParam
 
 public class AddUserInput : SysUser
 {
-    /// <summary>
-    /// 账号
-    /// </summary>
-    [Required(ErrorMessage = "账号不能为空")]
-    public override string Account { get; set; }
-
-    /// <summary>
-    /// 真实姓名
-    /// </summary>
-    [Required(ErrorMessage = "真实姓名不能为空")]
-    public override string RealName { get; set; }
-
     /// <summary>
     /// 角色集合
     /// </summary>

@@ -1,15 +1,17 @@
-﻿namespace Hx.Admin.Core.Service;
+﻿using Hx.Admin.IService;
+using Hx.Admin.Models;
+using Hx.Admin.Models.ViewModels.Role;
+
+namespace Hx.Admin.Core.Service;
 
 /// <summary>
 /// 系统角色机构服务
 /// </summary>
-public class SysRoleOrgService : ITransient
+public class SysRoleOrgService : BaseService<SysRoleOrg>, ISysRoleOrgService
 {
-    private readonly SqlSugarRepository<SysRoleOrg> _sysRoleOrgRep;
 
-    public SysRoleOrgService(SqlSugarRepository<SysRoleOrg> sysRoleOrgRep)
+    public SysRoleOrgService(ISqlSugarRepository<SysRoleOrg> sysRoleOrgRep):base(sysRoleOrgRep)
     {
-        _sysRoleOrgRep = sysRoleOrgRep;
     }
 
     /// <summary>
@@ -17,10 +19,9 @@ public class SysRoleOrgService : ITransient
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [UnitOfWork]
     public async Task GrantRoleOrg(RoleOrgInput input)
     {
-        await _sysRoleOrgRep.DeleteAsync(u => u.RoleId == input.Id);
+        await _rep.DeleteAsync(u => u.RoleId == input.Id);
         if (input.DataScope == (int)DataScopeEnum.Define)
         {
             var roleOrgs = input.OrgIdList.Select(u => new SysRoleOrg
@@ -28,7 +29,7 @@ public class SysRoleOrgService : ITransient
                 RoleId = input.Id,
                 OrgId = u
             }).ToList();
-            await _sysRoleOrgRep.InsertRangeAsync(roleOrgs);
+            await _rep.InsertAsync(roleOrgs);
         }
     }
 
@@ -37,9 +38,9 @@ public class SysRoleOrgService : ITransient
     /// </summary>
     /// <param name="roleIdList"></param>
     /// <returns></returns>
-    public async Task<List<long>> GetRoleOrgIdList(List<long> roleIdList)
+    public async Task<IEnumerable<long>> GetRoleOrgIdList(IEnumerable<long> roleIdList)
     {
-        return await _sysRoleOrgRep.AsQueryable()
+        return await _rep.AsQueryable()
             .Where(u => roleIdList.Contains(u.RoleId))
             .Select(u => u.OrgId).ToListAsync();
     }
@@ -49,9 +50,9 @@ public class SysRoleOrgService : ITransient
     /// </summary>
     /// <param name="orgIdList"></param>
     /// <returns></returns>
-    public async Task DeleteRoleOrgByOrgIdList(List<long> orgIdList)
+    public async Task DeleteRoleOrgByOrgIdList(IEnumerable<long> orgIdList)
     {
-        await _sysRoleOrgRep.DeleteAsync(u => orgIdList.Contains(u.OrgId));
+        await _rep.DeleteAsync(u => orgIdList.Contains(u.OrgId));
     }
 
     /// <summary>
@@ -61,6 +62,6 @@ public class SysRoleOrgService : ITransient
     /// <returns></returns>
     public async Task DeleteRoleOrgByRoleId(long roleId)
     {
-        await _sysRoleOrgRep.DeleteAsync(u => u.RoleId == roleId);
+        await _rep.DeleteAsync(u => u.RoleId == roleId);
     }
 }
