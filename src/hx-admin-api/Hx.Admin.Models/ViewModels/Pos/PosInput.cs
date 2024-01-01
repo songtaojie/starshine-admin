@@ -1,4 +1,4 @@
-﻿namespace Hx.Admin.Core.Service;
+﻿namespace Hx.Admin.Models.ViewModels.Pos;
 
 public class PosInput
 {
@@ -15,11 +15,7 @@ public class PosInput
 
 public class AddPosInput : SysPos
 {
-    /// <summary>
-    /// 名称
-    /// </summary>
-    [Required(ErrorMessage = "职位名称不能为空")]
-    public override string Name { get; set; }
+
 }
 
 public class UpdatePosInput : AddPosInput

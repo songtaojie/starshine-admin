@@ -8,7 +8,7 @@ namespace Hx.Admin.Core.Service;
 /// <summary>
 /// 系统菜单服务
 /// </summary>
-public class SysMenuService : BaseService<SysMenu>, ISysLogVisService
+public class SysMenuService : BaseService<SysMenu>, ISysMenuService
 {
     private readonly UserManager _userManager;
     private readonly ISysRoleMenuService _sysRoleMenuService;
@@ -17,8 +17,8 @@ public class SysMenuService : BaseService<SysMenu>, ISysLogVisService
 
     public SysMenuService(UserManager userManager,
         ISqlSugarRepository<SysMenu> sysMenuRep,
-        SysRoleMenuService sysRoleMenuService,
-        SysUserRoleService sysUserRoleService,
+        ISysRoleMenuService sysRoleMenuService,
+        ISysUserRoleService sysUserRoleService,
         ICache cache):base(sysMenuRep)
     {
         _userManager = userManager;
@@ -81,7 +81,7 @@ public class SysMenuService : BaseService<SysMenu>, ISysLogVisService
             return await _rep.AsQueryable()
                 .WhereIF(!string.IsNullOrWhiteSpace(input.Title), u => u.Title.Contains(input.Title))
                 .WhereIF(input.Type is > 0, u => u.Type == input.Type)
-                .WhereIF(menuIdList.Count > 1, u => menuIdList.Contains(u.Id))
+                .WhereIF(menuIdList.Any(), u => menuIdList.Contains(u.Id))
                 .OrderBy(u => u.Sort).ToListAsync();
         }
 
@@ -178,9 +178,9 @@ public class SysMenuService : BaseService<SysMenu>, ISysLogVisService
             menu.IsIframe = false;
 
             if (string.IsNullOrEmpty(permission))
-                throw Oops.Oh(ErrorCodeEnum.D4003);
+                throw new UserFriendlyException("权限标识不能为空");
             if (!permission.Contains(':'))
-                throw Oops.Oh(ErrorCodeEnum.D4004);
+                throw new UserFriendlyException("权限标识不正确");
         }
         else
         {
@@ -192,19 +192,19 @@ public class SysMenuService : BaseService<SysMenu>, ISysLogVisService
     /// 获取用户拥有按钮权限集合（缓存）
     /// </summary>
     /// <returns></returns>
-    [DisplayName("获取按钮权限集合")]
-    public async Task<List<string>> GetOwnBtnPermList()
+    public async Task<IEnumerable<string?>> GetOwnBtnPermList()
     {
         var userId = _userManager.UserId;
-        var permissions = _sysCacheService.Get<List<string>>(CacheConst.KeyPermission + userId);
+        var cacheKey = $"{CacheConst.KeyPermission}{userId}";
+        var permissions = _cache.Get<List<string?>>(cacheKey);
         if (permissions == null || permissions.Count == 0)
         {
             var menuIdList = _userManager.SuperAdmin ? new List<long>() : await GetMenuIdList();
-            permissions = await _sysMenuRep.AsQueryable()
+            permissions = await _rep.AsQueryable()
                 .Where(u => u.Type == MenuTypeEnum.Btn)
-                .WhereIF(menuIdList.Count > 0, u => menuIdList.Contains(u.Id))
+                .WhereIF(menuIdList.Any(), u => menuIdList.Contains(u.Id))
                 .Select(u => u.Permission).ToListAsync();
-            _sysCacheService.Set(CacheConst.KeyPermission + userId, permissions);
+            _cache.Set(cacheKey, permissions);
         }
         return permissions;
     }
@@ -213,16 +213,16 @@ public class SysMenuService : BaseService<SysMenu>, ISysLogVisService
     /// 获取系统所有按钮权限集合（缓存）
     /// </summary>
     /// <returns></returns>
-    [ApiDescriptionSettings(false)]
-    public async Task<List<string>> GetAllBtnPermList()
+    public async Task<IEnumerable<string?>> GetAllBtnPermList()
     {
-        var permissions = _sysCacheService.Get<List<string>>(CacheConst.KeyPermission + 0);
-        if (permissions == null || permissions.Count == 0)
+        var cacheKey = $"{CacheConst.KeyPermission}0";
+        IEnumerable<string?> permissions = _cache.Get<List<string>>(cacheKey);
+        if (permissions == null || !permissions.Any())
         {
-            permissions = await _sysMenuRep.AsQueryable()
+            permissions = await _rep.AsQueryable()
                 .Where(u => u.Type == MenuTypeEnum.Btn)
                 .Select(u => u.Permission).ToListAsync();
-            _sysCacheService.Set(CacheConst.KeyPermission + 0, permissions);
+            _cache.Set(cacheKey, permissions);
         }
         return permissions;
     }
@@ -232,15 +232,15 @@ public class SysMenuService : BaseService<SysMenu>, ISysLogVisService
     /// </summary>
     private void DeleteMenuCache()
     {
-        _sysCacheService.RemoveByPrefixKey(CacheConst.KeyMenu);
-        _sysCacheService.RemoveByPrefixKey(CacheConst.KeyPermission);
+        _cache.RemoveByPrefix(CacheConst.KeyMenu);
+        _cache.RemoveByPrefix(CacheConst.KeyPermission);
     }
 
     /// <summary>
     /// 获取当前用户菜单Id集合
     /// </summary>
     /// <returns></returns>
-    private async Task<List<long>> GetMenuIdList()
+    private async Task<IEnumerable<long>> GetMenuIdList()
     {
         var roleIdList = await _sysUserRoleService.GetUserRoleIdList(_userManager.UserId);
         return await _sysRoleMenuService.GetRoleMenuIdList(roleIdList);

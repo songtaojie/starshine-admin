@@ -48,12 +48,12 @@ public interface ISysMenuService : IBaseService<SysMenu>, IScopedDependency
     /// 获取用户拥有按钮权限集合（缓存）
     /// </summary>
     /// <returns></returns>
-    Task<IEnumerable<string>> GetOwnBtnPermList();
+    Task<IEnumerable<string?>> GetOwnBtnPermList();
 
     /// <summary>
     /// 获取系统所有按钮权限集合（缓存）
     /// </summary>
     /// <returns></returns>
-    Task<IEnumerable<string>> GetAllBtnPermList();
+    Task<IEnumerable<string?>> GetAllBtnPermList();
 
 }

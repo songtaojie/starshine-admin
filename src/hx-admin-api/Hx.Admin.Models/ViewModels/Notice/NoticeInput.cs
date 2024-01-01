@@ -1,4 +1,4 @@
-﻿namespace Hx.Admin.Core.Service;
+﻿namespace Hx.Admin.Models.ViewModels.Notice;
 
 public class PageNoticeInput : BasePageParam
 {

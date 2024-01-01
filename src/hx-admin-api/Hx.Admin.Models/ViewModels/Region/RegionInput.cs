@@ -1,4 +1,4 @@
-﻿namespace Hx.Admin.Core.Service;
+﻿namespace Hx.Admin.Models.ViewModels.Region;
 
 public class PageRegionInput : BasePageParam
 {
@@ -24,11 +24,6 @@ public class RegionInput : BaseIdParam
 
 public class AddRegionInput : SysRegion
 {
-    /// <summary>
-    /// 名称
-    /// </summary>
-    [Required(ErrorMessage = "名称不能为空")]
-    public override string Name { get; set; }
 }
 
 public class UpdateRegionInput : AddRegionInput

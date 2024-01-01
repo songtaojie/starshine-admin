@@ -1,22 +1,22 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Hx.Admin.IService;
+using Hx.Admin.Models;
+using Hx.Admin.Models.ViewModels.OnlineUser;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Hx.Admin.Core.Service;
 
 /// <summary>
 /// 系统在线用户服务
 /// </summary>
-[ApiDescriptionSettings(Order = 300)]
-public class SysOnlineUserService : IDynamicApiController, ITransient
+public class SysOnlineUserService : BaseService<SysOnlineUser>, ISysOnlineUserService
 {
-    private readonly SqlSugarRepository<SysOnlineUser> _sysOnlineUerRep;
-    private readonly SysConfigService _sysConfigService;
+    private readonly ISysConfigService _sysConfigService;
     private readonly IHubContext<OnlineUserHub, IOnlineUserHub> _onlineUserHubContext;
 
-    public SysOnlineUserService(SqlSugarRepository<SysOnlineUser> sysOnlineUerRep,
-        SysConfigService sysConfigService,
-        IHubContext<OnlineUserHub, IOnlineUserHub> onlineUserHubContext)
+    public SysOnlineUserService(ISqlSugarRepository<SysOnlineUser> sysOnlineUerRep,
+        ISysConfigService sysConfigService,
+        IHubContext<OnlineUserHub, IOnlineUserHub> onlineUserHubContext):base(sysOnlineUerRep)
     {
-        _sysOnlineUerRep = sysOnlineUerRep;
         _sysConfigService = sysConfigService;
         _onlineUserHubContext = onlineUserHubContext;
     }
@@ -25,12 +25,11 @@ public class SysOnlineUserService : IDynamicApiController, ITransient
     /// 获取在线用户分页列表
     /// </summary>
     /// <returns></returns>
-    [DisplayName("获取在线用户分页列表")]
-    public async Task<SqlSugarPagedList<SysOnlineUser>> Page(PageOnlineUserInput input)
+    public async Task<PagedListResult<SysOnlineUser>> GetPage(PageOnlineUserInput input)
     {
-        return await _sysOnlineUerRep.AsQueryable()
-            .WhereIF(!string.IsNullOrWhiteSpace(input.UserName), u => u.UserName.Contains(input.UserName))
-            .WhereIF(!string.IsNullOrWhiteSpace(input.RealName), u => u.RealName.Contains(input.RealName))
+        return await _rep.AsQueryable()
+            .WhereIF(!string.IsNullOrWhiteSpace(input.UserName), u => u.UserName!.Contains(input.UserName))
+            .WhereIF(!string.IsNullOrWhiteSpace(input.RealName), u => u.RealName!.Contains(input.RealName))
             .ToPagedListAsync(input.Page, input.PageSize);
     }
 
@@ -39,12 +38,10 @@ public class SysOnlineUserService : IDynamicApiController, ITransient
     /// </summary>
     /// <param name="user"></param>
     /// <returns></returns>
-    [NonValidation]
-    [DisplayName("强制下线")]
     public async Task ForceOffline(SysOnlineUser user)
     {
         await _onlineUserHubContext.Clients.Client(user.ConnectionId).ForceOffline("强制下线");
-        await _sysOnlineUerRep.DeleteAsync(user);
+        await  DeleteAsync(user);
     }
 
     /// <summary>
@@ -53,10 +50,9 @@ public class SysOnlineUserService : IDynamicApiController, ITransient
     /// <param name="notice"></param>
     /// <param name="userIds"></param>
     /// <returns></returns>
-    [ApiDescriptionSettings(false)]
     public async Task PublicNotice(SysNotice notice, List<long> userIds)
     {
-        var userList = await _sysOnlineUerRep.GetListAsync(m => userIds.Contains(m.UserId));
+        var userList = await _rep.ToListAsync(m => userIds.Contains(m.UserId));
         if (!userList.Any()) return;
 
         foreach (var item in userList)
@@ -69,12 +65,11 @@ public class SysOnlineUserService : IDynamicApiController, ITransient
     /// 单用户登录
     /// </summary>
     /// <returns></returns>
-    [ApiDescriptionSettings(false)]
     public async Task SignleLogin(long userId)
     {
         if (await _sysConfigService.GetConfigValue<bool>(CommonConst.SysSingleLogin))
         {
-            var user = await _sysOnlineUerRep.GetFirstAsync(u => u.UserId == userId);
+            var user = await FirstOrDefaultAsync(u => u.UserId == userId);
             if (user == null) return;
 
             await ForceOffline(user);

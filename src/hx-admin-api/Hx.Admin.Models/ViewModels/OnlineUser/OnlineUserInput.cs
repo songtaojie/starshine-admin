@@ -1,4 +1,5 @@
-﻿namespace Hx.Admin.IService;
+﻿namespace Hx.Admin.Models.ViewModels.OnlineUser;
+
 
 public class PageOnlineUserInput : BasePageParam
 {

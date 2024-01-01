@@ -1,4 +1,4 @@
-﻿namespace Hx.Admin.IService;
+﻿namespace Hx.Admin.Models.ViewModels.Wechat;
 
 public class WxOpenIdOutput
 {

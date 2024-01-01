@@ -1,28 +1,24 @@
+using Hx.Admin.IService;
+using Hx.Admin.Models;
+using Hx.Admin.Models.ViewModels.Notice;
+using static SKIT.FlurlHttpClient.Wechat.Api.Events.VoiceMessageReply.Types;
+
 namespace Hx.Admin.Core.Service;
 
 /// <summary>
 /// 系统通知公告服务
 /// </summary>
-[ApiDescriptionSettings(Order = 380)]
-public class SysNoticeService : IDynamicApiController, ITransient
+public class SysNoticeService : BaseService<SysNotice>, ISysNoticeService
 {
     private readonly UserManager _userManager;
-    private readonly SqlSugarRepository<SysUser> _sysUserRep;
-    private readonly SqlSugarRepository<SysNotice> _sysNoticeRep;
-    private readonly SqlSugarRepository<SysNoticeUser> _sysNoticeUserRep;
     private readonly SysOnlineUserService _sysOnlineUserService;
 
     public SysNoticeService(
         UserManager userManager,
-        SqlSugarRepository<SysUser> sysUserRep,
-        SqlSugarRepository<SysNotice> sysNoticeRep,
-        SqlSugarRepository<SysNoticeUser> sysNoticeUserRep,
-        SysOnlineUserService sysOnlineUserService)
+        ISqlSugarRepository<SysNotice> sysNoticeRep,
+        SysOnlineUserService sysOnlineUserService):base(sysNoticeRep)
     {
         _userManager = userManager;
-        _sysUserRep = sysUserRep;
-        _sysNoticeRep = sysNoticeRep;
-        _sysNoticeUserRep = sysNoticeUserRep;
         _sysOnlineUserService = sysOnlineUserService;
     }
 
@@ -31,59 +27,38 @@ public class SysNoticeService : IDynamicApiController, ITransient
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [DisplayName("获取通知公告分页列表")]
-    public async Task<SqlSugarPagedList<SysNotice>> Page(PageNoticeInput input)
+    public async Task<PagedListResult<SysNotice>> Page(PageNoticeInput input)
     {
-        return await _sysNoticeRep.AsQueryable()
+        return await _rep.AsQueryable()
             .WhereIF(!string.IsNullOrWhiteSpace(input.Title), u => u.Title.Contains(input.Title.Trim()))
             .WhereIF(input.Type > 0, u => u.Type == input.Type)
-            .WhereIF(!_userManager.SuperAdmin, u => u.CreateUserId == _userManager.UserId)
+            .WhereIF(!_userManager.SuperAdmin, u => u.CreatorId == _userManager.UserId)
             .OrderBy(u => u.CreateTime, OrderByType.Desc)
             .ToPagedListAsync(input.Page, input.PageSize);
     }
-
-    /// <summary>
-    /// 增加通知公告
-    /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
-    [ApiDescriptionSettings(Name = "Add"), HttpPost]
-    [DisplayName("增加通知公告")]
-    public async Task AddNotice(AddNoticeInput input)
+    public override Task<bool> BeforeInsertAsync(SysNotice entity)
     {
-        var notice = input.Adapt<SysNotice>();
-        InitNoticeInfo(notice);
-        await _sysNoticeRep.InsertAsync(notice);
+        InitNoticeInfo(entity);
+        return base.BeforeInsertAsync(entity);
     }
 
-    /// <summary>
-    /// 更新通知公告
-    /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
-    [UnitOfWork]
-    [ApiDescriptionSettings(Name = "Update"), HttpPost]
-    [DisplayName("更新通知公告")]
-    public async Task UpdateNotice(UpdateNoticeInput input)
+    public override Task<bool> BeforeUpdateAsync(SysNotice entity)
     {
-        var notice = input.Adapt<SysNotice>();
-        InitNoticeInfo(notice);
-        await _sysNoticeRep.UpdateAsync(notice);
+        InitNoticeInfo(entity);
+        return base.BeforeUpdateAsync(entity);
     }
+
 
     /// <summary>
     /// 删除通知公告
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [UnitOfWork]
-    [ApiDescriptionSettings(Name = "Delete"), HttpPost]
-    [DisplayName("删除通知公告")]
     public async Task DeleteNotice(DeleteNoticeInput input)
     {
-        await _sysNoticeRep.DeleteAsync(u => u.Id == input.Id);
+        await _rep.DeleteAsync(u => u.Id == input.Id);
 
-        await _sysNoticeUserRep.DeleteAsync(u => u.NoticeId == input.Id);
+        await _rep.Context.Deleteable<SysNoticeUser>().Where(u => u.NoticeId == input.Id).ExecuteCommandAsync();
     }
 
     /// <summary>
@@ -91,24 +66,30 @@ public class SysNoticeService : IDynamicApiController, ITransient
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [DisplayName("发布通知公告")]
     public async Task Public(NoticeInput input)
     {
         // 更新发布状态和时间
-        await _sysNoticeRep.UpdateAsync(u => new SysNotice() { Status = NoticeStatusEnum.PUBLIC, PublicTime = DateTime.Now }, u => u.Id == input.Id);
+        await _rep.Context.Updateable<SysNotice>()
+            .SetColumns(u => new SysNotice
+            {
+                Status = NoticeStatusEnum.PUBLIC,
+                PublicTime = DateTime.Now
+            })
+            .Where(u => u.Id == input.Id)
+            .ExecuteCommandAsync();
 
-        var notice = await _sysNoticeRep.GetFirstAsync(u => u.Id == input.Id);
+        var notice = await FirstOrDefaultAsync(u => u.Id == input.Id);
 
         // 通知到的人(所有账号)
-        var userIdList = await _sysUserRep.AsQueryable().Select(u => u.Id).ToListAsync();
+        var userIdList = await _rep.Context.Queryable<SysUser>().Select(u => u.Id).ToListAsync();
 
-        await _sysNoticeUserRep.DeleteAsync(u => u.NoticeId == notice.Id);
+        await _rep.Context.Deleteable<SysNoticeUser>().Where(u => u.NoticeId == notice.Id).ExecuteCommandAsync();
         var noticeUserList = userIdList.Select(u => new SysNoticeUser
         {
             NoticeId = notice.Id,
             UserId = u,
         }).ToList();
-        await _sysNoticeUserRep.InsertRangeAsync(noticeUserList);
+        await _rep.Context.Insertable(noticeUserList).ExecuteCommandAsync();
 
         // 广播所有在线账号
         await _sysOnlineUserService.PublicNotice(notice, userIdList);

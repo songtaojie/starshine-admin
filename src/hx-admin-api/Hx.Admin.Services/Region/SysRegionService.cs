@@ -1,19 +1,18 @@
 ﻿using AngleSharp;
 using AngleSharp.Html.Dom;
+using Hx.Admin.IService;
+using Hx.Admin.Models;
+using Hx.Admin.Models.ViewModels.Region;
 
 namespace Hx.Admin.Core.Service;
 
 /// <summary>
 /// 系统行政区域服务
 /// </summary>
-[ApiDescriptionSettings(Order = 310)]
-public class SysRegionService : IDynamicApiController, ITransient
+public class SysRegionService : BaseService<SysRegion>, ISysRegionService
 {
-    private readonly SqlSugarRepository<SysRegion> _sysRegionRep;
-
-    public SysRegionService(SqlSugarRepository<SysRegion> sysRegionRep)
+    public SysRegionService(ISqlSugarRepository<SysRegion> sysRegionRep):base(sysRegionRep)
     {
-        _sysRegionRep = sysRegionRep;
     }
 
     /// <summary>
@@ -21,13 +20,12 @@ public class SysRegionService : IDynamicApiController, ITransient
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [DisplayName("获取行政区域分页列表")]
-    public async Task<SqlSugarPagedList<SysRegion>> Page(PageRegionInput input)
+    public async Task<PagedListResult<SysRegion>> GetPage(PageRegionInput input)
     {
-        return await _sysRegionRep.AsQueryable()
+        return await _rep.AsQueryable()
             .WhereIF(input.Pid > 0, u => u.Pid == input.Pid || u.Id == input.Pid)
             .WhereIF(!string.IsNullOrWhiteSpace(input.Name), u => u.Name.Contains(input.Name))
-            .WhereIF(!string.IsNullOrWhiteSpace(input.Code), u => u.Code.Contains(input.Code))
+            .WhereIF(!string.IsNullOrWhiteSpace(input.Code), u => u.Code!.Contains(input.Code))
             .ToPagedListAsync(input.Page, input.PageSize);
     }
 
@@ -36,83 +34,60 @@ public class SysRegionService : IDynamicApiController, ITransient
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [DisplayName("获取行政区域列表")]
-    public async Task<List<SysRegion>> GetList([FromQuery] RegionInput input)
+    public async Task<List<SysRegion>> GetList(RegionInput input)
     {
-        return await _sysRegionRep.GetListAsync(u => u.Pid == input.Id);
+        return await _rep.ToListAsync(u => u.Pid == input.Id);
     }
 
-    /// <summary>
-    /// 增加行政区域
-    /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
-    [ApiDescriptionSettings(Name = "Add"), HttpPost]
-    [DisplayName("增加行政区域")]
-    public async Task<long> AddRegion(AddRegionInput input)
+    public override async Task<bool> BeforeInsertAsync(SysRegion entity)
     {
-        var isExist = await _sysRegionRep.IsAnyAsync(u => u.Name == input.Name && u.Code == input.Code);
+        var isExist = await ExistAsync(u => u.Name == entity.Name);
         if (isExist)
-            throw Oops.Oh(ErrorCodeEnum.R2002);
-
-        var sysRegion = input.Adapt<SysRegion>();
-        var newRegion = await _sysRegionRep.AsInsertable(sysRegion).ExecuteReturnEntityAsync();
-        return newRegion.Id;
+            throw new UserFriendlyException($"已存在名称为【{entity.Name}】的区域");
+        isExist = await ExistAsync(u => u.Code == entity.Code);
+        if (isExist)
+            throw new UserFriendlyException($"已存在编号为【{entity.Code}】的区域");
+        return await base.BeforeInsertAsync(entity);
     }
-
-    /// <summary>
-    /// 更新行政区域
-    /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
-    [ApiDescriptionSettings(Name = "Update"), HttpPost]
-    [DisplayName("更新行政区域")]
-    public async Task UpdateRegion(UpdateRegionInput input)
+    public override async Task<bool> BeforeUpdateAsync(SysRegion entity)
     {
-        if (input.Pid != 0)
+        if (entity.Pid != 0)
         {
-            var pRegion = await _sysRegionRep.GetFirstAsync(u => u.Id == input.Pid);
-            _ = pRegion ?? throw Oops.Oh(ErrorCodeEnum.D2000);
+            var pRegion = await FirstOrDefaultAsync(u => u.Id == entity.Pid);
+            if (pRegion == null)
+                throw new UserFriendlyException("父级区域信息不存在");
         }
-        if (input.Id == input.Pid)
-            throw Oops.Oh(ErrorCodeEnum.R2001);
-
-        var sysRegion = await _sysRegionRep.GetFirstAsync(u => u.Id == input.Id);
-        var isExist = await _sysRegionRep.IsAnyAsync(u => (u.Name == input.Name && u.Code == input.Code) && u.Id != sysRegion.Id);
+        if (entity.Id == entity.Pid)
+            throw new UserFriendlyException("当前节点Id不能与父节点Id相同");
+        var isExist = await ExistAsync(u => u.Name == entity.Name && u.Id != entity.Id);
         if (isExist)
-            throw Oops.Oh(ErrorCodeEnum.R2002);
+            throw new UserFriendlyException($"已存在名称为【{entity.Name}】的区域");
+        isExist = await ExistAsync(u => u.Code == entity.Code && u.Id != entity.Id);
+        if (isExist)
+            throw new UserFriendlyException($"已存在编号为【{entity.Code}】的区域");
 
-        //// 父Id不能为自己的子节点
-        //var regionTreeList = await _sysRegionRep.AsQueryable().ToChildListAsync(u => u.Pid, input.Id, true);
-        //var childIdList = regionTreeList.Select(u => u.Id).ToList();
-        //if (childIdList.Contains(input.Pid))
-        //    throw Oops.Oh(ErrorCodeEnum.R2001);
-
-        await _sysRegionRep.AsUpdateable(input.Adapt<SysRegion>()).IgnoreColumns(true).ExecuteCommandAsync();
+        return await base.BeforeUpdateAsync(entity);
     }
-
+ 
     /// <summary>
     /// 删除行政区域
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [ApiDescriptionSettings(Name = "Delete"), HttpPost]
-    [DisplayName("删除行政区域")]
     public async Task DeleteRegion(DeleteRegionInput input)
     {
-        var regionTreeList = await _sysRegionRep.AsQueryable().ToChildListAsync(u => u.Pid, input.Id, true);
+        var regionTreeList = await _rep.AsQueryable().ToChildListAsync(u => u.Pid, input.Id, true);
         var regionIdList = regionTreeList.Select(u => u.Id).ToList();
-        await _sysRegionRep.DeleteAsync(u => regionIdList.Contains(u.Id));
+        await _rep.DeleteAsync(u => regionIdList.Contains(u.Id));
     }
 
     /// <summary>
     /// 同步行政区域
     /// </summary>
     /// <returns></returns>
-    [DisplayName("同步行政区域")]
     public async Task Sync()
     {
-        await _sysRegionRep.DeleteAsync(u => u.Id > 0);
+        await _rep.DeleteAsync(u => u.Id > 0);
 
         // 国家统计局行政区域2022年
         var url = "http://www.stats.gov.cn/sj/tjbz/tjyqhdmhcxhfdm/2022/index.html";
@@ -123,13 +98,15 @@ public class SysRegionService : IDynamicApiController, ITransient
         var itemList = dom.QuerySelectorAll("table.provincetable tr.provincetr td a");
         foreach (IHtmlAnchorElement item in itemList)
         {
-            var region = await _sysRegionRep.InsertReturnEntityAsync(new SysRegion
+            var region = new SysRegion
             {
+                Id = Yitter.IdGenerator.YitIdHelper.NextId(),
                 Pid = 0,
                 Name = item.TextContent,
                 Remark = item.Href,
                 Level = 1,
-            });
+            };
+            await _rep.InsertAsync(region);
 
             // 市级
             var dom1 = await context.OpenAsync(item.Href);
@@ -137,14 +114,16 @@ public class SysRegionService : IDynamicApiController, ITransient
             for (var i1 = 0; i1 < itemList1.Length; i1 += 2)
             {
                 var item1 = (IHtmlAnchorElement)itemList1[i1 + 1];
-                var region1 = await _sysRegionRep.InsertReturnEntityAsync(new SysRegion
+                var region1 = new SysRegion
                 {
+                    Id = Yitter.IdGenerator.YitIdHelper.NextId(),
                     Pid = region.Id,
                     Name = item1.TextContent,
                     Code = itemList1[i1].TextContent,
                     Remark = item1.Href,
                     Level = 2,
-                });
+                };
+                 await _rep.InsertAsync(region1);
 
                 // 区县级
                 var dom2 = await context.OpenAsync(item1.Href);
@@ -152,14 +131,16 @@ public class SysRegionService : IDynamicApiController, ITransient
                 for (var i2 = 0; i2 < itemList2.Length; i2 += 2)
                 {
                     var item2 = (IHtmlAnchorElement)itemList2[i2 + 1];
-                    var region2 = await _sysRegionRep.InsertReturnEntityAsync(new SysRegion
+                    var region2 = new SysRegion
                     {
+                        Id = Yitter.IdGenerator.YitIdHelper.NextId(),
                         Pid = region1.Id,
                         Name = item2.TextContent,
                         Code = itemList2[i2].TextContent,
                         Remark = item2.Href,
                         Level = 3,
-                    });
+                    };
+                    await _rep.InsertAsync(region2);
 
                     // 街道级
                     var dom3 = await context.OpenAsync(item2.Href);
@@ -167,22 +148,25 @@ public class SysRegionService : IDynamicApiController, ITransient
                     for (var i3 = 0; i3 < itemList3.Length; i3 += 2)
                     {
                         var item3 = (IHtmlAnchorElement)itemList3[i3 + 1];
-                        var region3 = await _sysRegionRep.InsertReturnEntityAsync(new SysRegion
+                        var region3 = new SysRegion
                         {
+                            Id = Yitter.IdGenerator.YitIdHelper.NextId(),
                             Pid = region2.Id,
                             Name = item3.TextContent,
                             Code = itemList3[i3].TextContent,
                             Remark = item3.Href,
                             Level = 4,
-                        });
+                        };
+                        await _rep.InsertAsync(region3);
 
                         // 村级
                         var dom4 = await context.OpenAsync(item3.Href);
                         var itemList4 = dom4.QuerySelectorAll("table.villagetable tr.villagetr td");
                         for (var i4 = 0; i4 < itemList4.Length; i4 += 3)
                         {
-                            await _sysRegionRep.InsertAsync(new SysRegion
+                            await _rep.InsertAsync(new SysRegion
                             {
+                                Id = Yitter.IdGenerator.YitIdHelper.NextId(),
                                 Pid = region3.Id,
                                 Name = itemList4[i4 + 2].TextContent,
                                 Code = itemList4[i4].TextContent,

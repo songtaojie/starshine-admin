@@ -1,4 +1,6 @@
-﻿namespace Hx.Admin.IService;
+﻿using SKIT.FlurlHttpClient.Wechat.Api.Models;
+
+namespace Hx.Admin.Models.ViewModels.Wechat;
 
 public class JsCode2SessionInput
 {
@@ -32,7 +34,6 @@ public class WxPhoneLoginInput
     /// <summary>
     /// 电话号码
     /// </summary>
-    [DataValidation(ValidationTypes.PhoneNumber, ErrorMessage = "电话号码错误")]
     public string PhoneNumber { get; set; }
 }
 

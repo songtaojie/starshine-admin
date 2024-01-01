@@ -1,4 +1,4 @@
-﻿namespace Hx.Admin.IService;
+﻿namespace Hx.Admin.Models.ViewModels.Org;
 
 public class OrgInput : BaseIdParam
 {
@@ -15,11 +15,6 @@ public class OrgInput : BaseIdParam
 
 public class AddOrgInput : SysOrg
 {
-    /// <summary>
-    /// 名称
-    /// </summary>
-    [Required(ErrorMessage = "机构名称不能为空")]
-    public override string Name { get; set; }
 }
 
 public class UpdateOrgInput : AddOrgInput
