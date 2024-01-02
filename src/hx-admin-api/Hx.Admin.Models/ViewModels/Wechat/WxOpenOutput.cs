@@ -2,10 +2,10 @@
 
 public class WxOpenIdOutput
 {
-    public string OpenId { get; set; }
+    public string? OpenId { get; set; }
 }
 
 public class WxPhoneOutput
 {
-    public string PhoneNumber { get; set; }
+    public string? PhoneNumber { get; set; }
 }

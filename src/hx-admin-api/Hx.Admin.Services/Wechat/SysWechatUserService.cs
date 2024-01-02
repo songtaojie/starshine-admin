@@ -1,16 +1,17 @@
-﻿namespace Hx.Admin.Core.Service;
+﻿using Hx.Admin.IService;
+using Hx.Admin.Models;
+using Hx.Admin.Models.ViewModels.Wechat;
+
+namespace Hx.Admin.Core.Service;
 
 /// <summary>
 /// 微信账号服务
 /// </summary>
-[ApiDescriptionSettings(Order = 230)]
-public class SysWechatUserService : IDynamicApiController, ITransient
+public class SysWechatUserService : BaseService<SysWechatUser>, ISysWechatUserService
 {
-    private readonly SqlSugarRepository<SysWechatUser> _sysWechatUserRep;
 
-    public SysWechatUserService(SqlSugarRepository<SysWechatUser> sysWechatUserRep)
+    public SysWechatUserService(ISqlSugarRepository<SysWechatUser> rep):base(rep)
     {
-        _sysWechatUserRep = sysWechatUserRep;
     }
 
     /// <summary>
@@ -18,50 +19,12 @@ public class SysWechatUserService : IDynamicApiController, ITransient
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [DisplayName("获取微信用户列表")]
-    public async Task<SqlSugarPagedList<SysWechatUser>> Page(WechatUserInput input)
+    public async Task<PagedListResult<SysWechatUser>> GetPage(WechatUserInput input)
     {
-        return await _sysWechatUserRep.AsQueryable()
-            .WhereIF(!string.IsNullOrWhiteSpace(input.NickName), u => u.NickName.Contains(input.NickName))
-            .WhereIF(!string.IsNullOrWhiteSpace(input.PhoneNumber), u => u.Mobile.Contains(input.PhoneNumber))
+        return await _rep.AsQueryable()
+            .WhereIF(!string.IsNullOrWhiteSpace(input.NickName), u => u.NickName!.Contains(input.NickName))
+            .WhereIF(!string.IsNullOrWhiteSpace(input.PhoneNumber), u => u.Mobile!.Contains(input.PhoneNumber))
             .OrderBy(u => u.Id, OrderByType.Desc)
             .ToPagedListAsync(input.Page, input.PageSize);
-    }
-
-    /// <summary>
-    /// 增加微信用户
-    /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
-    [ApiDescriptionSettings(Name = "Add"), HttpPost]
-    [DisplayName("增加微信用户")]
-    public async Task AddWechatUser(SysWechatUser input)
-    {
-        await _sysWechatUserRep.InsertAsync(input.Adapt<SysWechatUser>());
-    }
-
-    /// <summary>
-    /// 更新微信用户
-    /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
-    [ApiDescriptionSettings(Name = "Update"), HttpPost]
-    [DisplayName("更新微信用户")]
-    public async Task UpdateWechatUser(SysWechatUser input)
-    {
-        var weChatUser = input.Adapt<SysWechatUser>();
-        await _sysWechatUserRep.AsUpdateable(weChatUser).IgnoreColumns(true).ExecuteCommandAsync();
-    }
-
-    /// <summary>
-    /// 删除微信用户
-    /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
-    [ApiDescriptionSettings(Name = "Delete"), HttpPost]
-    [DisplayName("删除微信用户")]
-    public async Task DeleteWechatUser(DeleteWechatUserInput input)
-    {
-        await _sysWechatUserRep.DeleteAsync(u => u.Id == input.Id);
     }
 }

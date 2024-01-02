@@ -1,4 +1,4 @@
-﻿namespace Hx.Admin.Core.Service;
+﻿namespace Hx.Admin.Models.ViewModels.Auth;
 
 /// <summary>
 /// 用户登录结果

@@ -1,7 +1,6 @@
 using Hx.Admin.IService;
 using Hx.Admin.Models;
 using Hx.Admin.Models.ViewModels.Notice;
-using static SKIT.FlurlHttpClient.Wechat.Api.Events.VoiceMessageReply.Types;
 
 namespace Hx.Admin.Core.Service;
 
@@ -27,7 +26,7 @@ public class SysNoticeService : BaseService<SysNotice>, ISysNoticeService
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    public async Task<PagedListResult<SysNotice>> Page(PageNoticeInput input)
+    public async Task<PagedListResult<SysNotice>> GetPage(PageNoticeInput input)
     {
         return await _rep.AsQueryable()
             .WhereIF(!string.IsNullOrWhiteSpace(input.Title), u => u.Title.Contains(input.Title.Trim()))
@@ -100,14 +99,13 @@ public class SysNoticeService : BaseService<SysNotice>, ISysNoticeService
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [DisplayName("设置通知公告已读状态")]
     public async Task SetRead(NoticeInput input)
     {
-        await _sysNoticeUserRep.UpdateAsync(u => new SysNoticeUser
+        await _rep.Context.Updateable<SysNoticeUser>().SetColumns(u => new SysNoticeUser
         {
             ReadStatus = NoticeUserStatusEnum.READ,
             ReadTime = DateTime.Now
-        }, u => u.NoticeId == input.Id && u.UserId == _userManager.UserId);
+        }).Where( u => u.NoticeId == input.Id && u.UserId == _userManager.UserId).ExecuteCommandAsync();
     }
 
     /// <summary>
@@ -115,10 +113,9 @@ public class SysNoticeService : BaseService<SysNotice>, ISysNoticeService
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [DisplayName("获取接收的通知公告")]
-    public async Task<SqlSugarPagedList<SysNoticeUser>> GetPageReceived([FromQuery] PageNoticeInput input)
+    public async Task<PagedListResult<SysNoticeUser>> GetPageReceived(PageNoticeInput input)
     {
-        return await _sysNoticeRep.AsSugarClient().Queryable<SysNoticeUser>().Includes(u => u.SysNotice)
+        return await _rep.Context.Queryable<SysNoticeUser>().Includes(u => u.SysNotice)
             .Where(u => u.UserId == _userManager.UserId)
             .WhereIF(!string.IsNullOrWhiteSpace(input.Title), u => u.SysNotice.Title.Contains(input.Title.Trim()))
             .WhereIF(input.Type is > 0, u => u.SysNotice.Type == input.Type)
@@ -130,10 +127,9 @@ public class SysNoticeService : BaseService<SysNotice>, ISysNoticeService
     /// 获取未读的通知公告
     /// </summary>
     /// <returns></returns>
-    [DisplayName("获取未读的通知公告")]
     public async Task<List<SysNotice>> GetUnReadList()
     {
-        var noticeUserList = await _sysNoticeRep.AsSugarClient().Queryable<SysNoticeUser>().Includes(u => u.SysNotice)
+        var noticeUserList = await _rep.Context.Queryable<SysNoticeUser>().Includes(u => u.SysNotice)
             .Where(u => u.UserId == _userManager.UserId && u.ReadStatus == NoticeUserStatusEnum.UNREAD)
             .OrderBy(u => u.SysNotice.CreateTime, OrderByType.Desc).ToListAsync();
         return noticeUserList.Select(t => t.SysNotice).ToList();
@@ -143,7 +139,6 @@ public class SysNoticeService : BaseService<SysNotice>, ISysNoticeService
     /// 初始化通知公告信息
     /// </summary>
     /// <param name="notice"></param>
-    [ApiDescriptionSettings(false)]
     private void InitNoticeInfo(SysNotice notice)
     {
         notice.PublicUserId = _userManager.UserId;

@@ -1,5 +1,9 @@
-using Furion.SpecificationDocument;
+using Hx.Admin.IService;
+using Hx.Admin.Models;
+using Hx.Admin.Models.ViewModels.Auth;
+using Hx.Core.DataEncryption;
 using Lazy.Captcha.Core;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Hx.Admin.Core.Service;
@@ -7,11 +11,9 @@ namespace Hx.Admin.Core.Service;
 /// <summary>
 /// 系统登录授权服务
 /// </summary>
-[ApiDescriptionSettings(Order = 500)]
-public class SysAuthService : IDynamicApiController, ITransient
+public class SysAuthService : BaseService<SysUser>, ISysAuthService
 {
     private readonly UserManager _userManager;
-    private readonly SqlSugarRepository<SysUser> _sysUserRep;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly SysMenuService _sysMenuService;
     private readonly SysOnlineUserService _sysOnlineUserService;
@@ -20,16 +22,15 @@ public class SysAuthService : IDynamicApiController, ITransient
     private readonly ICaptcha _captcha;
 
     public SysAuthService(UserManager userManager,
-        SqlSugarRepository<SysUser> sysUserRep,
+        ISqlSugarRepository<SysUser> rep,
         IHttpContextAccessor httpContextAccessor,
         SysMenuService sysMenuService,
         SysOnlineUserService sysOnlineUserService,
         SysConfigService sysConfigService,
         IMemoryCache cache,
-        ICaptcha captcha)
+        ICaptcha captcha):base(rep)
     {
         _userManager = userManager;
-        _sysUserRep = sysUserRep;
         _httpContextAccessor = httpContextAccessor;
         _sysMenuService = sysMenuService;
         _sysOnlineUserService = sysOnlineUserService;
@@ -44,44 +45,34 @@ public class SysAuthService : IDynamicApiController, ITransient
     /// <param name="input"></param>
     /// <remarks>用户名/密码：superadmin/123456</remarks>
     /// <returns></returns>
-    [AllowAnonymous]
-    [DisplayName("登录系统")]
-    public async Task<LoginOutput> Login([Required] LoginInput input)
+    public async Task<LoginOutput> Login(LoginInput input)
     {
-        //// 可以根据域名获取具体租户
-        //var host = _httpContextAccessor.HttpContext.Request.Host;
-
         // 是否开启验证码
         if (await _sysConfigService.GetConfigValue<bool>(CommonConst.SysCaptcha))
         {
             // 判断验证码
             if (!_captcha.Validate(input.CodeId.ToString(), input.Code))
-                throw Oops.Oh(ErrorCodeEnum.D0008);
+                throw new UserFriendlyException("验证码不正确");
         }
 
         // 账号是否存在
-        var user = await _sysUserRep.AsQueryable().Includes(t => t.SysOrg).Filter(null, true).FirstAsync(u => u.Account.Equals(input.Account));
-        _ = user ?? throw Oops.Oh(ErrorCodeEnum.D0009);
+        var user = await _rep.AsQueryable().Includes(t => t.SysOrg).Filter(null, true).FirstAsync(u => u.Account.Equals(input.Account));
+        _ = user ?? throw new UserFriendlyException("账号不存在");
 
         // 账号是否被冻结
         if (user.Status == StatusEnum.Disable)
-            throw Oops.Oh(ErrorCodeEnum.D1017);
-
-        // 租户是否被禁用
-        var tenant = await _sysUserRep.ChangeRepository<SqlSugarRepository<SysTenant>>().GetFirstAsync(u => u.Id == user.TenantId);
-        if (tenant != null && tenant.Status == StatusEnum.Disable)
-            throw Oops.Oh(ErrorCodeEnum.Z1003);
+            throw new UserFriendlyException("账号已禁用");
 
         // 密码是否正确
         if (CryptogramUtil.CryptoType == CryptogramEnum.MD5.ToString())
         {
             if (user.Password != MD5Encryption.Encrypt(input.Password))
-                throw Oops.Oh(ErrorCodeEnum.D1000);
+                throw new UserFriendlyException("账号或密码不正确");
         }
         else
         {
             if (CryptogramUtil.Decrypt(user.Password) != input.Password)
-                throw Oops.Oh(ErrorCodeEnum.D1000);
+                throw new UserFriendlyException("账号或密码不正确");
         }
 
         // 单用户登录
@@ -91,19 +82,18 @@ public class SysAuthService : IDynamicApiController, ITransient
         var refreshTokenExpire = await _sysConfigService.GetRefreshTokenExpire();
 
         // 生成Token令牌
-        var accessToken = JWTEncryption.Encrypt(new Dictionary<string, object>
-        {
-            { ClaimConst.UserId, user.Id },
-            { ClaimConst.TenantId, user.TenantId },
-            { ClaimConst.Account, user.Account },
-            { ClaimConst.RealName, user.RealName },
-            { ClaimConst.AccountType, user.AccountType },
-            { ClaimConst.OrgId, user.OrgId },
-            { ClaimConst.OrgName, user.SysOrg?.Name },
-        }, tokenExpire);
-
+        //var accessToken = JWTEncryption.Encrypt(new Dictionary<string, object>
+        //{
+        //    { ClaimConst.UserId, user.Id },
+        //    { ClaimConst.Account, user.Account },
+        //    { ClaimConst.RealName, user.RealName },
+        //    { ClaimConst.AccountType, user.AccountType },
+        //    { ClaimConst.OrgId, user.OrgId },
+        //    { ClaimConst.OrgName, user.SysOrg?.Name },
+        //}, tokenExpire);
+        var accessToken = string.Empty;
         // 生成刷新Token令牌
-        var refreshToken = JWTEncryption.GenerateRefreshToken(accessToken, refreshTokenExpire);
+        var refreshToken = string.Empty; //JWTEncryption.GenerateRefreshToken(accessToken, refreshTokenExpire);
 
         // 设置响应报文头
         _httpContextAccessor.HttpContext.SetTokensOfResponseHeaders(accessToken, refreshToken);
@@ -122,17 +112,16 @@ public class SysAuthService : IDynamicApiController, ITransient
     /// 获取登录账号
     /// </summary>
     /// <returns></returns>
-    [DisplayName("登录系统")]
     public async Task<LoginUserOutput> GetUserInfo()
     {
-        var user = await _sysUserRep.GetFirstAsync(u => u.Id == _userManager.UserId);
+        var user = await FirstOrDefaultAsync(u => u.Id == _userManager.UserId);
         if (user == null)
-            throw Oops.Oh(ErrorCodeEnum.D1011).StatusCode(401);
+            throw new UserFriendlyException("账号不存在") {StatusCode = 401 };
 
         // 获取机构
-        var org = await _sysUserRep.ChangeRepository<SqlSugarRepository<SysOrg>>().GetFirstAsync(u => u.Id == user.OrgId);
+        var org = await _rep.Context.Queryable<SysOrg>().FirstAsync(u => u.Id == user.OrgId);
         // 获取职位
-        var pos = await _sysUserRep.ChangeRepository<SqlSugarRepository<SysPos>>().GetFirstAsync(u => u.Id == user.PosId);
+        var pos = await _rep.Context.Queryable<SysPos>().FirstAsync(u => u.Id == user.PosId);
         // 获取拥有按钮权限集合
         var buttons = await _sysMenuService.GetOwnBtnPermList();
 
@@ -155,21 +144,19 @@ public class SysAuthService : IDynamicApiController, ITransient
     /// </summary>
     /// <param name="accessToken"></param>
     /// <returns></returns>
-    [DisplayName("获取刷新Token")]
     public string GetRefreshToken(string accessToken)
     {
         var refreshTokenExpire = _sysConfigService.GetRefreshTokenExpire().GetAwaiter().GetResult();
-        return JWTEncryption.GenerateRefreshToken(accessToken, refreshTokenExpire);
+        return string.Empty; // JWTEncryption.GenerateRefreshToken(accessToken, refreshTokenExpire);
     }
 
     /// <summary>
     /// 退出系统
     /// </summary>
-    [DisplayName("退出系统")]
     public void Logout()
     {
         if (string.IsNullOrWhiteSpace(_userManager.Account))
-            throw Oops.Oh(ErrorCodeEnum.D1011);
+            throw new UserFriendlyException("账号信息不存在");
 
         _httpContextAccessor.HttpContext.SignoutToSwagger();
     }
@@ -178,9 +165,6 @@ public class SysAuthService : IDynamicApiController, ITransient
     /// 获取登录配置
     /// </summary>
     /// <returns></returns>
-    [AllowAnonymous]
-    [SuppressMonitor]
-    [DisplayName("获取登录配置")]
     public async Task<dynamic> GetLoginConfig()
     {
         var secondVerEnabled = await _sysConfigService.GetConfigValue<bool>(CommonConst.SysSecondVer);
@@ -192,8 +176,6 @@ public class SysAuthService : IDynamicApiController, ITransient
     /// 获取用户配置
     /// </summary>
     /// <returns></returns>
-    [SuppressMonitor]
-    [DisplayName("获取用户配置")]
     public async Task<dynamic> GetUserConfig()
     {
         //返回用户和通用配置
@@ -205,13 +187,10 @@ public class SysAuthService : IDynamicApiController, ITransient
     /// 获取验证码
     /// </summary>
     /// <returns></returns>
-    [AllowAnonymous]
-    [SuppressMonitor]
-    [DisplayName("获取验证码")]
     public dynamic GetCaptcha()
     {
-        var codeId = YitIdHelper.NextId();
-        var captcha = _captcha.Generate(codeId.ToString());
+        var codeId = Guid.NewGuid().ToString();
+        var captcha = _captcha.Generate(codeId);
         return new { Id = codeId, Img = captcha.Base64 };
     }
 
@@ -219,31 +198,25 @@ public class SysAuthService : IDynamicApiController, ITransient
     /// swagger登录检查
     /// </summary>
     /// <returns></returns>
-    [AllowAnonymous]
-    [HttpPost("/api/swagger/checkUrl"), NonUnify]
-    [DisplayName("swagger登录检查")]
     public int SwaggerCheckUrl()
     {
         return _cache.Get<bool>(CacheConst.SwaggerLogin) ? 200 : 401;
     }
 
-    /// <summary>
-    /// swagger登录提交
-    /// </summary>
-    /// <param name="auth"></param>
-    /// <returns></returns>
-    [AllowAnonymous]
-    [HttpPost("/api/swagger/submitUrl"), NonUnify]
-    [DisplayName("swagger登录提交")]
-    public int SwaggerSubmitUrl([FromForm] SpecificationAuth auth)
-    {
-        var userName = App.GetConfig<string>("SpecificationDocumentSettings:LoginInfo:UserName");
-        var password = App.GetConfig<string>("SpecificationDocumentSettings:LoginInfo:Password");
-        if (auth.UserName == userName && auth.Password == password)
-        {
-            _cache.Set<bool>(CacheConst.SwaggerLogin, true);
-            return 200;
-        }
-        return 401;
-    }
+    ///// <summary>
+    ///// swagger登录提交
+    ///// </summary>
+    ///// <param name="auth"></param>
+    ///// <returns></returns>
+    //public int SwaggerSubmitUrl(SpecificationAuth auth)
+    //{
+    //    var userName = App.GetConfig<string>("SpecificationDocumentSettings:LoginInfo:UserName");
+    //    var password = App.GetConfig<string>("SpecificationDocumentSettings:LoginInfo:Password");
+    //    if (auth.UserName == userName && auth.Password == password)
+    //    {
+    //        _cache.Set<bool>(CacheConst.SwaggerLogin, true);
+    //        return 200;
+    //    }
+    //    return 401;
+    //}
 }

@@ -31,11 +31,6 @@ public class ClaimConst
     public const string AccountType = "AccountType";
 
     /// <summary>
-    /// 租户Id
-    /// </summary>
-    public const string TenantId = "TenantId";
-
-    /// <summary>
     /// 组织机构Id
     /// </summary>
     public const string OrgId = "OrgId";

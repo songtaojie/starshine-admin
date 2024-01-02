@@ -1,15 +1,17 @@
-﻿namespace Hx.Admin.Core.Service;
+﻿using Hx.Admin.IService;
+using Hx.Admin.Models;
+using Hx.Admin.Models.ViewModels.Menu;
+
+namespace Hx.Admin.Core.Service;
 
 /// <summary>
 /// 系统用户角色服务
 /// </summary>
-public class SysUserRoleService : ITransient
+public class SysUserRoleService : BaseService<SysUserRole>, ISysUserRoleService
 {
-    private readonly SqlSugarRepository<SysUserRole> _sysUserRoleRep;
 
-    public SysUserRoleService(SqlSugarRepository<SysUserRole> sysUserRoleRep)
+    public SysUserRoleService(ISqlSugarRepository<SysUserRole> rep):base(rep)
     {
-        _sysUserRoleRep = sysUserRoleRep;
     }
 
     /// <summary>
@@ -17,10 +19,9 @@ public class SysUserRoleService : ITransient
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [UnitOfWork]
     public async Task GrantUserRole(UserRoleInput input)
     {
-        await _sysUserRoleRep.DeleteAsync(u => u.UserId == input.UserId);
+        await _rep.DeleteAsync(u => u.UserId == input.UserId);
 
         if (input.RoleIdList == null || input.RoleIdList.Count < 1) return;
         var roles = input.RoleIdList.Select(u => new SysUserRole
@@ -28,7 +29,7 @@ public class SysUserRoleService : ITransient
             UserId = input.UserId,
             RoleId = u
         }).ToList();
-        await _sysUserRoleRep.InsertRangeAsync(roles);
+        await _rep.InsertAsync(roles);
     }
 
     /// <summary>
@@ -38,7 +39,7 @@ public class SysUserRoleService : ITransient
     /// <returns></returns>
     public async Task DeleteUserRoleByRoleId(long roleId)
     {
-        await _sysUserRoleRep.DeleteAsync(u => u.RoleId == roleId);
+        await _rep.DeleteAsync(u => u.RoleId == roleId);
     }
 
     /// <summary>
@@ -48,7 +49,7 @@ public class SysUserRoleService : ITransient
     /// <returns></returns>
     public async Task DeleteUserRoleByUserId(long userId)
     {
-        await _sysUserRoleRep.DeleteAsync(u => u.UserId == userId);
+        await _rep.DeleteAsync(u => u.UserId == userId);
     }
 
     /// <summary>
@@ -56,9 +57,9 @@ public class SysUserRoleService : ITransient
     /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
-    public async Task<List<SysRole>> GetUserRoleList(long userId)
+    public async Task<IEnumerable<SysRole>> GetUserRoleList(long userId)
     {
-        var sysUserRoleList = await _sysUserRoleRep.AsQueryable()
+        var sysUserRoleList = await _rep.AsQueryable()
             .Mapper(u => u.SysRole, u => u.RoleId)
             .Where(u => u.UserId == userId).ToListAsync();
         return sysUserRoleList.Where(u => u.SysRole != null).Select(u => u.SysRole).ToList();
@@ -71,7 +72,7 @@ public class SysUserRoleService : ITransient
     /// <returns></returns>
     public async Task<List<long>> GetUserRoleIdList(long userId)
     {
-        return await _sysUserRoleRep.AsQueryable()
+        return await _rep.AsQueryable()
             .Where(u => u.UserId == userId).Select(u => u.RoleId).ToListAsync();
     }
 }

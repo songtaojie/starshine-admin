@@ -1,4 +1,4 @@
-﻿namespace Hx.Admin.Core.Service;
+﻿namespace Hx.Admin.Models.ViewModels.Auth;
 
 /// <summary>
 /// 用户登录信息
@@ -18,22 +18,22 @@ public class LoginUserOutput
     /// <summary>
     /// 头像
     /// </summary>
-    public string Avatar { get; set; }
+    public string? Avatar { get; set; }
 
     /// <summary>
     /// 个人简介
     /// </summary>
-    public string Introduction { get; set; }
+    public string? Introduction { get; set; }
 
     /// <summary>
     /// 地址
     /// </summary>
-    public string Address { get; set; }
+    public string? Address { get; set; }
 
     /// <summary>
     /// 电子签名
     /// </summary>
-    public string Signature { get; set; }
+    public string? Signature { get; set; }
 
     /// <summary>
     /// 机构Id
@@ -43,15 +43,15 @@ public class LoginUserOutput
     /// <summary>
     /// 机构名称
     /// </summary>
-    public string OrgName { get; set; }
+    public string? OrgName { get; set; }
 
     /// <summary>
     /// 职位名称
     /// </summary>
-    public string PosName { get; set; }
+    public string? PosName { get; set; }
 
     /// <summary>
     /// 按钮权限集合
     /// </summary>
-    public List<string> Buttons { get; set; }
+    public IEnumerable<string?> Buttons { get; set; }
 }

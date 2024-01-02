@@ -26,12 +26,6 @@ public class Startup : AppStartup
 {
     public void ConfigureServices(IServiceCollection services)
     {
-        // 配置选项
-        services.AddProjectOptions();
-        // 缓存注册
-        services.AddCache();
-        // SqlSugar
-        services.AddSqlSugar();
         // JWT
         services.AddJwt<JwtHandler>(enableGlobalAuthorize: true);
         // 允许跨域

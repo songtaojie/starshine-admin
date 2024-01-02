@@ -37,7 +37,7 @@ public interface ISysWechatPayService : IBaseService<SysWechatPay>, IScopedDepen
     /// 微信支付成功回调(商户直连)
     /// </summary>
     /// <returns></returns>
-    Task<WechatPayOutput> PayCallBack();
+    Task<WechatPayOutput?> PayCallBack();
 
     /// <summary>
     /// 微信支付成功回调(服务商模式)

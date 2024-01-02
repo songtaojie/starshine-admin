@@ -19,7 +19,7 @@ public class SysDictDataService : BaseService<SysDictData>, ISysDictDataService
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    public async Task<PagedListResult<SysDictData>> Page(PageDictDataInput input)
+    public async Task<PagedListResult<SysDictData>> GetPage(PageDictDataInput input)
     {
         return await _rep.AsQueryable()
             .Where(u => u.DictTypeId == input.DictTypeId)
@@ -33,7 +33,7 @@ public class SysDictDataService : BaseService<SysDictData>, ISysDictDataService
     /// 获取字典值列表
     /// </summary>
     /// <returns></returns>
-    public async Task<List<SysDictData>> GetList(GetDataDictDataInput input)
+    public async Task<IEnumerable<SysDictData>> GetList(GetDataDictDataInput input)
     {
         return await GetDictDataListByDictTypeId(input.DictTypeId);
     }

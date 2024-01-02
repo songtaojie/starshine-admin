@@ -1,5 +1,6 @@
 using Hx.Admin.Core;
 using Hx.Admin.Models;
+using Hx.Admin.Models.ViewModels.Auth;
 using Hx.Common.DependencyInjection;
 using Lazy.Captcha.Core;
 using Microsoft.Extensions.Caching.Memory;

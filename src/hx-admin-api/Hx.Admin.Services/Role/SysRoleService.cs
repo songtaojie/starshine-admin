@@ -129,7 +129,7 @@ public class SysRoleService : BaseService<SysRole>, ISysRoleService
                 if (grantOrgIdList.Count > 0)
                 {
                     var orgIdList = await _sysOrgService.GetUserOrgIdList();
-                    if (orgIdList.Count < 1)
+                    if (!orgIdList.Any())
                         throw new UserFriendlyException("无该机构权限");
                     else if (!grantOrgIdList.All(u => orgIdList.Any(c => c == u)))
                         throw new UserFriendlyException("无该机构权限");

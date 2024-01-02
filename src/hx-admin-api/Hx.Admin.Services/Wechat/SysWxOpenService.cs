@@ -1,18 +1,21 @@
-﻿namespace Hx.Admin.Core.Service;
+﻿using Hx.Admin.IService;
+using Hx.Admin.Models;
+using Hx.Admin.Models.ViewModels.Wechat;
+using SKIT.FlurlHttpClient.Wechat.Api;
+using SKIT.FlurlHttpClient.Wechat.Api.Models;
+
+namespace Hx.Admin.Core.Service;
 
 /// <summary>
 /// 微信小程序服务
 /// </summary>
-[ApiDescriptionSettings(Order = 250)]
-public class SysWxOpenService : IDynamicApiController, ITransient
+public class SysWxOpenService : BaseService<SysWechatUser>, ISysWxOpenService
 {
-    private readonly SqlSugarRepository<SysWechatUser> _sysWechatUserRep;
     private readonly WechatApiClient _wechatApiClient;
 
-    public SysWxOpenService(SqlSugarRepository<SysWechatUser> sysWechatUserRep,
-        WechatApiHttpClient wechatApiHttpClient)
+    public SysWxOpenService(ISqlSugarRepository<SysWechatUser> rep,
+        WechatApiClientManager wechatApiHttpClient):base(rep)
     {
-        _sysWechatUserRep = sysWechatUserRep;
         _wechatApiClient = wechatApiHttpClient.CreateWxOpenClient();
     }
 
@@ -20,9 +23,7 @@ public class SysWxOpenService : IDynamicApiController, ITransient
     /// 获取微信用户OpenId
     /// </summary>
     /// <param name="input"></param>
-    [AllowAnonymous]
-    [DisplayName("获取微信用户OpenId")]
-    public async Task<WxOpenIdOutput> GetWxOpenId([FromQuery] JsCode2SessionInput input)
+    public async Task<WxOpenIdOutput> GetWxOpenId(JsCode2SessionInput input)
     {
         var reqJsCode2Session = new SnsJsCode2SessionRequest()
         {
@@ -30,9 +31,9 @@ public class SysWxOpenService : IDynamicApiController, ITransient
         };
         var resCode2Session = await _wechatApiClient.ExecuteSnsJsCode2SessionAsync(reqJsCode2Session);
         if (resCode2Session.ErrorCode != (int)WechatReturnCodeEnum.请求成功)
-            throw Oops.Oh(resCode2Session.ErrorMessage + " " + resCode2Session.ErrorCode);
+            throw new UserFriendlyException($"[{resCode2Session.ErrorCode}]{resCode2Session.ErrorMessage}");
 
-        var wxUser = await _sysWechatUserRep.GetFirstAsync(p => p.OpenId == resCode2Session.OpenId);
+        var wxUser = await FirstOrDefaultAsync(p => p.OpenId == resCode2Session.OpenId);
         if (wxUser == null)
         {
             wxUser = new SysWechatUser
@@ -42,11 +43,11 @@ public class SysWxOpenService : IDynamicApiController, ITransient
                 SessionKey = resCode2Session.SessionKey,
                 PlatformType = PlatformTypeEnum.微信小程序
             };
-            wxUser = await _sysWechatUserRep.AsInsertable(wxUser).ExecuteReturnEntityAsync();
+           await InsertAsync(wxUser);
         }
         else
         {
-            await _sysWechatUserRep.AsUpdateable(wxUser).IgnoreColumns(true).ExecuteCommandAsync();
+            await _rep.Context.Updateable(wxUser).IgnoreColumns(true).ExecuteCommandAsync();
         }
 
         return new WxOpenIdOutput
@@ -59,9 +60,7 @@ public class SysWxOpenService : IDynamicApiController, ITransient
     /// 获取微信用户电话号码
     /// </summary>
     /// <param name="input"></param>
-    [AllowAnonymous]
-    [DisplayName("获取微信用户电话号码")]
-    public async Task<WxPhoneOutput> GetWxPhone([FromQuery] WxPhoneInput input)
+    public async Task<WxPhoneOutput> GetWxPhone(WxPhoneInput input)
     {
         var accessToken = await GetCgibinToken();
         var reqUserPhoneNumber = new WxaBusinessGetUserPhoneNumberRequest()
@@ -71,7 +70,7 @@ public class SysWxOpenService : IDynamicApiController, ITransient
         };
         var resUserPhoneNumber = await _wechatApiClient.ExecuteWxaBusinessGetUserPhoneNumberAsync(reqUserPhoneNumber);
         if (resUserPhoneNumber.ErrorCode != (int)WechatReturnCodeEnum.请求成功)
-            throw Oops.Oh(resUserPhoneNumber.ErrorMessage + " " + resUserPhoneNumber.ErrorCode);
+            throw new UserFriendlyException($"[{resUserPhoneNumber.ErrorCode}]{resUserPhoneNumber.ErrorMessage}");
 
         return new WxPhoneOutput
         {
@@ -84,30 +83,27 @@ public class SysWxOpenService : IDynamicApiController, ITransient
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [AllowAnonymous]
-    [DisplayName("微信小程序登录OpenId")]
     public async Task<dynamic> WxOpenIdLogin(WxOpenIdLoginInput input)
     {
-        var wxUser = await _sysWechatUserRep.GetFirstAsync(p => p.OpenId == input.OpenId);
+        var wxUser = await FirstOrDefaultAsync(p => p.OpenId == input.OpenId);
         if (wxUser == null)
-            throw Oops.Oh("微信小程序登录失败");
+            throw new UserFriendlyException("微信小程序登录失败");
         return new
         {
             wxUser.Avatar,
-            accessToken = JWTEncryption.Encrypt(new Dictionary<string, object>
-            {
-                { ClaimConst.UserId, wxUser.Id },
-                { ClaimConst.OpenId, wxUser.OpenId },
-                { ClaimConst.RealName, wxUser.NickName },
-                { ClaimConst.LoginMode, LoginModeEnum.APP },
-            })
+            //accessToken = JWTEncryption.Encrypt(new Dictionary<string, object>
+            //{
+            //    { ClaimConst.UserId, wxUser.Id },
+            //    { ClaimConst.OpenId, wxUser.OpenId },
+            //    { ClaimConst.RealName, wxUser.NickName },
+            //    { ClaimConst.LoginMode, LoginModeEnum.APP },
+            //})
         };
     }
 
     /// <summary>
     /// 获取订阅消息模板列表
     /// </summary>
-    [DisplayName("获取订阅消息模板列表")]
     public async Task<dynamic> GetSubscribeMessageTemplateList()
     {
         var accessToken = await GetCgibinToken();
@@ -117,7 +113,7 @@ public class SysWxOpenService : IDynamicApiController, ITransient
         };
         var resTemplate = await _wechatApiClient.ExecuteWxaApiNewTemplateGetTemplateAsync(reqTemplate);
         if (resTemplate.ErrorCode != (int)WechatReturnCodeEnum.请求成功)
-            throw Oops.Oh(resTemplate.ErrorMessage + " " + resTemplate.ErrorCode);
+            throw new UserFriendlyException($"[{resTemplate.ErrorCode}]{resTemplate.ErrorMessage}");
 
         return resTemplate.TemplateList;
     }
@@ -127,7 +123,6 @@ public class SysWxOpenService : IDynamicApiController, ITransient
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [DisplayName("发送订阅消息")]
     public async Task<dynamic> SendSubscribeMessage(SendSubscribeMessageInput input)
     {
         var accessToken = await GetCgibinToken();
@@ -150,8 +145,6 @@ public class SysWxOpenService : IDynamicApiController, ITransient
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [ApiDescriptionSettings(Name = "AddSubscribeMessageTemplate"), HttpPost]
-    [DisplayName("增加订阅消息模板")]
     public async Task<dynamic> AddSubscribeMessageTemplate(AddSubscribeMessageTemplateInput input)
     {
         var accessToken = await GetCgibinToken();
@@ -174,7 +167,7 @@ public class SysWxOpenService : IDynamicApiController, ITransient
         var reqCgibinToken = new CgibinTokenRequest();
         var resCgibinToken = await _wechatApiClient.ExecuteCgibinTokenAsync(reqCgibinToken);
         if (resCgibinToken.ErrorCode != (int)WechatReturnCodeEnum.请求成功)
-            throw Oops.Oh(resCgibinToken.ErrorMessage + " " + resCgibinToken.ErrorCode);
+            throw new UserFriendlyException($"[{resCgibinToken.ErrorCode}]{resCgibinToken.ErrorMessage}");
         return resCgibinToken.AccessToken;
     }
 }

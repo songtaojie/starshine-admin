@@ -1,21 +1,36 @@
-Serve.Run(RunOptions.Default.AddWebComponent<WebComponent>());
+using Microsoft.Extensions.DependencyInjection;
+using Serilog;
+using Serilog.Events;
 
-public class WebComponent : IWebComponent
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .CreateBootstrapLogger(); 
+
+try
 {
-    public void Load(WebApplicationBuilder builder, ComponentContext componentContext)
-    {
-        // 设置日志过滤
-        builder.Logging.AddFilter((provider, category, logLevel) =>
-        {
-            return !new[] { "Microsoft.Hosting", "Microsoft.AspNetCore" }.Any(u => category.StartsWith(u)) && logLevel >= LogLevel.Information;
-        });
+    Log.Information("Starting web application");
 
-        // 设置接口超时时间和上传大小
-        builder.Configuration.Get<WebHostBuilder>().ConfigureKestrel(u =>
-        {
-            u.Limits.KeepAliveTimeout = TimeSpan.FromMinutes(30);
-            u.Limits.RequestHeadersTimeout = TimeSpan.FromMinutes(30);
-            u.Limits.MaxRequestBodySize = null;
-        });
-    }
+    var builder = WebApplication.CreateBuilder(args);
+    builder.Services.AddHxAdminOptions();
+    builder.Services.AddCache(builder.Configuration);
+    builder.Services.AddSqlSugar();
+    builder.Host.UseSerilog((context, services, configuration) => configuration
+        .ReadFrom.Configuration(context.Configuration)
+        .ReadFrom.Services(services)
+        .Enrich.FromLogContext()
+        .WriteTo.Console());
+
+    var app = builder.Build();
+
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
 }

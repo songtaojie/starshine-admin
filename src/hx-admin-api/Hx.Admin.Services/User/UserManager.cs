@@ -1,36 +1,38 @@
-﻿namespace Hx.Admin.Core;
+﻿using Hx.Common.DependencyInjection;
+using Microsoft.AspNetCore.Http;
+
+namespace Hx.Admin.Core;
 
 /// <summary>
 /// 当前登录用户
 /// </summary>
-public class UserManager : IScoped
+public class UserManager : IScopedDependency
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private long _tenantId;
+
+    public UserManager(IHttpContextAccessor httpContextAccessor)
+    {
+        _httpContextAccessor = httpContextAccessor;
+    }
 
     public long UserId
     {
-        get => long.Parse(_httpContextAccessor.HttpContext?.User.FindFirst(ClaimConst.UserId)?.Value);
-    }
-
-    public long TenantId
-    {
         get
         {
-            var tId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimConst.TenantId)?.Value;
-            return string.IsNullOrWhiteSpace(tId) ? _tenantId : long.Parse(tId);
+            var uid = _httpContextAccessor?.HttpContext?.User.FindFirst(ClaimConst.UserId)?.Value;
+            return string.IsNullOrWhiteSpace(uid) ? 0 : long.Parse(uid);
         }
-        set => _tenantId = value;
+
     }
 
-    public string Account
+    public string? Account
     {
-        get => _httpContextAccessor.HttpContext?.User.FindFirst(ClaimConst.Account)?.Value;
+        get => _httpContextAccessor?.HttpContext?.User.FindFirst(ClaimConst.Account)?.Value;
     }
 
-    public string RealName
+    public string? RealName
     {
-        get => _httpContextAccessor.HttpContext?.User.FindFirst(ClaimConst.RealName)?.Value;
+        get => _httpContextAccessor?.HttpContext?.User.FindFirst(ClaimConst.RealName)?.Value;
     }
 
     public bool SuperAdmin
@@ -47,13 +49,10 @@ public class UserManager : IScoped
         }
     }
 
-    public string OpenId
+    public string? OpenId
     {
-        get => _httpContextAccessor.HttpContext?.User.FindFirst(ClaimConst.OpenId)?.Value;
+        get => _httpContextAccessor?.HttpContext?.User.FindFirst(ClaimConst.OpenId)?.Value;
     }
 
-    public UserManager(IHttpContextAccessor httpContextAccessor)
-    {
-        _httpContextAccessor = httpContextAccessor;
-    }
+    
 }

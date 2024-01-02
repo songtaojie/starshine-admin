@@ -1,8 +1,7 @@
-﻿using Furion.InstantMessaging;
-using Hx.Admin.IService;
+﻿using Hx.Admin.IService;
 using Hx.Admin.Models;
 using Hx.Admin.Models.ViewModels.Hub;
-using Hx.Cache;
+using Hx.Admin.Models.ViewModels.Message;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using UAParser;

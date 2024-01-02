@@ -1,14 +1,17 @@
-﻿namespace Hx.Admin.Core.Service;
+﻿using Hx.Common.DependencyInjection;
+using Microsoft.Extensions.Options;
+using SKIT.FlurlHttpClient.Wechat.Api;
+
+namespace Hx.Admin.Core.Service;
 
 /// <summary>
 /// 微信API客户端
 /// </summary>
-[ApiDescriptionSettings(false)]
-public partial class WechatApiHttpClient : ISingleton
+public partial class WechatApiClientManager : ISingletonDependency
 {
     public readonly WechatOptions _wechatOptions;
 
-    public WechatApiHttpClient(IOptions<WechatOptions> wechatOptions)
+    public WechatApiClientManager(IOptions<WechatOptions> wechatOptions)
     {
         _wechatOptions = wechatOptions.Value;
     }
@@ -20,7 +23,7 @@ public partial class WechatApiHttpClient : ISingleton
     public WechatApiClient CreateWechatClient()
     {
         if (string.IsNullOrEmpty(_wechatOptions.WechatAppId) || string.IsNullOrEmpty(_wechatOptions.WechatAppSecret))
-            throw Oops.Oh("微信公众号配置错误");
+            throw new UserFriendlyException("微信公众号配置错误");
 
         var wechatApiClient = new WechatApiClient(new WechatApiClientOptions()
         {
@@ -28,10 +31,10 @@ public partial class WechatApiHttpClient : ISingleton
             AppSecret = _wechatOptions.WechatAppSecret,
         });
 
-        wechatApiClient.Configure(settings =>
-        {
-            settings.JsonSerializer = new FlurlNewtonsoftJsonSerializer();
-        });
+        //wechatApiClient.Configure(settings =>
+        //{
+        //    settings.JsonSerializer = new SKIT.FlurlHttpClient.FlurlSystemTextJsonSerializer();
+        //});
 
         return wechatApiClient;
     }
@@ -43,7 +46,7 @@ public partial class WechatApiHttpClient : ISingleton
     public WechatApiClient CreateWxOpenClient()
     {
         if (string.IsNullOrEmpty(_wechatOptions.WxOpenAppId) || string.IsNullOrEmpty(_wechatOptions.WxOpenAppSecret))
-            throw Oops.Oh("微信小程序配置错误");
+            throw new UserFriendlyException("微信小程序配置错误");
 
         var WechatApiClient = new WechatApiClient(new WechatApiClientOptions()
         {
@@ -51,10 +54,10 @@ public partial class WechatApiHttpClient : ISingleton
             AppSecret = _wechatOptions.WxOpenAppSecret
         });
 
-        WechatApiClient.Configure(settings =>
-        {
-            settings.JsonSerializer = new FlurlNewtonsoftJsonSerializer();
-        });
+        //WechatApiClient.Configure(settings =>
+        //{
+        //    settings.JsonSerializer = new FlurlNewtonsoftJsonSerializer();
+        //});
 
         return WechatApiClient;
     }

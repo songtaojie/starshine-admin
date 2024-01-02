@@ -7,7 +7,7 @@ namespace Hx.Admin.IService;
 /// <summary>
 /// 系统用户服务
 /// </summary>
-public interface ISysUserService : IBaseService<SysUserRole>, IScopedDependency
+public interface ISysUserService : IBaseService<SysUser>, IScopedDependency
 {
     /// <summary>
     /// 获取用户分页列表
