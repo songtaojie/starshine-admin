@@ -117,10 +117,11 @@ public class JWTEncryption
     /// </summary>
     /// <param name="expiredToken"></param>
     /// <param name="refreshToken"></param>
+    /// <param name="httpContext">请求上下文</param>
     /// <param name="expiredTime">过期时间（分钟）</param>
     /// <param name="clockSkew">刷新token容差值，秒做单位</param>
     /// <returns></returns>
-    public static string Exchange(string expiredToken, string refreshToken, long? expiredTime = null, long clockSkew = 5)
+    public static string Exchange(string expiredToken, string refreshToken, HttpContext httpContext, long? expiredTime = null, long clockSkew = 5)
     {
         // 交换刷新Token 必须原Token 已过期
         var (_isValid, _, _) = Validate(expiredToken);
@@ -129,9 +130,6 @@ public class JWTEncryption
         // 判断刷新Token 是否过期
         var (isValid, refreshTokenObj, _) = Validate(refreshToken);
         if (!isValid) return default;
-
-        // 解析 HttpContext
-        var httpContext = GetCurrentHttpContext();
 
         // 判断这个刷新Token 是否已刷新过
         var blacklistRefreshKey = "BLACKLIST_REFRESH_TOKEN:" + refreshToken;
@@ -214,7 +212,7 @@ public class JWTEncryption
         if (string.IsNullOrWhiteSpace(expiredToken) || string.IsNullOrWhiteSpace(refreshToken)) return false;
 
         // 交换新的 Token
-        var accessToken = Exchange(expiredToken, refreshToken, expiredTime, clockSkew);
+        var accessToken = Exchange(expiredToken, refreshToken, httpContext, expiredTime, clockSkew);
         if (string.IsNullOrWhiteSpace(accessToken)) return false;
 
         // 读取新的 Token Clamis

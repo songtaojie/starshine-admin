@@ -64,4 +64,9 @@ public class CacheConst
     /// 租户缓存
     /// </summary>
     public const string KeyTenant = "tenant:list";
+
+    /// <summary>
+    /// token
+    /// </summary>
+    public const string AuthToken_Key = "AUTH:USER_TOKEN:{0}";
 }
