@@ -268,7 +268,6 @@ public class JWTEncryption
         {
             var tokenValidationResult = tokenHandler.ValidateToken(accessToken, tokenValidationParameters);
             if (!tokenValidationResult.IsValid) return (false, null, tokenValidationResult);
-
             var jsonWebToken = tokenValidationResult.SecurityToken as JsonWebToken;
             return (true, jsonWebToken, tokenValidationResult);
         }

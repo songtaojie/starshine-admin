@@ -11,12 +11,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Encodings.Web;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Hx.Admin.Web.Core.Authentication;
@@ -56,11 +56,11 @@ public class JwtAuthenticationHandler : AuthenticationHandler<AuthenticationSche
         Response.ContentType = "application/json";
         Response.StatusCode = StatusCodes.Status200OK;
         base.Response.Headers.Append(HeaderNames.WWWAuthenticate, nameof(JwtAuthenticationHandler));
-        JsonSerializerSettings setting = new JsonSerializerSettings()
+        JsonSerializerOptions setting = new JsonSerializerOptions()
         {
-            ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver()
+            PropertyNameCaseInsensitive = false,
         };
-        await Response.WriteAsync(JsonConvert.SerializeObject(new RESTfulResult<object>
+        await Response.WriteAsync(JsonSerializer.Serialize(new RESTfulResult<object>
         {
             StatusCode = StatusCodes.Status401Unauthorized,
             Succeeded = false,
@@ -80,11 +80,11 @@ public class JwtAuthenticationHandler : AuthenticationHandler<AuthenticationSche
         base.Response.ContentType = "application/json";
         base.Response.StatusCode = StatusCodes.Status200OK;
         base.Response.Headers.Append(HeaderNames.WWWAuthenticate, nameof(JwtAuthenticationHandler));
-        Newtonsoft.Json.JsonSerializerSettings setting = new Newtonsoft.Json.JsonSerializerSettings()
+        JsonSerializerOptions setting = new JsonSerializerOptions()
         {
-            ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver()
+            PropertyNameCaseInsensitive = false,
         };
-        await Response.WriteAsync(JsonConvert.SerializeObject(new RESTfulResult<object>
+        await Response.WriteAsync(JsonSerializer.Serialize(new RESTfulResult<object>
         {
             StatusCode = StatusCodes.Status403Forbidden,
             Succeeded = false,

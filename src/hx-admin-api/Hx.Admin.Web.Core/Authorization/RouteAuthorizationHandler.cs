@@ -5,6 +5,8 @@
 // 电话/微信：song977601042
 
 using Hx.Admin.Core;
+using Hx.Admin.Core.Service;
+using Hx.Admin.IService;
 using Hx.Common.Extensions;
 using Hx.Core;
 using Microsoft.AspNetCore.Authentication;
@@ -17,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Microsoft.AspNetCore.Authorization;
@@ -32,19 +35,19 @@ public class RouteAuthorizationHandler : AuthorizationHandler<RouteAuthorization
     /// </summary>
     public IAuthenticationSchemeProvider Schemes { get; set; }
     private readonly IUserContext _userContext;
-    private readonly IPermissionService _service;
+    private readonly ISysMenuService _sysMenuService;
 
     /// <summary>
     /// 构造函数注入
     /// </summary>
     /// <param name="schemes"></param>
     /// <param name="userContext"></param>
-    /// <param name="service"></param>
-    public RouteAuthorizationHandler(IAuthenticationSchemeProvider schemes, IUserContext userContext, IPermissionService service)
+    /// <param name="sysMenuService"></param>
+    public RouteAuthorizationHandler(IAuthenticationSchemeProvider schemes, IUserContext userContext, ISysMenuService sysMenuService)
     {
         Schemes = schemes;
         _userContext = userContext;
-        _service = service;
+        _sysMenuService = sysMenuService;
     }
 
     /// <summary>
@@ -55,7 +58,7 @@ public class RouteAuthorizationHandler : AuthorizationHandler<RouteAuthorization
     /// <returns></returns>
     protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, RouteAuthorizationRequirement requirement)
     {
-        var httpContext = _userContext.HttpContext;
+        var httpContext = context.GetCurrentHttpContext() ?? _userContext.HttpContext;
         var endpoint = httpContext.GetEndpoint();
         // 判断action上是否有跳过授权策略的
         var skipAuthorization = endpoint.Metadata.GetMetadata<SkipRouteAuthorizationAttribute>();
@@ -72,78 +75,79 @@ public class RouteAuthorizationHandler : AuthorizationHandler<RouteAuthorization
             context.Succeed(requirement);
             return;
         }
+
+        // 排除超管
+        if (_userContext.IsSuperAdmin)
+        {
+            context.Succeed(requirement);
+            return;
+        }
         //处理授权策略，判断该用户能否访问该接口
         var questUrl = httpContext.Request.Path.Value.ToLower();
         //var userId = _userContext.UserId;
         //var cacheKey = string.Format(CacheKeyConfig.AuthRouterKey, userId);
-        var cacheData = await _service.GetUserPermissionAsync();
-        if (cacheData == null)
+       
+        // 整体结构类似认证中间件UseAuthentication的逻辑，具体查看开源地址
+        // https://github.com/dotnet/aspnetcore/blob/master/src/Security/Authentication/Core/src/AuthenticationMiddleware.cs
+        httpContext.Features.Set<IAuthenticationFeature>(new AuthenticationFeature
+        {
+            OriginalPath = httpContext.Request.Path,
+            OriginalPathBase = httpContext.Request.PathBase
+        });
+        // Give any IAuthenticationRequestHandler schemes a chance to handle the request
+        // 主要作用是: 判断当前是否需要进行远程验证，如果是就进行远程验证
+        var handlers = httpContext.RequestServices.GetRequiredService<IAuthenticationHandlerProvider>();
+        foreach (var scheme in await Schemes.GetRequestHandlerSchemesAsync())
+        {
+            if (await handlers.GetHandlerAsync(httpContext, scheme.Name) is IAuthenticationRequestHandler handler && await handler.HandleRequestAsync())
+            {
+                context.Fail();
+                return;
+            }
+        }
+        var routeList = await _sysMenuService.GetOwnRouteList();
+
+        if (routeList == null || !routeList.Any())
         {
             context.Fail();
             return;
         }
-        if (cacheData.IsSuperAdmin)
+        //判断请求是否拥有凭据，即有没有登录
+        var defaultAuthenticate = await Schemes.GetDefaultAuthenticateSchemeAsync();
+        if (defaultAuthenticate != null)
         {
-            context.Succeed(requirement);
-        }
-        else
-        {
-            // 整体结构类似认证中间件UseAuthentication的逻辑，具体查看开源地址
-            // https://github.com/dotnet/aspnetcore/blob/master/src/Security/Authentication/Core/src/AuthenticationMiddleware.cs
-            httpContext.Features.Set<IAuthenticationFeature>(new AuthenticationFeature
+            var result = await httpContext.AuthenticateAsync(defaultAuthenticate.Name);
+            //result?.Principal不为空即登录成功
+            if (result?.Principal != null)
             {
-                OriginalPath = httpContext.Request.Path,
-                OriginalPathBase = httpContext.Request.PathBase
-            });
-            // Give any IAuthenticationRequestHandler schemes a chance to handle the request
-            // 主要作用是: 判断当前是否需要进行远程验证，如果是就进行远程验证
-            var handlers = httpContext.RequestServices.GetRequiredService<IAuthenticationHandlerProvider>();
-            foreach (var scheme in await Schemes.GetRequestHandlerSchemesAsync())
-            {
-                if (await handlers.GetHandlerAsync(httpContext, scheme.Name) is IAuthenticationRequestHandler handler && await handler.HandleRequestAsync())
+                //if (!isTestCurrent)
+                httpContext.User = result.Principal;
+                //foreach (var route in routeList) 
+                //{
+                //    if (!string.IsNullOrEmpty(route) && route.Contains("{") && route.Contains("}"))
+                //    {
+                //        var regex = new Regex("\\{[a-z]+\\}");
+                //        var matchs = regex.Matches(route);
+                //        foreach (var r in matchs)
+                //        {
+                //            var routeKey = r.ToString().Replace("{", "").Replace("}", "");
+                //            var routeValue = httpContext.Request.RouteValues[routeKey].ToString();
+                //            route = route.Replace("{" + routeKey + "}", routeValue);
+                //        }
+                //    }
+                //}
+             
+                // 获取当前用户的角色信息
+                var isMatch = routeList.Any(m => FixRoute(questUrl).Equals(FixRoute(m), StringComparison.OrdinalIgnoreCase));
+                if (isMatch)
+                {
+                    context.Succeed(requirement);
+                }
+                else
                 {
                     context.Fail();
-                    return;
                 }
             }
-
-            //判断请求是否拥有凭据，即有没有登录
-            var defaultAuthenticate = await Schemes.GetDefaultAuthenticateSchemeAsync();
-            if (defaultAuthenticate != null)
-            {
-                var result = await httpContext.AuthenticateAsync(defaultAuthenticate.Name);
-                //result?.Principal不为空即登录成功
-                if (result?.Principal != null)
-                {
-                    //if (!isTestCurrent)
-                    httpContext.User = result.Principal;
-                    cacheData.Modules.ForEach(m =>
-                    {
-                        if (!string.IsNullOrEmpty(m.RouteUrl) && m.RouteUrl.Contains("{") && m.RouteUrl.Contains("}"))
-                        {
-                            var regex = new Regex("\\{[a-z]+\\}");
-                            var matchs = regex.Matches(m.RouteUrl);
-                            foreach (var route in matchs)
-                            {
-                                var routeKey = route.ToString().Replace("{", "").Replace("}", "");
-                                var routeValue = httpContext.Request.RouteValues[routeKey].ToString();
-                                m.RouteUrl = m.RouteUrl.Replace("{" + routeKey + "}", routeValue);
-                            }
-                        }
-                    });
-                    // 获取当前用户的角色信息
-                    var isMatch = cacheData.Modules.Any(m => FixRoute(questUrl).Equals(FixRoute(m.RouteUrl), StringComparison.OrdinalIgnoreCase));
-                    if (isMatch)
-                    {
-                        context.Succeed(requirement);
-                    }
-                    else
-                    {
-                        context.Fail();
-                    }
-                }
-            }
-
         }
     }
 

@@ -34,17 +34,15 @@ public static class AuthenticationServiceCollectionExtensions
     {
         if (services == null) throw new ArgumentNullException(nameof(services));
         // 开启Bearer认证
-        services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
-            .Configure<IServiceProvider>((options, provider) =>
+        services.Configure<JwtBearerOptions, IOptions<JWTSettingsOptions>>((options, jWTSettingsOptions) =>
+        {
+            options.TokenValidationParameters = JWTEncryption.CreateTokenValidationParameters(jWTSettingsOptions.Value);
+            options.Events = new JwtBearerEvents()
             {
-                var jWTSettingsOptions = provider.GetService<IOptions<JWTSettingsOptions>>();
-                options.TokenValidationParameters = JWTEncryption.CreateTokenValidationParameters(jWTSettingsOptions.Value);
-                options.Events = new JwtBearerEvents()
-                {
-                    OnMessageReceived = context => MessageReceived(context),
-                    OnAuthenticationFailed = context => AuthenticationFailed(context)
-                };
-            });
+                OnMessageReceived = context => MessageReceived(context),
+                OnAuthenticationFailed = context => AuthenticationFailed(context)
+            };
+        });
         services.AddAuthentication(options =>
         {
             options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;

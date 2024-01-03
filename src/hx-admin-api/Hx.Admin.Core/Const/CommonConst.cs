@@ -60,4 +60,22 @@ public class CommonConst
     /// 开启全局脱敏处理（默认不开启）
     /// </summary>
     public static bool SysSensitiveDetection = false;
+
+    /// <summary>
+    /// 系统策略
+    /// </summary>
+    public const string SuperAdminPolicy = "SuperAdmin";
+
+    /// <summary>
+    /// 客户端
+    /// </summary>
+    public const string ClientPolicy = "Client";
+    /// <summary>
+    /// 管理员
+    /// </summary>
+    public const string AdminPolicy = "Admin";
+    /// <summary>
+    /// PermissionPolicy
+    /// </summary>
+    public const string PermissionPolicy = "Permission";
 }

@@ -189,6 +189,27 @@ public class SysMenuService : BaseService<SysMenu>, ISysMenuService
     }
 
     /// <summary>
+    /// 获取拥有的路由权限
+    /// </summary>
+    /// <returns></returns>
+    public async Task<IEnumerable<string?>> GetOwnRouteList()
+    {
+        var userId = _userManager.UserId;
+        var cacheKey = $"{CacheConst.Key_Route}{userId}";
+        var permissions = _cache.Get<List<string?>>(cacheKey);
+        if (permissions == null || permissions.Count == 0)
+        {
+            var menuIdList = _userManager.SuperAdmin ? new List<long>() : await GetMenuIdList();
+            permissions = await _rep.AsQueryable()
+                .Where(u => u.Type == MenuTypeEnum.Menu)
+                .WhereIF(menuIdList.Any(), u => menuIdList.Contains(u.Id))
+                .Select(u => u.Path).ToListAsync();
+            _cache.Set(cacheKey, permissions, TimeSpan.FromMinutes(10));
+        }
+        return permissions;
+    }
+
+    /// <summary>
     /// 获取用户拥有按钮权限集合（缓存）
     /// </summary>
     /// <returns></returns>
@@ -204,7 +225,7 @@ public class SysMenuService : BaseService<SysMenu>, ISysMenuService
                 .Where(u => u.Type == MenuTypeEnum.Btn)
                 .WhereIF(menuIdList.Any(), u => menuIdList.Contains(u.Id))
                 .Select(u => u.Permission).ToListAsync();
-            _cache.Set(cacheKey, permissions);
+            _cache.Set(cacheKey, permissions,TimeSpan.FromMinutes(10));
         }
         return permissions;
     }

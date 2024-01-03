@@ -43,6 +43,11 @@ public interface ISysMenuService : IBaseService<SysMenu>, IScopedDependency
     /// <returns></returns>
     Task DeleteMenu(DeleteMenuInput input);
 
+    /// <summary>
+    /// 获取拥有的路由权限
+    /// </summary>
+    /// <returns></returns>
+    Task<IEnumerable<string?>> GetOwnRouteList();
 
     /// <summary>
     /// 获取用户拥有按钮权限集合（缓存）
