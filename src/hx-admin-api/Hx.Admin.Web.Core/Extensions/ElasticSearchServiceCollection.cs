@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Hx.Admin.Core;
+namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
 /// ES服务注册

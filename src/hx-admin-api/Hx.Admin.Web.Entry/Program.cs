@@ -50,8 +50,7 @@ try
     // logoœ‘ æ
     builder.Services.AddLogoDisplay();
     // —È÷§¬Î
-    builder.Services.AddLazyCaptcha();
-
+    builder.Services.AddLazyCaptcha(builder.Configuration);
     var app = builder.Build();
 
     app.Run();

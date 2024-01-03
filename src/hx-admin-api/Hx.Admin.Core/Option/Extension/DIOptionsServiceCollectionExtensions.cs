@@ -30,12 +30,7 @@ public static class DIOptionsServiceCollectionExtensions
     public static IServiceCollection Configure<TOptions, TDep>(this IServiceCollection services, Action<TOptions, TDep> configureOptions)
         where TOptions : class
         where TDep : class
-    {
-        ThrowIfNull(services);
-        ThrowIfNull(configureOptions);
-        services.Configure<TOptions, TDep>(Options.Options.DefaultName, configureOptions);
-        return services;
-    }
+        => services.Configure<TOptions, TDep>(Options.Options.DefaultName, configureOptions);
 
     /// <summary>
     /// Registers an action used to configure a particular type of options.
@@ -55,10 +50,43 @@ public static class DIOptionsServiceCollectionExtensions
         ThrowIfNull(configureOptions);
 
         services.AddOptions<TOptions>(name)
-            .Configure<TDep>((options, dep) =>
-            {
-                configureOptions.Invoke(options,dep);
-            });
+            .Configure<TDep>(configureOptions);
+        return services;
+    }
+
+    /// <summary>
+    /// Registers an action used to initialize a particular type of options.
+    /// Note: These are run after all <seealso cref="OptionsServiceCollectionExtensions.Configure{TOptions}(IServiceCollection, Action{TOptions})"/>.
+    /// </summary>
+    /// <typeparam name="TOptions">The options type to be configured.</typeparam>
+    /// <typeparam name="TDep">A dependency used by the action.</typeparam>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add the services to.</param>
+    /// <param name="configureOptions">The action used to configure the options.</param>
+    /// <returns>The <see cref="IServiceCollection"/> so that additional calls can be chained.</returns>
+    public static IServiceCollection PostConfigure<TOptions, TDep>(this IServiceCollection services, Action<TOptions, TDep> configureOptions) 
+        where TOptions : class
+        where TDep : class
+        => services.PostConfigure<TOptions, TDep>(Options.Options.DefaultName, configureOptions);
+
+    /// <summary>
+    /// Registers an action used to configure a particular type of options.
+    /// Note: These are run after all <seealso cref="OptionsServiceCollectionExtensions.Configure{TOptions}(IServiceCollection, Action{TOptions})"/>.
+    /// </summary>
+    /// <typeparam name="TOptions">The options type to be configure.</typeparam>
+    /// <typeparam name="TDep">A dependency used by the action.</typeparam>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add the services to.</param>
+    /// <param name="name">The name of the options instance.</param>
+    /// <param name="configureOptions">The action used to configure the options.</param>
+    /// <returns>The <see cref="IServiceCollection"/> so that additional calls can be chained.</returns>
+    public static IServiceCollection PostConfigure<TOptions, TDep>(this IServiceCollection services, string? name, Action<TOptions, TDep> configureOptions)
+        where TOptions : class
+        where TDep : class
+    {
+        ThrowIfNull(services);
+        ThrowIfNull(configureOptions);
+
+        services.AddOptions<TOptions>(name)
+            .PostConfigure(configureOptions);
         return services;
     }
 
