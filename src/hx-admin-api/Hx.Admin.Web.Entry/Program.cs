@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Events;
+using System.Net.Mail;
+using System.Net;
+using Hx.Admin.Core;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
@@ -40,6 +43,14 @@ try
     // 限流服务
     builder.Services.AddInMemoryRateLimiting();
     builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+
+    // 即时通讯
+    builder.Services.AddSignalR();
+
+    // logo显示
+    builder.Services.AddLogoDisplay();
+    // 验证码
+    builder.Services.AddLazyCaptcha();
 
     var app = builder.Build();
 

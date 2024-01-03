@@ -1,23 +1,20 @@
-﻿using Lazy.Captcha.Core;
+﻿// MIT License
+//
+// Copyright (c) 2021-present songtaojie, Daming Co.,Ltd and Contributors
+//
+// 电话/微信：song977601042
+
 using Lazy.Captcha.Core.Generator;
 using Lazy.Captcha.Core.Storage;
+using Lazy.Captcha.Core;
 using SkiaSharp;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Hx.Admin.Core;
-
-public static class LazyCaptchaSetup
-{
-    /// <summary>
-    /// 验证码初始化
-    /// </summary>
-    /// <param name="services"></param>
-    /// <param name="configuration">配置</param>
-    public static void AddLazyCaptcha(this IServiceCollection services,IConfiguration configuration)
-    {
-        services.AddCaptcha(configuration);
-        services.AddScoped<ICaptcha, RandomCaptcha>();
-    }
-}
+namespace Hx.Admin.Core.Captcha;
 
 /// <summary>
 /// 随机验证码
