@@ -5,6 +5,7 @@
 // 电话/微信：song977601042
 
 using AspNetCoreRateLimit;
+using Hx.Admin.Core;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
@@ -12,14 +13,20 @@ using OnceMi.AspNetCore.OSS;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using FluentEmail.Core.Interfaces;
+using FluentEmail.Smtp;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection;
 public static class AdminCoreServiceCollectionExtensions
 {
     public static void AddAdminCoreService(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddAdminOptions();
         services.AddControllersWithViews()
            .ConfigureApiBehaviorOptions(options =>
            {
@@ -47,5 +54,12 @@ public static class AdminCoreServiceCollectionExtensions
         services.AddLazyCaptcha(configuration);
         // OSS服务注册
         services.AddOSSServiceProvider(configuration);
+
+        // 电子邮件
+        services.AddFluentEmail(configuration);
+        // 雪花Id
+        services.AddYitterIdGenerater();
     }
+
+
 }

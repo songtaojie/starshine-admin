@@ -22,7 +22,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="services">服务集合</param>
         /// <returns>服务集合</returns>
-        public static IServiceCollection AddHxAdminOptions(this IServiceCollection services)
+        public static IServiceCollection AddAdminOptions(this IServiceCollection services)
         {
             services.AddConfigureOptions<SnowIdOptions>();
             services.AddConfigureOptions<OSSProviderOptions>();

@@ -43,7 +43,6 @@ public class RouteAuthorizationRequirement : IAuthorizationRequirement
     /// <summary>
     /// 构造
     /// </summary>
-    /// <param name="permissions">权限集合</param>
     /// <param name="claimType">声明类型</param>
     /// <param name="issuer">发行人</param>
     /// <param name="audience">订阅人</param>

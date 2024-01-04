@@ -14,10 +14,9 @@ namespace Hx.Admin.Core;
 
 public sealed class WorkerNode
 {
-    private readonly ILogger<WorkerNode> _logger;
+    private readonly ILogger _logger;
     private readonly ICache _cache;
     private readonly CacheSettingsOptions _settings;
-    private readonly ILogger<WorkerNode> _workerLogger;
     private readonly IRedisClient _redisClient;
     private readonly IServiceProvider _serviceProvider;
     public WorkerNode(ILogger<WorkerNode> logger, 
@@ -31,7 +30,6 @@ public sealed class WorkerNode
         _serviceProvider = serviceProvider;
         _redisClient = _serviceProvider.GetService<IRedisClient>();
     }
-    private static object lockObj = new object();
     
     internal async Task InitWorkerNodesAsync(string serviceName)
     {
@@ -107,25 +105,21 @@ public sealed class WorkerNode
             {
                 workerIds.Remove(score);
             }
+
             if (workerIds.ContainsValue(workerId.ToString()))
             {
                 var item = workerIds.FirstOrDefault(r => r.Value == workerId.ToString());
-                if (workerIds.ContainsKey(score))
+                if (workerIds.ContainsKey(item.Key))
                 {
-                    workerIds.Remove(score);
+                    workerIds.Remove(item.Key);
                 }
-                workerIds.Add(score, workerId.ToString());
             }
-            var worker = workerIds.FirstOrDefault(r => r.Value == workerId.ToString());
-            if (worker != null)
-            { 
-                
-            }
-            _cache.SortedSetAdd(cacheKey, workerId, score);
+            workerIds.Add(score, workerId.ToString());
+            _cache.Set(cacheKey, workerIds);
         }
         else
-        { 
-            
+        {
+            _redisClient.ZAdd(cacheKey, score, workerId.ToString());
         }
            
         _logger.LogDebug("刷新 WorkerNodes:{0}:{1}", workerId, score);

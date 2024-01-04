@@ -1,11 +1,5 @@
-using AspNetCoreRateLimit;
-using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Events;
-using System.Net.Mail;
-using System.Net;
-using Hx.Admin.Core;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
@@ -16,9 +10,8 @@ Log.Logger = new LoggerConfiguration()
 try
 {
     Log.Information("Starting web application");
-
     var builder = WebApplication.CreateBuilder(args);
-   
+    builder.ConfigureHxWebApp();
     builder.Services.AddAdminCoreService(builder.Configuration);
     builder.Host.UseSerilog((context, services, configuration) => configuration
              .ReadFrom.Configuration(context.Configuration)
@@ -27,7 +20,7 @@ try
              .WriteTo.Console());
    
     var app = builder.Build();
-
+    app.UseAdminCoreApp(builder.Environment);
     app.Run();
 }
 catch (Exception ex)

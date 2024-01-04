@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hx.Admin.Application", "Hx.Admin.Application\Hx.Admin.Application.csproj", "{C3F5AEC5-ACEE-4109-94E3-3F981DC18268}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hx.Admin.Core", "Hx.Admin.Core\Hx.Admin.Core.csproj", "{3AD1A3ED-ED11-479D-BE32-6589D98A9ADC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hx.Admin.Web.Core", "Hx.Admin.Web.Core\Hx.Admin.Web.Core.csproj", "{8A42A864-A69E-40F7-975E-F2FA36E7DFEE}"
@@ -24,7 +22,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hx.Admin.Models", "Hx.Admin
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1.Core", "1.Core", "{5E9BC6A8-B239-43B7-89D3-C2A7129983FD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hx.Admin.Task", "Hx.Admin.Task\Hx.Admin.Task.csproj", "{4FCD5E19-0ACD-40D4-9C67-3E5D437AEFE2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hx.Admin.Task", "Hx.Admin.Task\Hx.Admin.Task.csproj", "{4FCD5E19-0ACD-40D4-9C67-3E5D437AEFE2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3.Services", "3.Services", "{16F9C8C8-F542-4B2F-AEC0-6AAE7C56BEC8}"
 EndProject
@@ -38,10 +36,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C3F5AEC5-ACEE-4109-94E3-3F981DC18268}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C3F5AEC5-ACEE-4109-94E3-3F981DC18268}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C3F5AEC5-ACEE-4109-94E3-3F981DC18268}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C3F5AEC5-ACEE-4109-94E3-3F981DC18268}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3AD1A3ED-ED11-479D-BE32-6589D98A9ADC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3AD1A3ED-ED11-479D-BE32-6589D98A9ADC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3AD1A3ED-ED11-479D-BE32-6589D98A9ADC}.Release|Any CPU.ActiveCfg = Release|Any CPU
