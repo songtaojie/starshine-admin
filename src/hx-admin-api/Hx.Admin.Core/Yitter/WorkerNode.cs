@@ -103,9 +103,13 @@ public sealed class WorkerNode
         if (_settings.CacheType == Cache.CacheTypeEnum.Memory)
         {
             var workerIds = _cache.Get<SortedList<decimal, string>>(cacheKey);
+            if (workerIds.ContainsKey(score))
+            {
+                workerIds.Remove(score);
+            }
             if (workerIds.ContainsValue(workerId.ToString()))
             {
-                workerIds.FirstOrDefault(r => r.Value == workerId.ToString());
+                var item = workerIds.FirstOrDefault(r => r.Value == workerId.ToString());
                 if (workerIds.ContainsKey(score))
                 {
                     workerIds.Remove(score);
