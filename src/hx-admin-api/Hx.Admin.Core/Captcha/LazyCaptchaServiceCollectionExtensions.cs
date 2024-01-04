@@ -1,9 +1,10 @@
-﻿using Lazy.Captcha.Core;
+﻿using Hx.Admin.Core.Captcha;
+using Lazy.Captcha.Core;
 using Lazy.Captcha.Core.Generator;
 using Lazy.Captcha.Core.Storage;
 using SkiaSharp;
 
-namespace Hx.Admin.Core;
+namespace Microsoft.Extensions.DependencyInjection;
 
 public static class LazyCaptchaServiceCollectionExtensions
 {
@@ -15,6 +16,6 @@ public static class LazyCaptchaServiceCollectionExtensions
     public static void AddLazyCaptcha(this IServiceCollection services,IConfiguration configuration)
     {
         services.AddCaptcha(configuration);
-        services.AddScoped<ICaptcha, Captcha.RandomCaptcha>();
+        services.AddScoped<ICaptcha, RandomCaptcha>();
     }
 }

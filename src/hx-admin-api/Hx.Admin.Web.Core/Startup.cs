@@ -26,15 +26,6 @@ public class Startup : AppStartup
 {
     public void ConfigureServices(IServiceCollection services)
     {
-        // 远程请求
-        services.AddRemoteRequest();
-        // 任务队列
-        services.AddTaskQueue();
-        // 任务调度
-        services.AddSchedule(options =>
-        {
-            options.AddPersistence<DbJobPersistence>(); // 添加作业持久化器
-        });
         // 脱敏检测
         services.AddSensitiveDetection();
         // 控制台格式化
@@ -76,12 +67,6 @@ public class Startup : AppStartup
         // ElasticSearch
         services.AddElasticSearch();
 
-     
-
-        // 限流服务
-        services.AddInMemoryRateLimiting();
-        services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
-
         // 事件总线
         services.AddEventBus(options =>
         {
@@ -120,15 +105,6 @@ public class Startup : AppStartup
                     UseDefaultCredentials = emailOpt.UseDefaultCredentials,
                     Credentials = new NetworkCredential(emailOpt.UserName, emailOpt.Password)
                 });
-
-        // 模板引擎
-        services.AddViewEngine();
-
-        // 即时通讯
-        services.AddSignalR();
-
-        // logo显示
-        services.AddLogoDisplay();
 
         // 日志记录
         if (App.GetConfig<bool>("Logging:File:Enabled")) // 日志写入文件

@@ -5,8 +5,10 @@
 // 电话/微信：song977601042
 
 using Elasticsearch.Net;
+using Hx.Admin.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Nest;
 using OnceMi.AspNetCore.OSS;
 using System;
@@ -17,16 +19,14 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Extensions.DependencyInjection;
 /// <summary>
-/// ES服务注册
+/// OSS服务注册
 /// </summary>
-public static class OSSServiceCollectionExtensions
+public static class OSSServiceProviderCollectionExtensions
 {
-    public static void AddOSSServiceSetup(this IServiceCollection services, IConfiguration configuration)
+    public static void AddOSSServiceProvider(this IServiceCollection services, IConfiguration configuration)
     {
         var isEnable = configuration.GetValue("OSSProvider:IsEnable", false);
         if (!isEnable) return;
-
-        services.AddOSSService(configuration["OSSProvider:Provider"],options => { });
-
+        services.AddOSSService(configuration["OSSProvider:Provider"], "OSSProvider");
     }
 }

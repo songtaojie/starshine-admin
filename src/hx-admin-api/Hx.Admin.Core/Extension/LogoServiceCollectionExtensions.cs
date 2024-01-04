@@ -1,9 +1,9 @@
-﻿namespace Hx.Admin.Core;
+﻿namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
 /// logo显示
 /// </summary>
-public static class LogoExtension
+public static class LogoServiceCollectionExtensions
 {
     public static void AddLogoDisplay(this IServiceCollection services)
     {
