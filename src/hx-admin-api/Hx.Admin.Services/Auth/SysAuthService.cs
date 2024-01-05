@@ -15,18 +15,18 @@ public class SysAuthService : BaseService<SysUser>, ISysAuthService
 {
     private readonly UserManager _userManager;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly SysMenuService _sysMenuService;
-    private readonly SysOnlineUserService _sysOnlineUserService;
-    private readonly SysConfigService _sysConfigService;
+    private readonly ISysMenuService _sysMenuService;
+    private readonly ISysOnlineUserService _sysOnlineUserService;
+    private readonly ISysConfigService _sysConfigService;
     private readonly IMemoryCache _cache;
     private readonly ICaptcha _captcha;
 
     public SysAuthService(UserManager userManager,
         ISqlSugarRepository<SysUser> rep,
         IHttpContextAccessor httpContextAccessor,
-        SysMenuService sysMenuService,
-        SysOnlineUserService sysOnlineUserService,
-        SysConfigService sysConfigService,
+        ISysMenuService sysMenuService,
+        ISysOnlineUserService sysOnlineUserService,
+        ISysConfigService sysConfigService,
         IMemoryCache cache,
         ICaptcha captcha):base(rep)
     {

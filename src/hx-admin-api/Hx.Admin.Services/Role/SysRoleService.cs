@@ -12,18 +12,18 @@ public class SysRoleService : BaseService<SysRole>, ISysRoleService
 {
     private readonly UserManager _userManager;
     private readonly ICache _cache;
-    private readonly SysRoleOrgService _sysRoleOrgService;
-    private readonly SysRoleMenuService _sysRoleMenuService;
-    private readonly SysOrgService _sysOrgService;
-    private readonly SysUserRoleService _sysUserRoleService;
+    private readonly ISysRoleOrgService _sysRoleOrgService;
+    private readonly ISysRoleMenuService _sysRoleMenuService;
+    private readonly ISysOrgService _sysOrgService;
+    private readonly ISysUserRoleService _sysUserRoleService;
 
     public SysRoleService(UserManager userManager,
         ISqlSugarRepository<SysRole> sysRoleRep,
         ICache cache,
-        SysRoleOrgService sysRoleOrgService,
-        SysRoleMenuService sysRoleMenuService,
-        SysOrgService sysOrgService,
-        SysUserRoleService sysUserRoleService):base(sysRoleRep)
+        ISysRoleOrgService sysRoleOrgService,
+        ISysRoleMenuService sysRoleMenuService,
+        ISysOrgService sysOrgService,
+        ISysUserRoleService sysUserRoleService):base(sysRoleRep)
     {
         _userManager = userManager;
         _cache = cache;

@@ -3,6 +3,7 @@ using Hx.Admin.Models;
 using Hx.Admin.Models.ViewModels.File;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using OnceMi.AspNetCore.OSS;
 using System.Text.RegularExpressions;
@@ -22,11 +23,12 @@ public class SysFileService : BaseService<SysFile>, ISysFileService
     private readonly IOSSService _OSSService;
     private readonly IWebHostEnvironment _webHostEnvironment;
     public SysFileService(UserManager userManager,
+        IServiceProvider serviceProvider,
         ISqlSugarRepository<SysFile> sysFileRep,
         IOptions<OSSProviderOptions> oSSProviderOptions,
         IOptions<UploadOptions> uploadOptions,
         ICommonService commonService,
-        IOSSServiceFactory ossServiceFactory,
+        
         IWebHostEnvironment webHostEnvironment) :base(sysFileRep)
     {
         _userManager = userManager;
@@ -35,7 +37,10 @@ public class SysFileService : BaseService<SysFile>, ISysFileService
         _commonService = commonService;
         _webHostEnvironment = webHostEnvironment;
         if (_OSSProviderOptions.IsEnable)
+        {
+            IOSSServiceFactory ossServiceFactory = serviceProvider.GetRequiredService<IOSSServiceFactory>();
             _OSSService = ossServiceFactory.Create(Enum.GetName(_OSSProviderOptions.Provider));
+        }
     }
 
     /// <summary>

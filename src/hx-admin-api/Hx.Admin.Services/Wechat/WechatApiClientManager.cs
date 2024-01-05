@@ -7,6 +7,7 @@ namespace Hx.Admin.Core.Service;
 /// <summary>
 /// 微信API客户端
 /// </summary>
+[Injection(Pattern = InjectionPatterns.Self)]
 public partial class WechatApiClientManager : ISingletonDependency
 {
     public readonly WechatOptions _wechatOptions;

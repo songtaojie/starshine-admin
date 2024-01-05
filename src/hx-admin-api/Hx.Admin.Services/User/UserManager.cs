@@ -6,6 +6,7 @@ namespace Hx.Admin.Core;
 /// <summary>
 /// 当前登录用户
 /// </summary>
+[Injection(Pattern = InjectionPatterns.Self)]
 public class UserManager : IScopedDependency
 {
     private readonly IHttpContextAccessor _httpContextAccessor;

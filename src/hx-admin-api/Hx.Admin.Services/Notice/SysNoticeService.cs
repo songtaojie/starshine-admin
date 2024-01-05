@@ -10,12 +10,12 @@ namespace Hx.Admin.Core.Service;
 public class SysNoticeService : BaseService<SysNotice>, ISysNoticeService
 {
     private readonly UserManager _userManager;
-    private readonly SysOnlineUserService _sysOnlineUserService;
+    private readonly ISysOnlineUserService _sysOnlineUserService;
 
     public SysNoticeService(
         UserManager userManager,
         ISqlSugarRepository<SysNotice> sysNoticeRep,
-        SysOnlineUserService sysOnlineUserService):base(sysNoticeRep)
+        ISysOnlineUserService sysOnlineUserService):base(sysNoticeRep)
     {
         _userManager = userManager;
         _sysOnlineUserService = sysOnlineUserService;

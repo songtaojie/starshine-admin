@@ -11,17 +11,17 @@ namespace Hx.Admin.Core.Service;
 public class SysUserService : BaseService<SysUser>, ISysUserService
 {
     private readonly UserManager _userManager;
-    private readonly SysOrgService _sysOrgService;
-    private readonly SysUserExtOrgService _sysUserExtOrgService;
-    private readonly SysUserRoleService _sysUserRoleService;
-    private readonly SysConfigService _sysConfigService;
+    private readonly ISysOrgService _sysOrgService;
+    private readonly ISysUserExtOrgService _sysUserExtOrgService;
+    private readonly ISysUserRoleService _sysUserRoleService;
+    private readonly ISysConfigService _sysConfigService;
 
     public SysUserService(UserManager userManager,
         ISqlSugarRepository<SysUser> sysUserRep,
-        SysOrgService sysOrgService,
-        SysUserExtOrgService sysUserExtOrgService,
-        SysUserRoleService sysUserRoleService,
-        SysConfigService sysConfigService):base(sysUserRep)
+        ISysOrgService sysOrgService,
+        ISysUserExtOrgService sysUserExtOrgService,
+        ISysUserRoleService sysUserRoleService,
+        ISysConfigService sysConfigService):base(sysUserRep)
     {
         _userManager = userManager;
         _sysOrgService = sysOrgService;

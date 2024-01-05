@@ -22,12 +22,11 @@
 
 	<ItemGroup>
 		<None Remove="Hx.Admin.db" />
-		<None Remove="sensitive-words.txt" />
 		<None Remove="Test.db" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <EmbeddedResource Include="sensitive-words.txt" />
+	  <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.2" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -65,12 +64,6 @@
 		<Content Update="wwwroot\Template\Service.cs.vm">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Update="ip2region.db">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
 	</ItemGroup>
 
 </Project>
