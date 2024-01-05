@@ -1,5 +1,5 @@
-﻿using Hx.Core;
-using Hx.Core.DataEncryption;
+﻿using Hx.Sdk.Core;
+using Hx.Sdk.Core.DataEncryption;
 using Org.BouncyCastle.Utilities.Encoders;
 
 namespace Hx.Admin.Core;

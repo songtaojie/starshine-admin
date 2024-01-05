@@ -4,7 +4,7 @@
 //
 // 电话/微信：song977601042
 
-using Hx.Core;
+using Hx.Sdk.Core;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

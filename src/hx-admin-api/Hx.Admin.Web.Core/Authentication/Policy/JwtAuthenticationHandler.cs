@@ -5,7 +5,7 @@
 // 电话/微信：song977601042
 
 using COSXML.Network;
-using Hx.Core;
+using Hx.Sdk.Core;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;

@@ -26,7 +26,7 @@ public class SqlSugarCache : ICacheService
 
     public bool ContainsKey<V>(string key)
     {
-        return _cache.ContainsKey(key);
+        return _cache.ExistsKey(key);
     }
 
     public V Get<V>(string key)
@@ -41,7 +41,7 @@ public class SqlSugarCache : ICacheService
 
     public V GetOrCreate<V>(string cacheKey, Func<V> create, int cacheDurationInSeconds = int.MaxValue)
     {
-        if (!_cache.ContainsKey(cacheKey))
+        if (!_cache.ExistsKey(cacheKey))
         {
             var value = create();
             if (cacheDurationInSeconds <= 0)

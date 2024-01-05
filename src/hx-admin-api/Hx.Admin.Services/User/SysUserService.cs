@@ -1,7 +1,7 @@
 ﻿using Hx.Admin.IService;
 using Hx.Admin.Models;
 using Hx.Admin.Models.ViewModels.Menu;
-using Hx.Core.DataEncryption;
+using Hx.Sdk.Core.DataEncryption;
 
 namespace Hx.Admin.Core.Service;
 

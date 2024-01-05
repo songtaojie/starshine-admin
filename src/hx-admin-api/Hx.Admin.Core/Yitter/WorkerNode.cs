@@ -16,41 +16,27 @@ public sealed class WorkerNode
 {
     private readonly ILogger _logger;
     private readonly ICache _cache;
-    private readonly CacheSettingsOptions _settings;
-    private readonly IRedisClient _redisClient;
     private readonly IServiceProvider _serviceProvider;
     public WorkerNode(ILogger<WorkerNode> logger, 
         ICache cache,
-        IOptions<CacheSettingsOptions> options,
         IServiceProvider serviceProvider)
     {
         _cache = cache;
         _logger = logger;
-        _settings = options.Value;
         _serviceProvider = serviceProvider;
-        _redisClient = _serviceProvider.GetService<IRedisClient>();
     }
     
     internal async Task InitWorkerNodesAsync(string serviceName)
     {
         var cacheKey = GetWorkerIdCacheKey(serviceName);
-        if (!_cache.ContainsKey(cacheKey))
+        if (!_cache.ExistsKey(cacheKey))
         {
             _logger.LogInformation("开始初始化WorkerNodes:{0}", cacheKey);
             double count = 0;
-            if (_settings.CacheType == Cache.CacheTypeEnum.Memory)
+            if (_cache.CacheType == Cache.CacheTypeEnum.Redis)
             {
-                SortedList<decimal, string> workerIdList = new SortedList<decimal, string>();
-                for (long index = 0; index <= IdGenerater.MaxWorkerId; index++)
-                {
-                    workerIdList.Add(DateTimeOffset.Now.ToUnixTimeMilliseconds(),index.ToString());
-                }
-                _cache.Set(cacheKey, workerIdList);
-                count = workerIdList.Count;
-            }
-            else
-            {
-                if (!_redisClient.SetNx(GetWorkerIdLockKey(serviceName), DateTimeOffset.Now.ToUnixTimeMilliseconds(), 2000))
+                var redisClient = _cache.Instance as IRedisClient;
+                if (!redisClient.SetNx(GetWorkerIdLockKey(serviceName), DateTimeOffset.Now.ToUnixTimeMilliseconds(), 2000))
                 {
                     await Task.Delay(300);
                     await InitWorkerNodesAsync(serviceName);
@@ -61,8 +47,18 @@ public sealed class WorkerNode
                 {
                     set.Add(new ZMember(index.ToString(), DateTimeOffset.Now.ToUnixTimeMilliseconds()));
                 }
-                _redisClient.ZAdd(GetWorkerIdLockKey(serviceName), set.ToArray());
+                redisClient.ZAdd(GetWorkerIdLockKey(serviceName), set.ToArray());
                 count = set.Count;
+            }
+            else
+            {
+                SortedList<decimal, string> workerIdList = new SortedList<decimal, string>();
+                for (long index = 0; index <= IdGenerater.MaxWorkerId; index++)
+                {
+                    workerIdList.Add(DateTimeOffset.Now.ToUnixTimeMilliseconds(), index.ToString());
+                }
+                _cache.Set(cacheKey, workerIdList);
+                count = workerIdList.Count;
             }
             _logger.LogInformation("完成初始化WorkerNodes:{0}:{1}", cacheKey, count);
         }
@@ -73,17 +69,18 @@ public sealed class WorkerNode
     internal long GetWorkerId(string serviceName)
     {
         var cacheKey = GetWorkerIdCacheKey(serviceName);
-        if (_cache.ContainsKey(cacheKey))
+        if (_cache.ExistsKey(cacheKey))
         {
-            if (_settings.CacheType == Cache.CacheTypeEnum.Memory)
+            if (_cache.CacheType == Cache.CacheTypeEnum.Redis)
             {
-                var workerIds = _cache.Get<SortedList<decimal, string>>(cacheKey);
-                if (workerIds.Any()) return long.Parse(workerIds.First().Value);
+                var redisClient = _cache.Instance as IRedisClient;
+                var workerIds = redisClient.ZRange(cacheKey, 0, -1);
+                if (workerIds.Any()) return long.Parse(workerIds.First());
             }
             else
             {
-                var workerIds = _redisClient.ZRange(cacheKey, 0, -1);
-                if(workerIds.Any()) return long.Parse(workerIds.First());
+                var workerIds = _cache.Get<SortedList<decimal, string>>(cacheKey);
+                if (workerIds.Any()) return long.Parse(workerIds.First().Value);
             }
         }
         return 0;
@@ -98,7 +95,12 @@ public sealed class WorkerNode
         var score = workerIdScore == null 
                 ? Convert.ToDecimal(DateTimeOffset.Now.ToUnixTimeMilliseconds()) 
                 : Convert.ToDecimal(workerIdScore.Value);
-        if (_settings.CacheType == Cache.CacheTypeEnum.Memory)
+        if (_cache.CacheType == Cache.CacheTypeEnum.Memory)
+        {
+            var redisClient = _cache.Instance as IRedisClient;
+            redisClient.ZAdd(cacheKey, score, workerId.ToString());
+        }
+        else
         {
             var workerIds = _cache.Get<SortedList<decimal, string>>(cacheKey);
             if (workerIds.ContainsKey(score))
@@ -117,11 +119,6 @@ public sealed class WorkerNode
             workerIds.Add(score, workerId.ToString());
             _cache.Set(cacheKey, workerIds);
         }
-        else
-        {
-            _redisClient.ZAdd(cacheKey, score, workerId.ToString());
-        }
-           
         _logger.LogDebug("刷新 WorkerNodes:{0}:{1}", workerId, score);
     }
 

@@ -27,9 +27,9 @@
     <PackageReference Include="DotNetCore.Compile.Environment" Version="3.2.0" />
     <PackageReference Include="DotNetCore.Natasha.CSharp" Version="5.1.0" />
     <PackageReference Include="FluentEmail.Smtp" Version="3.0.2" />
-    <PackageReference Include="Hx.Cache" Version="1.1.0" />
+    <PackageReference Include="Hx.Cache" Version="1.2.0" />
     <PackageReference Include="Hx.Common" Version="1.2.0" />
-    <PackageReference Include="Hx.Sdk.Core" Version="6.2.0" />
+    <PackageReference Include="Hx.Sdk.Core" Version="6.2.2" />
     <PackageReference Include="Hx.Sqlsugar" Version="1.0.0" />
     <PackageReference Include="IPTools.China" Version="1.6.0" />
     <PackageReference Include="Lazy.Captcha.Core" Version="2.0.3" />

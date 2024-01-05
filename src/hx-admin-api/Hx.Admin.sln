@@ -22,7 +22,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hx.Admin.Models", "Hx.Admin
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1.Core", "1.Core", "{5E9BC6A8-B239-43B7-89D3-C2A7129983FD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hx.Admin.Task", "Hx.Admin.Task\Hx.Admin.Task.csproj", "{4FCD5E19-0ACD-40D4-9C67-3E5D437AEFE2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hx.Admin.Tasks", "Hx.Admin.Tasks\Hx.Admin.Tasks.csproj", "{4FCD5E19-0ACD-40D4-9C67-3E5D437AEFE2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3.Services", "3.Services", "{16F9C8C8-F542-4B2F-AEC0-6AAE7C56BEC8}"
 EndProject

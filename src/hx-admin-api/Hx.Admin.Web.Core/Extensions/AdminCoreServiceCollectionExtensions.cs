@@ -32,7 +32,7 @@ public static class AdminCoreServiceCollectionExtensions
            {
 
            });
-        services.AddCache(configuration);
+        services.AddCache();
         services.AddSqlSugar();
         // 配置Nginx转发获取客户端真实IP
         // 注1：如果负载均衡不是在本机通过 Loopback 地址转发请求的，一定要加上options.KnownNetworks.Clear()和options.KnownProxies.Clear()
@@ -59,6 +59,7 @@ public static class AdminCoreServiceCollectionExtensions
         services.AddFluentEmail(configuration);
         // 雪花Id
         services.AddYitterIdGenerater();
+        services.AddQuartzService(configuration);
     }
 
 

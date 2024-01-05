@@ -8,7 +8,7 @@ using Hx.Admin.Core;
 using Hx.Admin.Core.Service;
 using Hx.Admin.IService;
 using Hx.Common.Extensions;
-using Hx.Core;
+using Hx.Sdk.Core;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;

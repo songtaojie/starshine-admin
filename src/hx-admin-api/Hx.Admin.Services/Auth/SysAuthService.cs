@@ -1,7 +1,7 @@
 using Hx.Admin.IService;
 using Hx.Admin.Models;
 using Hx.Admin.Models.ViewModels.Auth;
-using Hx.Core.DataEncryption;
+using Hx.Sdk.Core.DataEncryption;
 using Lazy.Captcha.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;

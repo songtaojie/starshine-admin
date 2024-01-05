@@ -4,6 +4,6 @@ global using System.Linq.Dynamic.Core;
 global using Hx.Admin.Core;
 global using Hx.Common;
 global using Hx.Sqlsugar;
-global using Hx.Core.FriendlyException;
+global using Hx.Sdk.Core.FriendlyException;
 global using Mapster;
 global using Hx.Cache;

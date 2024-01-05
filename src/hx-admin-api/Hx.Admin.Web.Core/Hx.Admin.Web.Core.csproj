@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Hx.Admin.Services\Hx.Admin.Services.csproj" />
+    <ProjectReference Include="..\Hx.Admin.Tasks\Hx.Admin.Tasks.csproj" />
   </ItemGroup>
 
 </Project>
