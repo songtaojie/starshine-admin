@@ -28,10 +28,10 @@ public static class AdminCoreServiceCollectionExtensions
     {
         services.AddAdminOptions();
         services.AddControllersWithViews()
-           .ConfigureApiBehaviorOptions(options =>
-           {
-
-           });
+            .AddMvcOptions(options =>
+            {
+                options.Conventions.Add(new WebApiApplicationModelConvention());
+            });
         services.AddCache();
         services.AddSqlSugar();
         // 配置Nginx转发获取客户端真实IP
@@ -59,7 +59,7 @@ public static class AdminCoreServiceCollectionExtensions
         services.AddFluentEmail(configuration);
         // 雪花Id
         services.AddYitterIdGenerater();
-        services.AddQuartzService(configuration);
+        //services.AddQuartzService(configuration);
     }
 
 

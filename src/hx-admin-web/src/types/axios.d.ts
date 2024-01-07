@@ -10,4 +10,7 @@ declare module 'axios' {
 		type?: string;
 		[key: string]: T;
 	}
+	export interface AxiosRequestConfig<T = any> {
+		api?: string;
+	}
 }

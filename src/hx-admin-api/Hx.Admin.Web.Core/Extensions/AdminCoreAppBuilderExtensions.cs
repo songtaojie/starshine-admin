@@ -28,17 +28,17 @@ public static class AdminCoreAppBuilderExtensions
         if (env.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();
-            app.UseForwardedHeaders();
+            //app.UseForwardedHeaders();
         }
         else
         {
             app.UseExceptionHandler("/Home/Error");
-            app.UseForwardedHeaders();
+            //app.UseForwardedHeaders();
             app.UseHsts();
         }
 
-        // 添加状态码拦截中间件
-        app.UseUnifyResultStatusCodes();
+        //// 添加状态码拦截中间件
+        //app.UseUnifyResultStatusCodes();
 
         //// 启用HTTPS
         //app.UseHttpsRedirection();

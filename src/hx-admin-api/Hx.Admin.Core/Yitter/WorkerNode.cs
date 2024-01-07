@@ -97,11 +97,6 @@ public sealed class WorkerNode
                 : Convert.ToDecimal(workerIdScore.Value);
         if (_cache.CacheType == Cache.CacheTypeEnum.Memory)
         {
-            var redisClient = _cache.Instance as IRedisClient;
-            redisClient.ZAdd(cacheKey, score, workerId.ToString());
-        }
-        else
-        {
             var workerIds = _cache.Get<SortedList<decimal, string>>(cacheKey);
             if (workerIds.ContainsKey(score))
             {
@@ -118,6 +113,11 @@ public sealed class WorkerNode
             }
             workerIds.Add(score, workerId.ToString());
             _cache.Set(cacheKey, workerIds);
+        }
+        else
+        {
+            var redisClient = _cache.Instance as IRedisClient;
+            redisClient.ZAdd(cacheKey, score, workerId.ToString());
         }
         _logger.LogDebug("刷新 WorkerNodes:{0}:{1}", workerId, score);
     }

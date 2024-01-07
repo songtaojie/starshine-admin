@@ -14,7 +14,8 @@
 import { Configuration } from "./configuration";
 // Some imports not used depending on template conditions
 // @ts-ignore
-import globalAxios, { AxiosRequestConfig, AxiosInstance } from 'axios';
+import globalAxios, { AxiosResponse,AxiosRequestConfig, AxiosInstance } from 'axios';
+import { AdminResult, AdminResultPagedListResult } from './models/base';
 
 export const BASE_PATH = "/".replace(/\/+$/, "");
 
@@ -53,6 +54,127 @@ export class BaseAPI {
             this.basePath = configuration.basePath || this.basePath;
         }
     }
+
+    /**
+         * 
+         * @summary 删除
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+    async Delete<Tout>(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<AdminResult<Tout>>>> {
+        const newOptions = {method: 'DELETE', ...options}
+        const localVarAxiosArgs = await ApiAxiosParamCreator(this.configuration).BuildParam(newOptions);
+        return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+            const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+            return axios.request(axiosRequestArgs);
+        };
+    }
+
+      /**
+     * 
+     * @summary 删除
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+   async DeleteAdminResult<Tout>(options?: AxiosRequestConfig): Promise<AxiosResponse<AdminResult<Tout>>> {
+     return this.Delete<Tout>(options).then((request) => request(this.axios, this.basePath))
+   }
+
+    /**
+     * 
+     * @summary 获取分页列表
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async Page<Tout>(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<AdminResultPagedListResult<Tout>>>> {
+        const newOptions = {method: 'GET', ...options}
+        const localVarAxiosArgs = await ApiAxiosParamCreator(this.configuration).BuildParam(newOptions);
+        return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+            const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+            return axios.request(axiosRequestArgs);
+        };
+    }
+    /**
+     * 
+     * @summary 获取分页列表
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+   async PageAdminResult<Tout>(options?: AxiosRequestConfig): Promise<AxiosResponse<AdminResultPagedListResult<Tout>>> {
+     return this.Page<Tout>(options).then((request) => request(this.axios, this.basePath))
+   }
+
+    /**
+     * 
+     * @summary 更新
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async Put<Tout>(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<AdminResult<Tout>>>> {
+        const newOptions = {method: 'PUT', ...options}
+        const localVarAxiosArgs = await ApiAxiosParamCreator(this.configuration).BuildParam(newOptions);
+        return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+            const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+            return axios.request(axiosRequestArgs);
+        };
+    }
+   /**
+     * 
+     * @summary 更新
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+   async PutAdminResult<Tout>(options?: AxiosRequestConfig): Promise<AxiosResponse<AdminResult<Tout>>> {
+     return this.Put<Tout>(options).then((request) => request(this.axios, this.basePath))
+   }
+
+
+    /**
+     * 
+     * @summary 获取
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async Get<Tout>(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<AdminResult<Tout>>>> {
+        const newOptions = {method: 'GET', ...options}
+        const localVarAxiosArgs = await ApiAxiosParamCreator(this.configuration).BuildParam(newOptions);
+        return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+            const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+            return axios.request(axiosRequestArgs);
+        };
+    }
+    /**
+     * 
+     * @summary 获取
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async GetAdminResult<Tout>(options?: AxiosRequestConfig): Promise<AxiosResponse<AdminResult<Tout>>> {
+        return this.Get<Tout>(options).then((request) => request(this.axios, this.basePath))
+    }
+    /**
+     * 
+     * @summary 更新
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async Post<Tout>(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<AdminResult<Tout>>>> {
+        const newOptions = {method: 'POST', ...options}
+        const localVarAxiosArgs = await ApiAxiosParamCreator(this.configuration).BuildParam(newOptions);
+        return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+            const axiosRequestArgs :AxiosRequestConfig = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+            return axios.request(axiosRequestArgs);
+        };
+    }
+     /**
+     * 
+     * @summary 更新
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async PostAdminResult<Tout>(options?: AxiosRequestConfig): Promise<AxiosResponse<AdminResult<Tout>>> {
+        return this.Post<Tout>(options).then((request) => request(this.axios, this.basePath))
+    }
 };
 
 /**
@@ -67,3 +189,56 @@ export class RequiredError extends Error {
         super(msg);
     }
 }
+
+
+export const ApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * 
+         * @summary 构建删除参数
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        BuildParam: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(options.api || '', 'https://example.com');
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {...options.params} as any;
+            options.params = null
+            const localVarRequestOptions :AxiosRequestConfig = { method: 'POST', ...baseOptions, ...options};
+            // authentication Bearer required
+
+            localVarHeaderParameter['Content-Type'] = 'application/json-patch+json';
+
+            const query = new URLSearchParams(localVarUrlObj.search);
+            for (const key in localVarQueryParameter) {
+                if(localVarQueryParameter[key] != undefined) {
+                    query.set(key, localVarQueryParameter[key]);
+                }
+            }
+            for (const key in options.params) {
+                if(options.params[key] != undefined) {
+                    query.set(key, options.params[key]);
+                }
+            }
+            
+            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            const needsSerialization = (typeof options.data !== "string") || (localVarRequestOptions.headers != undefined && localVarRequestOptions.headers['Content-Type'] === 'application/json');
+            localVarRequestOptions.data =  needsSerialization ? JSON.stringify(options.data  !== undefined ? options.data  : {}) : (options.data  || "");
+
+            return {
+                url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                // url: localVarUrlObj.pathname + localVarUrlObj.hash,
+                options: localVarRequestOptions,
+            };
+        } 
+    }
+}
+

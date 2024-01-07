@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Hx.Admin.Web.Entry.Controllers
 {
-    [AllowAnonymous]
+    //[AllowAnonymous]
     public class HomeController : Controller
     {
         //private readonly ISystemService _systemService;

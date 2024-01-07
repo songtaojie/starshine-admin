@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Hx.Admin.Services\Hx.Admin.Services.csproj" />
+    <ProjectReference Include="..\Hx.Admin.IServices\Hx.Admin.IServices.csproj" />
   </ItemGroup>
 
 </Project>

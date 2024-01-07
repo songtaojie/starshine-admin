@@ -16,6 +16,7 @@ import { Configuration } from '../configuration';
 // Some imports not used depending on template conditions
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, RequestArgs, BaseAPI, RequiredError } from '../base';
+import { AdminResult, AdminResultPagedListResult } from '../models/base';
 import { AdminResultLoginOutput } from '../models';
 import { AdminResultLoginUserOutput } from '../models';
 import { AdminResultObject } from '../models';
@@ -514,100 +515,6 @@ export const SysAuthApiFp = function(configuration?: Configuration) {
 };
 
 /**
- * SysAuthApi - factory interface
- * @export
- */
-export const SysAuthApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    return {
-        /**
-         * 
-         * @summary swagger登录检查
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async apiSwaggerCheckUrlPost(options?: AxiosRequestConfig): Promise<AxiosResponse<number>> {
-            return SysAuthApiFp(configuration).apiSwaggerCheckUrlPost(options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary swagger登录提交
-         * @param {string} [userName] 
-         * @param {string} [password] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async apiSwaggerSubmitUrlPostForm(userName?: string, password?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<number>> {
-            return SysAuthApiFp(configuration).apiSwaggerSubmitUrlPostForm(userName, password, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary 获取验证码
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async apiSysAuthCaptchaGet(options?: AxiosRequestConfig): Promise<AxiosResponse<AdminResultObject>> {
-            return SysAuthApiFp(configuration).apiSysAuthCaptchaGet(options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary 获取登录配置
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async apiSysAuthLoginConfigGet(options?: AxiosRequestConfig): Promise<AxiosResponse<AdminResultObject>> {
-            return SysAuthApiFp(configuration).apiSysAuthLoginConfigGet(options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 用户名/密码：superadmin/123456
-         * @summary 登录系统
-         * @param {LoginInput} body 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async apiSysAuthLoginPost(body: LoginInput, options?: AxiosRequestConfig): Promise<AxiosResponse<AdminResultLoginOutput>> {
-            return SysAuthApiFp(configuration).apiSysAuthLoginPost(body, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary 退出系统
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async apiSysAuthLogoutPost(options?: AxiosRequestConfig): Promise<AxiosResponse<void>> {
-            return SysAuthApiFp(configuration).apiSysAuthLogoutPost(options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary 获取刷新Token
-         * @param {string} accessToken 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async apiSysAuthRefreshTokenAccessTokenGet(accessToken: string, options?: AxiosRequestConfig): Promise<AxiosResponse<AdminResultString>> {
-            return SysAuthApiFp(configuration).apiSysAuthRefreshTokenAccessTokenGet(accessToken, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary 获取用户配置
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async apiSysAuthUserConfigGet(options?: AxiosRequestConfig): Promise<AxiosResponse<AdminResultObject>> {
-            return SysAuthApiFp(configuration).apiSysAuthUserConfigGet(options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary 获取登录账号
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async apiSysAuthUserInfoGet(options?: AxiosRequestConfig): Promise<AxiosResponse<AdminResultLoginUserOutput>> {
-            return SysAuthApiFp(configuration).apiSysAuthUserInfoGet(options).then((request) => request(axios, basePath));
-        },
-    };
-};
-
-/**
  * SysAuthApi - object-oriented interface
  * @export
  * @class SysAuthApi
@@ -653,8 +560,8 @@ export class SysAuthApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof SysAuthApi
      */
-    public async apiSysAuthLoginConfigGet(options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResultObject>> {
-        return SysAuthApiFp(this.configuration).apiSysAuthLoginConfigGet(options).then((request) => request(this.axios, this.basePath));
+    public async apiSysAuthLoginConfigGet(options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<object>>> {
+        return this.GetAdminResult<object>({api:'/api/brand/list',...options});
     }
     /**
      * 用户名/密码：superadmin/123456
