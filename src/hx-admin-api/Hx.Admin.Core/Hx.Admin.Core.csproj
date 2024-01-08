@@ -30,7 +30,6 @@
     <PackageReference Include="Hx.Cache" Version="1.2.0" />
     <PackageReference Include="Hx.Common" Version="1.2.0" />
     <PackageReference Include="Hx.Sdk.Core" Version="6.2.3" />
-    <PackageReference Include="Hx.Sqlsugar" Version="1.0.0" />
     <PackageReference Include="Hx.Swagger" Version="1.0.0" />
     <PackageReference Include="IPTools.China" Version="1.6.0" />
     <PackageReference Include="Lazy.Captcha.Core" Version="2.0.3" />
@@ -48,5 +47,9 @@
     <PackageReference Include="UAParser" Version="3.1.47" />
     <PackageReference Include="Yitter.IdGenerator" Version="1.0.14" />
   </ItemGroup>
-	
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Common\NetCore\Hx.Sqlsugar\Hx.Sqlsugar.csproj" />
+  </ItemGroup>
+ 
 </Project>
