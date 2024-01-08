@@ -13,7 +13,7 @@
  */
 import { MenuOutput } from './menu-output';
 import { MenuTypeEnum } from './menu-type-enum';
-import { StatusEnum } from './status-enum';
+import { StatusEnum } from './enums/status-enum';
 import { SysMenuMeta } from './sys-menu-meta';
 /**
  * 系统菜单返回结果

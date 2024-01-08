@@ -42,13 +42,7 @@ public interface ISysAuthService : IBaseService<SysUser>, IScopedDependency
     /// 获取登录配置
     /// </summary>
     /// <returns></returns>
-    public Task<dynamic> GetLoginConfig();
-
-    /// <summary>
-    /// 获取用户配置
-    /// </summary>
-    /// <returns></returns>
-    public Task<dynamic> GetUserConfig();
+    public Task<dynamic> GetSystemConfig();
 
     /// <summary>
     /// 获取验证码

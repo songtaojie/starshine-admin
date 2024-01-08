@@ -151,7 +151,7 @@ const loadOrgData = async () => {
 const handleQuery = async () => {
 	state.loading = true;
 	let params = Object.assign(state.queryParams, state.tableParams);
-	var res = await getAPI(SysUserApi).apiSysUserPagePost(params);
+	var res = await getAPI(SysUserApi).getUserPage(params);
 	state.userData = res.data.result?.items ?? [];
 	state.tableParams.total = res.data.result?.total;
 	state.loading = false;
@@ -186,7 +186,7 @@ const delUser = (row: any) => {
 		type: 'warning',
 	})
 		.then(async () => {
-			await getAPI(SysUserApi).apiSysUserDeletePost({ id: row.id });
+			await getAPI(SysUserApi).deleteUser({ id: row.id });
 			handleQuery();
 			ElMessage.success('删除成功');
 		})
@@ -208,7 +208,7 @@ const handleCurrentChange = (val: number) => {
 // 修改状态
 const changeStatus = (row: any) => {
 	getAPI(SysUserApi)
-		.apiSysUserSetStatusPost({ id: row.id, status: row.status })
+		.setUserStatus({ id: row.id, status: row.status })
 		.then(() => {
 			ElMessage.success('账号状态设置成功');
 		})
@@ -225,7 +225,7 @@ const resetUserPwd = async (row: any) => {
 		type: 'warning',
 	})
 		.then(async () => {
-			await getAPI(SysUserApi).apiSysUserResetPwdPost({ id: row.id });
+			await getAPI(SysUserApi).resetUserPwd({ id: row.id });
 			ElMessage.success('密码重置成功：123456');
 		})
 		.catch(() => {});

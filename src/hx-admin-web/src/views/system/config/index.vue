@@ -85,7 +85,7 @@ const tb = reactive<TableDemoState>({
 });
 const getData = (param: any) => {
 	return getAPI(SysConfigApi)
-		.apiSysConfigPagePost(param)
+		.getSysConfigPage(param)
 		.then((res) => {
 			return res.data;
 		});
@@ -109,7 +109,7 @@ const onSearch = (data: EmptyObjectType) => {
 };
 
 const getGroupList = async () => {
-	const res = await getAPI(SysConfigApi).apiSysConfigGroupListGet();
+	const res = await getAPI(SysConfigApi).getGroupList();
 	const groupSearch = {
 		label: '分组编码',
 		prop: 'groupCode',
@@ -169,7 +169,7 @@ const delConfig = (row: any) => {
 		type: 'warning',
 	})
 		.then(async () => {
-			await getAPI(SysConfigApi).apiSysConfigDeletePost({ id: row.id });
+			await getAPI(SysConfigApi).deleteSysConfig({ id: row.id });
 			tableRef.value.handleList();
 			ElMessage.success('删除成功');
 		})

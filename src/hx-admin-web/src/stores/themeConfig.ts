@@ -9,7 +9,7 @@ import { defineStore } from 'pinia';
  * 2、或者点击布局配置最底部 `一键恢复默认` 按钮即可看到效果
  */
 export const useThemeConfig = defineStore('themeConfig', {
-	state: (): ThemeConfigState => ({
+	state: (): ThemeConfigState =>  ({
 		themeConfig: {
 			// 是否开启布局配置抽屉
 			isDrawer: false,
@@ -146,11 +146,11 @@ export const useThemeConfig = defineStore('themeConfig', {
 			globalI18n: 'zh-cn',
 			// 默认全局组件大小，可选值"<large|'default'|small>"，默认 'large'
 			globalComponentSize: 'small',
-		},
+		}
 	}),
 	actions: {
 		setThemeConfig(data: ThemeConfigState) {
 			this.themeConfig = data.themeConfig;
-		},
+		}
 	},
 });

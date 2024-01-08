@@ -38,9 +38,9 @@ public class SysAuthController: AdminControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet]
-    [ActionName("LoginConfig")]
-    public dynamic GetLoginConfig()
+    [ActionName("SystemConfig")]
+    public dynamic GetSystemConfig()
     {
-        return _sysAuthService.GetLoginConfig();
+        return _sysAuthService.GetSystemConfig();
     }
 }

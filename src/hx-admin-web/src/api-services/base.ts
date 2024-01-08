@@ -61,7 +61,7 @@ export class BaseAPI {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-    async Delete<Tout>(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<AdminResult<Tout>>>> {
+    async Delete<Tout>(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Tout>>> {
         const newOptions = {method: 'DELETE', ...options}
         const localVarAxiosArgs = await ApiAxiosParamCreator(this.configuration).BuildParam(newOptions);
         return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
@@ -69,16 +69,25 @@ export class BaseAPI {
             return axios.request(axiosRequestArgs);
         };
     }
-
-      /**
+    /**
      * 
      * @summary 删除
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-   async DeleteAdminResult<Tout>(options?: AxiosRequestConfig): Promise<AxiosResponse<AdminResult<Tout>>> {
-     return this.Delete<Tout>(options).then((request) => request(this.axios, this.basePath))
-   }
+    async DeleteVoid(options?: AxiosRequestConfig):  Promise<AxiosResponse<void>> {
+        return this.Delete<void>(options).then((request) => request(this.axios, this.basePath))
+    }
+
+    /**
+     * 
+     * @summary 删除
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async DeleteAdminResult<Tout>(options?: AxiosRequestConfig): Promise<AxiosResponse<AdminResult<Tout>>> {
+        return this.Delete<AdminResult<Tout>>(options).then((request) => request(this.axios, this.basePath))
+    }
 
     /**
      * 
@@ -118,16 +127,15 @@ export class BaseAPI {
             return axios.request(axiosRequestArgs);
         };
     }
-   /**
+    /**
      * 
      * @summary 更新
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-   async PutAdminResult<Tout>(options?: AxiosRequestConfig): Promise<AxiosResponse<AdminResult<Tout>>> {
-     return this.Put<Tout>(options).then((request) => request(this.axios, this.basePath))
-   }
-
+    async PutAdminResult<Tout>(options?: AxiosRequestConfig): Promise<AxiosResponse<AdminResult<Tout>>> {
+        return this.Put<Tout>(options).then((request) => request(this.axios, this.basePath))
+    }
 
     /**
      * 
@@ -158,7 +166,7 @@ export class BaseAPI {
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async Post<Tout>(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<AdminResult<Tout>>>> {
+    async Post<Tout>(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Tout>>> {
         const newOptions = {method: 'POST', ...options}
         const localVarAxiosArgs = await ApiAxiosParamCreator(this.configuration).BuildParam(newOptions);
         return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
@@ -166,14 +174,25 @@ export class BaseAPI {
             return axios.request(axiosRequestArgs);
         };
     }
-     /**
+
+    /**
+     * 
+     * @summary 更新
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    async PostVoid(options?: AxiosRequestConfig): Promise<AxiosResponse<void>> {
+        return this.Post<void>(options).then((request) => request(this.axios, this.basePath))
+    }
+
+    /**
      * 
      * @summary 更新
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     async PostAdminResult<Tout>(options?: AxiosRequestConfig): Promise<AxiosResponse<AdminResult<Tout>>> {
-        return this.Post<Tout>(options).then((request) => request(this.axios, this.basePath))
+        return this.Post<AdminResult<Tout>>(options).then((request) => request(this.axios, this.basePath))
     }
 };
 
@@ -195,7 +214,7 @@ export const ApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
          * 
-         * @summary 构建删除参数
+         * @summary 构建参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */

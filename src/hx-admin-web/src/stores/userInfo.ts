@@ -2,6 +2,8 @@ import { defineStore } from 'pinia';
 import { Local, Session } from '/@/utils/storage';
 import Watermark from '/@/utils/watermark';
 import { useThemeConfig } from '/@/stores/themeConfig';
+import { useSystemConfig } from '/@/stores/systemConfig';
+
 
 import { getAPI } from '/@/utils/axios-utils';
 import { SysAuthApi, SysConstApi } from '/@/api-services/api';
@@ -37,7 +39,7 @@ export const useUserInfo = defineStore('userInfo', {
 		getApiUserInfo() {
 			return new Promise((resolve) => {
 				getAPI(SysAuthApi)
-					.apiSysAuthUserInfoGet()
+					.getUserInfo()
 					.then(async (res: any) => {
 						if (res.data.result == null) return;
 						var d = res.data.result;
@@ -57,14 +59,11 @@ export const useUserInfo = defineStore('userInfo', {
 						Session.set('userInfo', userInfos);
 
 						// 读取用户配置
-						const configRes: any = await getAPI(SysAuthApi).apiSysAuthUserConfigGet();
-						if (configRes.data.result == null) return;
-
-						const configData = configRes.data.result;
 						const storesThemeConfig = useThemeConfig();
+						const storesSystemConfig = useSystemConfig();
 
 						// 是否设置水印
-						storesThemeConfig.themeConfig.isWatermark = configData.watermarkEnabled;
+						storesThemeConfig.themeConfig.isWatermark = storesSystemConfig.sysConfig.watermarkEnabled;
 						if (storesThemeConfig.themeConfig.isWatermark) Watermark.set(storesThemeConfig.themeConfig.watermarkText);
 						else Watermark.del();
 

@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 import { MenuTypeEnum } from './menu-type-enum';
-import { StatusEnum } from './status-enum';
+import { StatusEnum } from './enums/status-enum';
 import { SysMenu } from './sys-menu';
 /**
  * 系统菜单表

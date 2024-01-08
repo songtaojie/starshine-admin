@@ -102,9 +102,9 @@ const submit = () => {
 	ruleFormRef.value.validate(async (valid: boolean) => {
 		if (!valid) return;
 		if (state.ruleForm.id != undefined && state.ruleForm.id > 0) {
-			await getAPI(SysConfigApi).apiSysConfigUpdatePost(state.ruleForm);
+			await getAPI(SysConfigApi).updateSysConfig(state.ruleForm);
 		} else {
-			await getAPI(SysConfigApi).apiSysConfigAddPost(state.ruleForm);
+			await getAPI(SysConfigApi).addSysConfig(state.ruleForm);
 		}
 		closeDialog();
 	});

@@ -11,11 +11,11 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { AccountTypeEnum } from './account-type-enum';
+import { AccountTypeEnum } from './enums/account-type-enum';
 import { CardTypeEnum } from './card-type-enum';
 import { CultureLevelEnum } from './culture-level-enum';
 import { GenderEnum } from './gender-enum';
-import { StatusEnum } from './status-enum';
+import { StatusEnum } from './enums/status-enum';
 import { SysOrg } from './sys-org';
 import { SysPos } from './sys-pos';
 import { SysUserExtOrg } from './sys-user-ext-org';

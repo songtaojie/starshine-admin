@@ -203,7 +203,7 @@ const state = reactive({
 
 onMounted(async () => {
 	state.loading = true;
-	var res = await getAPI(SysUserApi).apiSysUserBaseInfoGet();
+	var res = await getAPI(SysUserApi).getUserBaseInfo();
 	state.ruleFormBase = res.data.result ?? { account: '' };
 	state.loading = false;
 
@@ -277,7 +277,7 @@ const submitUserBase = () => {
 			cancelButtonText: '取消',
 			type: 'warning',
 		}).then(async () => {
-			await getAPI(SysUserApi).apiSysUserBaseInfoPost(state.ruleFormBase);
+			await getAPI(SysUserApi).updateUserBaseInfo(state.ruleFormBase);
 		});
 	});
 };
@@ -302,7 +302,7 @@ const resetPassword = () => {
 const submitPassword = () => {
 	ruleFormPasswordRef.value?.validate(async (valid: boolean) => {
 		if (!valid) return;
-		await getAPI(SysUserApi).apiSysUserChangePwdPost(state.ruleFormPassword);
+		await getAPI(SysUserApi).changeUserPwd(state.ruleFormPassword);
 		// 退出系统
 		ElMessageBox.confirm('密码已修改，是否重新登录系统？', '提示', {
 			confirmButtonText: '确定',

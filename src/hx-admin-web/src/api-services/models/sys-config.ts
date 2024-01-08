@@ -11,7 +11,7 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { YesNoEnum } from './yes-no-enum';
+import { StatusEnum } from './enums/status-enum';
 /**
  * 系统参数配置表
  * @export
@@ -74,10 +74,10 @@ export interface SysConfig {
     value?: string | null;
     /**
      * 
-     * @type {YesNoEnum}
+     * @type {StatusEnum}
      * @memberof SysConfig
      */
-    sysFlag?: YesNoEnum;
+    sysFlag?: StatusEnum;
     /**
      * 分组编码
      * @type {string}

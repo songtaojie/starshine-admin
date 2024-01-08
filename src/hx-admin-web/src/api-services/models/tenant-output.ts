@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 import { DbType } from './db-type';
-import { StatusEnum } from './status-enum';
+import { StatusEnum } from './enums/status-enum';
 import { TenantTypeEnum } from './tenant-type-enum';
 /**
  * 

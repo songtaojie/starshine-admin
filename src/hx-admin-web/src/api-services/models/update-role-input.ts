@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 import { DataScopeEnum } from './data-scope-enum';
-import { StatusEnum } from './status-enum';
+import { StatusEnum } from './enums/status-enum';
 /**
  * 
  * @export

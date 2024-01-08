@@ -11,7 +11,7 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { StatusEnum } from './status-enum';
+import { StatusEnum } from './enums/status-enum';
 import { SysOrg } from './sys-org';
 /**
  * 系统机构表

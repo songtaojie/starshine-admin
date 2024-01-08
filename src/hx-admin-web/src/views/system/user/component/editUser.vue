@@ -272,9 +272,9 @@ const openDialog = async (row: any) => {
 	state.selectedTabName = '0'; // 重置为第一个 tab 页
 	state.ruleForm = JSON.parse(JSON.stringify(row));
 	if (JSON.stringify(row) !== '{}') {
-		var resRole = await getAPI(SysUserApi).apiSysUserOwnRoleListUserIdGet(row.id);
+		var resRole = await getAPI(SysUserApi).getUserOwnRoleList(row.id);
 		state.ruleForm.roleIdList = resRole.data.result;
-		var resExtOrg = await getAPI(SysUserApi).apiSysUserOwnExtOrgListUserIdGet(row.id);
+		var resExtOrg = await getAPI(SysUserApi).getUserOwnExtOrgList(row.id);
 		state.ruleForm.extOrgIdList = resExtOrg.data.result;
 		state.isShowDialog = true;
 	} else state.isShowDialog = true;
@@ -298,7 +298,7 @@ const submit = () => {
 		if (state.ruleForm.id != undefined && state.ruleForm.id > 0) {
 			await getAPI(SysUserApi).apiSysUserUpdatePost(state.ruleForm);
 		} else {
-			await getAPI(SysUserApi).apiSysUserAddPost(state.ruleForm);
+			await getAPI(SysUserApi).addUser(state.ruleForm);
 		}
 		closeDialog();
 	});

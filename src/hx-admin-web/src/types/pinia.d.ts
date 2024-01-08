@@ -41,7 +41,7 @@ declare interface RoutesListState<T = any> {
 
 // 布局配置
 declare interface ThemeConfigState {
-	themeConfig: {
+	themeConfig:{
 		isDrawer: boolean;
 		primary: string;
 		topBar: string;
@@ -88,5 +88,14 @@ declare interface ThemeConfigState {
 		globalViceTitleMsg: string;
 		globalI18n: string;
 		globalComponentSize: string;
-	};
+	}
+}
+
+// 系统配置
+declare interface SystemConfigState {
+	sysConfig:{
+		secondVerEnabled: boolean;
+		captchaEnabled: boolean;
+		watermarkEnabled: boolean;
+	}
 }

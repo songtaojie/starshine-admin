@@ -56,7 +56,9 @@ public class SysAuthService : BaseService<SysUser>, ISysAuthService
         }
 
         // 账号是否存在
-        var user = await _rep.AsQueryable().Includes(t => t.SysOrg).Filter(null, true).FirstAsync(u => u.Account.Equals(input.Account));
+        var user = await _rep.AsQueryable()
+            .Includes(t => t.SysOrg).Filter(null, true)
+            .FirstAsync(u => u.Account== input.Account);
         _ = user ?? throw new UserFriendlyException("账号不存在");
 
         // 账号是否被冻结
@@ -165,22 +167,12 @@ public class SysAuthService : BaseService<SysUser>, ISysAuthService
     /// 获取登录配置
     /// </summary>
     /// <returns></returns>
-    public async Task<dynamic> GetLoginConfig()
+    public async Task<dynamic> GetSystemConfig()
     {
         var secondVerEnabled = await _sysConfigService.GetConfigValue<bool>(CommonConst.SysSecondVer);
         var captchaEnabled = await _sysConfigService.GetConfigValue<bool>(CommonConst.SysCaptcha);
-        return new { SecondVerEnabled = secondVerEnabled, CaptchaEnabled = captchaEnabled };
-    }
-
-    /// <summary>
-    /// 获取用户配置
-    /// </summary>
-    /// <returns></returns>
-    public async Task<dynamic> GetUserConfig()
-    {
-        //返回用户和通用配置
         var watermarkEnabled = await _sysConfigService.GetConfigValue<bool>(CommonConst.SysWatermark);
-        return new { WatermarkEnabled = watermarkEnabled };
+        return new { SecondVerEnabled = secondVerEnabled, CaptchaEnabled = captchaEnabled, WatermarkEnabled = watermarkEnabled };
     }
 
     /// <summary>

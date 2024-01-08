@@ -21,7 +21,7 @@
 				</template>
 			</el-input>
 		</el-form-item>
-		<el-form-item class="login-animation3" prop="captcha" v-show="state.captchaEnabled">
+		<el-form-item class="login-animation3" prop="captcha" v-show="storesSystemConfig.systemConfig.captchaEnabled">
 			<el-col :span="15">
 				<el-input text maxlength="4" :placeholder="$t('message.account.accountPlaceholder3')" v-model="state.ruleForm.code" clearable autocomplete="off" @keyup.enter.native="onSignIn">
 					<template #prefix>
@@ -39,7 +39,7 @@
 			</el-col>
 		</el-form-item>
 		<el-form-item class="login-animation4">
-			<el-button type="primary" class="login-content-submit" round v-waves @click="state.secondVerEnabled ? openRotateVerify() : onSignIn()" :loading="state.loading.signIn">
+			<el-button type="primary" class="login-content-submit" round v-waves @click="storesSystemConfig.systemConfig.secondVerEnabled ? openRotateVerify() : onSignIn()" :loading="state.loading.signIn">
 				<span>{{ $t('message.account.accountBtnText') }}</span>
 			</el-button>
 		</el-form-item>
@@ -74,6 +74,7 @@ import { NextLoading } from '/@/utils/loading';
 
 import { clearTokens, feature, getAPI } from '/@/utils/axios-utils';
 import { SysAuthApi } from '/@/api-services/api';
+import { useSystemConfig } from '/@/stores/systemConfig';
 
 // 旋转图片滑块组件
 import verifyImg from '/@/assets/logo-mini.svg';
@@ -85,6 +86,8 @@ const router = useRouter();
 
 const ruleFormRef = ref();
 const dragRef: any = ref(null);
+const storesSystemConfig= useSystemConfig();
+
 const state = reactive({
 	isShowPassword: false,
 	ruleForm: {
@@ -104,22 +107,23 @@ const state = reactive({
 	captchaImage: '',
 	rotateVerifyVisible: false,
 	rotateVerifyImg: verifyImg,
-	secondVerEnabled: false,
-	captchaEnabled: false,
 	isPassRotate: false,
 });
 onMounted(async () => {
 	// 获取登录配置
-	var res1 = await getAPI(SysAuthApi).apiSysAuthLoginConfigGet();
-	state.secondVerEnabled = res1.data.result.secondVerEnabled ?? true;
-	state.captchaEnabled = res1.data.result.captchaEnabled ?? true;
+	var res1 = await getAPI(SysAuthApi).getSystemConfig();
+	storesSystemConfig.setSystemConfig({systemConfig:{
+		secondVerEnabled: res1.data.result.secondVerEnabled ?? true,
+		captchaEnabled: res1.data.result.captchaEnabled ?? true,
+		watermarkEnabled: res1.data.result.captchaEnabled ?? true
+	}})
 
 	getCaptcha();
 });
 // 获取验证码
 const getCaptcha = async () => {
 	state.ruleForm.code = '';
-	var res = await getAPI(SysAuthApi).apiSysAuthCaptchaGet();
+	var res = await getAPI(SysAuthApi).getCaptcha();
 	state.captchaImage = 'data:text/html;base64,' + res.data.result?.img;
 	state.ruleForm.codeId = res.data.result?.id;
 };
@@ -132,7 +136,7 @@ const onSignIn = async () => {
 	ruleFormRef.value.validate(async (valid: boolean) => {
 		if (!valid) return false;
 
-		const [err, res] = await feature(getAPI(SysAuthApi).apiSysAuthLoginPost(state.ruleForm));
+		const [err, res] = await feature(getAPI(SysAuthApi).login(state.ruleForm));
 		if (err) {
 			getCaptcha(); // 重新获取验证码
 			return;

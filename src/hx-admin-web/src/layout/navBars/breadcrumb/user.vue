@@ -157,7 +157,7 @@ const onHandleCommandClick = (path: string) => {
 				if (action === 'confirm') {
 					instance.confirmButtonLoading = true;
 					instance.confirmButtonText = t('message.user.logOutExit');
-					await getAPI(SysAuthApi).apiSysAuthLogoutPost();
+					await getAPI(SysAuthApi).logout();
 					instance.confirmButtonLoading = false;
 					done();
 				} else {

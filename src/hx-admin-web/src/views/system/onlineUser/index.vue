@@ -96,7 +96,7 @@ onMounted(async () => {
 		console.log('强制下线', data);
 		await signalR.stop();
 
-		await getAPI(SysAuthApi).apiSysAuthLogoutPost();
+		await getAPI(SysAuthApi).logout();
 		clearAccessTokens();
 	});
 });
