@@ -47,9 +47,5 @@
     <PackageReference Include="UAParser" Version="3.1.47" />
     <PackageReference Include="Yitter.IdGenerator" Version="1.0.14" />
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Common\NetCore\Hx.Sqlsugar\Hx.Sqlsugar.csproj" />
-  </ItemGroup>
  
 </Project>
