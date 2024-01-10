@@ -58,7 +58,7 @@ public class JwtAuthenticationHandler : AuthenticationHandler<AuthenticationSche
         base.Response.Headers.Append(HeaderNames.WWWAuthenticate, nameof(JwtAuthenticationHandler));
         JsonSerializerOptions setting = new JsonSerializerOptions()
         {
-            PropertyNameCaseInsensitive = false,
+            PropertyNameCaseInsensitive = true,
         };
         await Response.WriteAsync(JsonSerializer.Serialize(new RESTfulResult<object>
         {
@@ -67,7 +67,7 @@ public class JwtAuthenticationHandler : AuthenticationHandler<AuthenticationSche
             Data = null,
             Errors = "401 Unauthorized",
             Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-        }, setting));
+        }));
     }
 
     /// <summary>
@@ -82,7 +82,7 @@ public class JwtAuthenticationHandler : AuthenticationHandler<AuthenticationSche
         base.Response.Headers.Append(HeaderNames.WWWAuthenticate, nameof(JwtAuthenticationHandler));
         JsonSerializerOptions setting = new JsonSerializerOptions()
         {
-            PropertyNameCaseInsensitive = false,
+            PropertyNameCaseInsensitive = true,
         };
         await Response.WriteAsync(JsonSerializer.Serialize(new RESTfulResult<object>
         {
@@ -91,7 +91,7 @@ public class JwtAuthenticationHandler : AuthenticationHandler<AuthenticationSche
             Data = null,
             Errors = "403 Forbidden",
             Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-        }, setting));
+        }));
     }
 }
 

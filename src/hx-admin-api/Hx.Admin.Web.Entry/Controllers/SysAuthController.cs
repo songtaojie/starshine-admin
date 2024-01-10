@@ -8,11 +8,13 @@ using Hx.Admin.IService;
 using Hx.Admin.Models.ViewModels.Auth;
 using Hx.Sdk.Core;
 using Lazy.Captcha.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text.Json;
 
 namespace Hx.Admin.Web.Entry.Controllers;
+
 
 public class SysAuthController: AdminControllerBase
 {
@@ -27,6 +29,7 @@ public class SysAuthController: AdminControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpPost]
+    [AllowAnonymous]
     public async Task<LoginOutput> Login(LoginInput input)
     {
         return await _sysAuthService.Login(input);
@@ -37,6 +40,7 @@ public class SysAuthController: AdminControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet]
+    [AllowAnonymous]
     public dynamic GetCaptcha()
     {
         return  _sysAuthService.GetCaptcha();
@@ -47,6 +51,7 @@ public class SysAuthController: AdminControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet,ActionName("SystemConfig")]
+    [AllowAnonymous]
     public async Task<dynamic> GetSystemConfig()
     {
         return await _sysAuthService.GetSystemConfig();

@@ -7,6 +7,7 @@
 using Hx.Admin.Core;
 using Hx.Admin.Web.Core.Authentication;
 using Hx.Cache;
+using Hx.Sdk.Core;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
@@ -22,6 +23,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace Microsoft.Extensions.DependencyInjection;
 public static class AuthenticationServiceCollectionExtensions
@@ -34,7 +36,7 @@ public static class AuthenticationServiceCollectionExtensions
     {
         if (services == null) throw new ArgumentNullException(nameof(services));
         // 开启Bearer认证
-        services.Configure<JwtBearerOptions, IOptions<JWTSettingsOptions>>((options, jWTSettingsOptions) =>
+        services.Configure<JwtBearerOptions, IOptions<JWTSettingsOptions>>(JwtBearerDefaults.AuthenticationScheme, (options, jWTSettingsOptions) =>
         {
             options.TokenValidationParameters = JWTEncryption.CreateTokenValidationParameters(jWTSettingsOptions.Value);
             options.Events = new JwtBearerEvents()
@@ -43,6 +45,7 @@ public static class AuthenticationServiceCollectionExtensions
                 OnAuthenticationFailed = context => AuthenticationFailed(context)
             };
         });
+ 
         services.AddAuthentication(options =>
         {
             options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -51,7 +54,7 @@ public static class AuthenticationServiceCollectionExtensions
             options.DefaultForbidScheme = nameof(JwtAuthenticationHandler);
         })
         .AddJwtBearer()
-        .AddScheme<AuthenticationSchemeOptions, JwtAuthenticationHandler>(nameof(JwtAuthenticationHandler), o => { });
+        .AddScheme<AuthenticationSchemeOptions, JwtAuthenticationHandler>(nameof(JwtAuthenticationHandler), null);
     }
 
     private static async Task MessageReceived(MessageReceivedContext context)

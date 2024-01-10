@@ -37,7 +37,6 @@ public class RouteAuthorizationHandler : AuthorizationHandler<RouteAuthorization
     public IAuthenticationSchemeProvider Schemes { get; set; }
     private readonly IUserContext _userContext;
     private readonly ISysMenuService _sysMenuService;
-
     /// <summary>
     /// 构造函数注入
     /// </summary>
@@ -59,9 +58,27 @@ public class RouteAuthorizationHandler : AuthorizationHandler<RouteAuthorization
     /// <returns></returns>
     protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, RouteAuthorizationRequirement requirement)
     {
-        await AuthorizeHandleAsync(context, requirement);
+        var httpContext = context.GetCurrentHttpContext();
+        int? tokenExpire = null;
+        int refreshTokenExpire = 43200;
+        if (httpContext != null)
+        {
+            var sysConfigService = httpContext.RequestServices.GetService<ISysConfigService>();
+            tokenExpire = await sysConfigService.GetTokenExpire();
+            refreshTokenExpire = await sysConfigService.GetRefreshTokenExpire();
+        }
+        
+        if (JWTEncryption.AutoRefreshToken(context, httpContext, tokenExpire, refreshTokenExpire))
+        {
+            await AuthorizeHandleAsync(context, requirement);
+        }
+        else
+        {
+            context.Fail(); // 授权失败
+            if (httpContext == null) return;
+            httpContext.SignoutToSwagger();
+        }
     }
-
 
 
     private async Task AuthorizeHandleAsync(AuthorizationHandlerContext context, RouteAuthorizationRequirement requirement)
