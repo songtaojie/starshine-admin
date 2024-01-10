@@ -20,6 +20,8 @@ using System.Threading.Tasks;
 using FluentEmail.Core.Interfaces;
 using FluentEmail.Smtp;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Hx.Sdk.Core;
+using Hx.Common;
 
 namespace Microsoft.Extensions.DependencyInjection;
 public static class AdminCoreServiceCollectionExtensions
@@ -31,7 +33,14 @@ public static class AdminCoreServiceCollectionExtensions
             .AddMvcOptions(options =>
             {
                 options.Conventions.Add(new WebApiApplicationModelConvention());
-            });
+            }).AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.Converters.Add(new DateTimeJsonConverter());
+                options.JsonSerializerOptions.Converters.Add(new DateTimeNullJsonConverter());
+                options.JsonSerializerOptions.Converters.Add(new LongJsonConverter());
+            }).AddNewtonsoftJson();
+        services.AddJwtAuthentication();
+        services.AddAuthoriationSetup();
         services.AddCache();
         services.AddSqlSugar();
         // 配置Nginx转发获取客户端真实IP

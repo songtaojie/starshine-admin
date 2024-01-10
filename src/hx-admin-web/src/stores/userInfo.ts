@@ -37,23 +37,24 @@ export const useUserInfo = defineStore('userInfo', {
 		},
 		// 获取当前用户信息
 		getApiUserInfo() {
+			debugger
 			return new Promise((resolve) => {
 				getAPI(SysAuthApi)
 					.getUserInfo()
 					.then(async (res: any) => {
-						if (res.data.result == null) return;
-						var d = res.data.result;
+						if (res.data.data == null) return;
+						var data = res.data.data;
 						const userInfos = {
-							account: d.account,
-							realName: d.realName,
-							avatar: d.avatar ? d.avatar : '/favicon.ico',
-							address: d.address,
-							signature: d.signature,
-							orgId: d.orgId,
-							orgName: d.orgName,
-							posName: d.posName,
+							account: data.account,
+							realName: data.realName,
+							avatar: data.avatar ? data.avatar : '/favicon.ico',
+							address: data.address,
+							signature: data.signature,
+							orgId: data.orgId,
+							orgName: data.orgName,
+							posName: data.posName,
 							roles: [],
-							authBtnList: d.buttons,
+							authBtnList: data.buttons,
 							time: new Date().getTime(),
 						};
 						Session.set('userInfo', userInfos);

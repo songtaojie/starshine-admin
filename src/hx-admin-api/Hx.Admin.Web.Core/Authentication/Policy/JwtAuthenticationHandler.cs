@@ -65,7 +65,7 @@ public class JwtAuthenticationHandler : AuthenticationHandler<AuthenticationSche
             StatusCode = StatusCodes.Status401Unauthorized,
             Succeeded = false,
             Data = null,
-            Message = "401 Unauthorized",
+            Errors = "401 Unauthorized",
             Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
         }, setting));
     }
@@ -89,7 +89,7 @@ public class JwtAuthenticationHandler : AuthenticationHandler<AuthenticationSche
             StatusCode = StatusCodes.Status403Forbidden,
             Succeeded = false,
             Data = null,
-            Message = "403 Forbidden",
+            Errors = "403 Forbidden",
             Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
         }, setting));
     }

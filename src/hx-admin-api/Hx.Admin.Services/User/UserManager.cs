@@ -9,6 +9,7 @@ namespace Hx.Admin.Core;
 [Injection(Pattern = InjectionPatterns.Self)]
 public class UserManager : IScopedDependency
 {
+    public HttpContext? HttpContext => _httpContextAccessor.HttpContext;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public UserManager(IHttpContextAccessor httpContextAccessor)

@@ -64,6 +64,7 @@ export default function () {
 	const removeHtml = (value: string) => {
 		return value.replace(/<[^>]+>/g, '');
 	};
+
 	return {
 		percentFormat,
 		dateFormatYMD,
@@ -73,6 +74,8 @@ export default function () {
 		scale2Format,
 		copyText,
 		removeHtmlSub,
-		removeHtml,
+		removeHtml
 	};
 }
+
+

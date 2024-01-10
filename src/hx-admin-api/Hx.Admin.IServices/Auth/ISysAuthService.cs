@@ -18,41 +18,35 @@ public interface ISysAuthService : IBaseService<SysUser>, IScopedDependency
     /// <param name="input"></param>
     /// <remarks>用户名/密码：superadmin/123456</remarks>
     /// <returns></returns>
-    public Task<LoginOutput> Login(LoginInput input);
+    Task<LoginOutput> Login(LoginInput input);
 
     /// <summary>
     /// 获取登录账号
     /// </summary>
     /// <returns></returns>
-    public Task<LoginUserOutput> GetUserInfo();
+    Task<LoginUserOutput> GetUserInfo();
 
     /// <summary>
     /// 获取刷新Token
     /// </summary>
     /// <param name="accessToken"></param>
     /// <returns></returns>
-    public string GetRefreshToken(string accessToken);
+    Task<string> GetRefreshToken(string accessToken);
 
     /// <summary>
     /// 退出系统
     /// </summary>
-    public void Logout();
+    void Logout();
 
     /// <summary>
     /// 获取登录配置
     /// </summary>
     /// <returns></returns>
-    public Task<dynamic> GetSystemConfig();
+    Task<dynamic> GetSystemConfig();
 
     /// <summary>
     /// 获取验证码
     /// </summary>
     /// <returns></returns>
-    public dynamic GetCaptcha();
-
-    /// <summary>
-    /// swagger登录检查
-    /// </summary>
-    /// <returns></returns>
-    public int SwaggerCheckUrl();
+    dynamic GetCaptcha();
 }

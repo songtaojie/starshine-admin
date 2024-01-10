@@ -33,7 +33,7 @@ export interface AdminResult<T> {
      * @type {string}
      * @memberof AdminResult
      */
-    result?: T;
+    data?: T;
     /**
      * 附加数据
      * @type {any}

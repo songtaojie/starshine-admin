@@ -1,6 +1,6 @@
 ﻿using Hx.Admin.IService;
 using Hx.Cache;
-using Hx.Common.Extensions;
+using System.Linq;
 using System.Reflection;
 
 namespace Hx.Admin.Core.Service;
@@ -51,8 +51,7 @@ public class SysConstService : ISysConstService
         var type = typeList.FirstOrDefault(x => x.Name == typeName);
         if(type == null) return await Task.FromResult(Array.Empty<ConstOutput>());
         var isEnum = type.BaseType!.Name == "Enum";
-        var constlist = type.GetFields()?
-            .Where(isEnum, x => x.FieldType.Name == typeName)
+        var constlist = type.GetFields()?.WhereIF(isEnum, x => x.FieldType.Name == typeName)
             .Select(x => new ConstOutput
             {
                 Name = x.Name,

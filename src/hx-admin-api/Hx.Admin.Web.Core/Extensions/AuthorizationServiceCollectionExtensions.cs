@@ -4,24 +4,15 @@
 //
 // 电话/微信：song977601042
 
-using Hx.Admin.Core;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.Extensions.Options;
 
-namespace Hx.Admin.Web.Core.Extensions;
+namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
 /// JWT 授权服务拓展类

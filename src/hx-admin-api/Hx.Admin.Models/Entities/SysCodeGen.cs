@@ -1,5 +1,4 @@
 ﻿using Hx.Common;
-using Hx.Common.Base;
 
 namespace Hx.Admin.Models;
 

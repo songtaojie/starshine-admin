@@ -10,7 +10,8 @@ import { Configuration } from '../api-services';
 import { BaseAPI, BASE_PATH } from '../api-services/base';
 
 import { ElMessage } from 'element-plus';
-import { Local, Session } from '../utils/storage';
+import { Local, Session } from './storage';
+import {isArray,isObject} from './other';
 
 // 接口服务器配置
 export const serveConfig = new Configuration({
@@ -93,8 +94,7 @@ axiosInstance.interceptors.response.use(
 	(res) => {
 		// 获取状态码和返回数据
 		var status = res.status;
-		var serve = res.data;
-
+		var data = res.data;
 		// 处理 401
 		if (status === 401) {
 			clearAccessTokens();
@@ -106,9 +106,9 @@ axiosInstance.interceptors.response.use(
 		}
 
 		// 处理规范化结果错误
-		if (serve && serve.hasOwnProperty('errors') && serve.errors) {
-			throw new Error(JSON.stringify(serve.errors || 'Request Error.'));
-		}
+		// if (data && data.hasOwnProperty('errors') && data.errors) {
+		// 	throw new Error(JSON.stringify(data.errors || 'Request Error.'));
+		// }
 
 		// 读取响应报文头 token 信息
 		var accessToken = res.headers[accessTokenKey];
@@ -125,19 +125,22 @@ axiosInstance.interceptors.response.use(
 		}
 
 		// 响应拦截及自定义处理
-		if (serve.code === 401) {
+		if (data.statusCode === 401) {
 			clearAccessTokens();
-		} else if (serve.code === undefined) {
+		} else if (data.statusCode === undefined) {
 			return Promise.resolve(res);
-		} else if (serve.code !== 200) {
+		} else if (data.statusCode !== 200) {
 			var message;
 			// 判断 serve.message 是否为对象
-			if (serve.message && typeof serve.message == 'object') {
-				message = JSON.stringify(serve.message);
+			if (isObject(data.errors) || isArray(data.errors)) {
+				message = JSON.stringify(data.errors);
 			} else {
-				message = serve.message;
+				message = data.errors;
 			}
 			ElMessage.error(message);
+			if(data.errorCode === "9000") {
+				clearAccessTokens();
+			}
 			throw new Error(message);
 		}
 

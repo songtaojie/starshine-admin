@@ -17,7 +17,7 @@ export class SysAuthApi extends BaseAPI {
      * @memberof SysAuthApi
      */
     public async getCaptcha(options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<any>>> {
-        return this.GetAdminResult<any>({api:'/api/sysAuth/captcha', ...options});
+        return this.GetAdminResult<any>({api:'/api/sys-auth/get-captcha', ...options});
     }
     /**
      * 
@@ -26,8 +26,8 @@ export class SysAuthApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof SysAuthApi
      */
-    public async getSystemConfig(options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<any>>> {
-        return this.GetAdminResult<any>({api:'/api/sys-auth/login-config',...options});
+    public async getSystemConfig(options?: AxiosRequestConfig) : Promise<AxiosResponse<any>> {
+        return this.GetAdminResult<any>({api:'/api/sys-auth/system-config',...options});
     }
     /**
      * 用户名/密码：superadmin/123456
@@ -38,7 +38,7 @@ export class SysAuthApi extends BaseAPI {
      * @memberof SysAuthApi
      */
     public async login(body: LoginInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<LoginOutput>>> {
-        return this.PostAdminResult<LoginOutput>({api:'/api/sysAuth/login',data :body, ...options});
+        return this.PostAdminResult<LoginOutput>({api:'/api/sys-auth/login',data :body, ...options});
     }
     /**
      * 
@@ -48,7 +48,7 @@ export class SysAuthApi extends BaseAPI {
      * @memberof SysAuthApi
      */
     public async logout(options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        return this.Post<void>({api:'/api/sysAuth/logout',...options}).then((request) => request(this.axios, this.basePath));
+        return this.Post<void>({api:'/api/sys-auth/logout',...options}).then((request) => request(this.axios, this.basePath));
     }
     /**
      * 
@@ -59,20 +59,10 @@ export class SysAuthApi extends BaseAPI {
      * @memberof SysAuthApi
      */
     public async getRefreshToken(accessToken: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<String>>> {
-        const localVarPath = `/api/sysAuth/refreshToken/{accessToken}` .replace(`{${"accessToken"}}`, encodeURIComponent(String(accessToken)));
-        return this.GetAdminResult<String>({api:localVarPath,...options});
+        const api = `/api/sys-auth/refresh-token/${ encodeURIComponent(String(accessToken))}`;
+        return this.GetAdminResult<String>({api,...options});
     }
-    /**
-     * 
-     * @summary 获取用户配置
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof SysAuthApi
-     */
-    public async getUserConfig(options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<any>>> {
-        const api = `/api/sysAuth/userConfig`;
-        return this.GetAdminResult<any>({api,...options});
-    }
+   
     /**
      * 
      * @summary 获取登录账号
@@ -81,7 +71,7 @@ export class SysAuthApi extends BaseAPI {
      * @memberof SysAuthApi
      */
     public async getUserInfo(options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<LoginUserOutput>>> {
-        const api = `/api/sysAuth/userInfo`;
+        const api = `/api/sys-auth/user-info`;
         return this.GetAdminResult<LoginUserOutput>({api,...options});
     }
 }

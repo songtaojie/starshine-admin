@@ -143,7 +143,7 @@ export class BaseAPI {
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    async Get<Tout>(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<AdminResult<Tout>>>> {
+    async Get<Tout>(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Tout>>> {
         const newOptions = {method: 'GET', ...options}
         const localVarAxiosArgs = await ApiAxiosParamCreator(this.configuration).BuildParam(newOptions);
         return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
@@ -158,7 +158,7 @@ export class BaseAPI {
      * @throws {RequiredError}
      */
     async GetAdminResult<Tout>(options?: AxiosRequestConfig): Promise<AxiosResponse<AdminResult<Tout>>> {
-        return this.Get<Tout>(options).then((request) => request(this.axios, this.basePath))
+        return this.Get<AdminResult<Tout>>(options).then((request) => request(this.axios, this.basePath))
     }
     /**
      * 

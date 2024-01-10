@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.DependencyInjection;
+using Nest;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,6 +59,13 @@ public class RouteAuthorizationHandler : AuthorizationHandler<RouteAuthorization
     /// <returns></returns>
     protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, RouteAuthorizationRequirement requirement)
     {
+        await AuthorizeHandleAsync(context, requirement);
+    }
+
+
+
+    private async Task AuthorizeHandleAsync(AuthorizationHandlerContext context, RouteAuthorizationRequirement requirement)
+    {
         var httpContext = context.GetCurrentHttpContext() ?? _userContext.HttpContext;
         var endpoint = httpContext.GetEndpoint();
         // 判断action上是否有跳过授权策略的
@@ -86,7 +94,7 @@ public class RouteAuthorizationHandler : AuthorizationHandler<RouteAuthorization
         var questUrl = httpContext.Request.Path.Value.ToLower();
         //var userId = _userContext.UserId;
         //var cacheKey = string.Format(CacheKeyConfig.AuthRouterKey, userId);
-       
+
         // 整体结构类似认证中间件UseAuthentication的逻辑，具体查看开源地址
         // https://github.com/dotnet/aspnetcore/blob/master/src/Security/Authentication/Core/src/AuthenticationMiddleware.cs
         httpContext.Features.Set<IAuthenticationFeature>(new AuthenticationFeature
@@ -136,7 +144,7 @@ public class RouteAuthorizationHandler : AuthorizationHandler<RouteAuthorization
                 //        }
                 //    }
                 //}
-             
+
                 // 获取当前用户的角色信息
                 var isMatch = routeList.Any(m => FixRoute(questUrl).Equals(FixRoute(m), StringComparison.OrdinalIgnoreCase));
                 if (isMatch)

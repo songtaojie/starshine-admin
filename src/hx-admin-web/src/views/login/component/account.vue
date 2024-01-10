@@ -21,7 +21,7 @@
 				</template>
 			</el-input>
 		</el-form-item>
-		<el-form-item class="login-animation3" prop="captcha" v-show="storesSystemConfig.systemConfig.captchaEnabled">
+		<el-form-item class="login-animation3" prop="captcha" v-show="storesSystemConfig.sysConfig.captchaEnabled">
 			<el-col :span="15">
 				<el-input text maxlength="4" :placeholder="$t('message.account.accountPlaceholder3')" v-model="state.ruleForm.code" clearable autocomplete="off" @keyup.enter.native="onSignIn">
 					<template #prefix>
@@ -39,7 +39,7 @@
 			</el-col>
 		</el-form-item>
 		<el-form-item class="login-animation4">
-			<el-button type="primary" class="login-content-submit" round v-waves @click="storesSystemConfig.systemConfig.secondVerEnabled ? openRotateVerify() : onSignIn()" :loading="state.loading.signIn">
+			<el-button type="primary" class="login-content-submit" round v-waves @click="storesSystemConfig.sysConfig.secondVerEnabled ? openRotateVerify() : onSignIn()" :loading="state.loading.signIn">
 				<span>{{ $t('message.account.accountBtnText') }}</span>
 			</el-button>
 		</el-form-item>
@@ -112,20 +112,22 @@ const state = reactive({
 onMounted(async () => {
 	// 获取登录配置
 	var res1 = await getAPI(SysAuthApi).getSystemConfig();
-	storesSystemConfig.setSystemConfig({systemConfig:{
-		secondVerEnabled: res1.data.result.secondVerEnabled ?? true,
-		captchaEnabled: res1.data.result.captchaEnabled ?? true,
-		watermarkEnabled: res1.data.result.captchaEnabled ?? true
-	}})
-
-	getCaptcha();
+	var sysConfig = {
+		secondVerEnabled: res1.data.data.secondVerEnabled ?? true,
+		captchaEnabled: res1.data.data.captchaEnabled ?? true,
+		watermarkEnabled: res1.data.data.captchaEnabled ?? true
+	}
+	storesSystemConfig.setSysConfig({sysConfig})
+	if(sysConfig.captchaEnabled) {
+		getCaptcha();
+	}
 });
 // 获取验证码
 const getCaptcha = async () => {
 	state.ruleForm.code = '';
 	var res = await getAPI(SysAuthApi).getCaptcha();
-	state.captchaImage = 'data:text/html;base64,' + res.data.result?.img;
-	state.ruleForm.codeId = res.data.result?.id;
+	state.captchaImage = 'data:text/html;base64,' + res.data.data?.img;
+	state.ruleForm.codeId = res.data.data?.id;
 };
 // 获取时间
 const currentTime = computed(() => {
@@ -138,17 +140,17 @@ const onSignIn = async () => {
 
 		const [err, res] = await feature(getAPI(SysAuthApi).login(state.ruleForm));
 		if (err) {
-			getCaptcha(); // 重新获取验证码
+			if(storesSystemConfig.sysConfig.captchaEnabled) getCaptcha(); // 重新获取验证码
 			return;
 		}
-		if (res.data.result?.accessToken == undefined) {
-			getCaptcha(); // 重新获取验证码
+		if (res.data.data?.accessToken == undefined) {
+			if(storesSystemConfig.sysConfig.captchaEnabled) getCaptcha(); // 重新获取验证码
 			ElMessage.error('登录失败，请检查账号！');
 			return;
 		}
 
 		state.loading.signIn = true;
-		Session.set('token', res.data.result?.accessToken); // 缓存token
+		Session.set('token', res.data.data?.accessToken); // 缓存token
 		// 添加完动态路由再进行router跳转，否则可能报错 No match found for location with path "/"
 		const isNoPower = await initBackEndControlRoutes();
 		signInSuccess(isNoPower); // 再执行 signInSuccess
