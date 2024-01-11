@@ -113,7 +113,7 @@ onUnmounted(() => {
 const handleQuery = async () => {
 	state.loading = true;
 	let params = Object.assign(state.queryParams, state.tableParams);
-	var res = await getAPI(SysNoticeApi).apiSysNoticePagePost(params);
+	var res = await getAPI(SysNoticeApi).getSysNoticePage(params);
 	state.noticeData = res.data.result?.items ?? [];
 	state.tableParams.total = res.data.result?.total;
 	state.loading = false;
@@ -146,7 +146,7 @@ const delNotice = (row: any) => {
 		type: 'warning',
 	})
 		.then(async () => {
-			await getAPI(SysNoticeApi).apiSysNoticeDeletePost({ id: row.id });
+			await getAPI(SysNoticeApi).deleteSysNotice({ id: row.id });
 			handleQuery();
 			ElMessage.success('删除成功');
 		})
@@ -161,7 +161,7 @@ const publicNotice = (row: any) => {
 		type: 'warning',
 	})
 		.then(async () => {
-			await getAPI(SysNoticeApi).apiSysNoticePublicPost({ id: row.id });
+			await getAPI(SysNoticeApi).publicSysNotice({ id: row.id });
 			handleQuery();
 			ElMessage.success('发布成功');
 		})

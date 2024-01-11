@@ -16,7 +16,6 @@ public interface ISysNoticeService : IBaseService<SysNotice>, IScopedDependency
     /// <returns></returns>
     Task<PagedListResult<SysNotice>> GetPage(PageNoticeInput input);
 
-
     /// <summary>
     /// 删除通知公告
     /// </summary>

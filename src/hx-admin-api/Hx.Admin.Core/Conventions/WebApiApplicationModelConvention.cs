@@ -197,7 +197,7 @@ public sealed class WebApiApplicationModelConvention : IApplicationModelConventi
         // 清除指定(前)后缀，只处理后缀，解决 ServiceService 的情况
         name = name.ClearStringAffixes(1, affixes: _abandonActionAffixes.ToArray());
         apiVersion ??= version;
-        name = string.Join("-", name.SplitCamelCase());
+        //name = string.Join("-", name.SplitCamelCase());
         // 拼接名称和版本号
         var versionString = string.IsNullOrWhiteSpace(apiVersion) ? null : $"v{apiVersion}/";
         name = name.ToLowerCamelCase();

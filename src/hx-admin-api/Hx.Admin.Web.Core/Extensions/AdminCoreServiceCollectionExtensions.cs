@@ -29,6 +29,7 @@ public static class AdminCoreServiceCollectionExtensions
     public static void AddAdminCoreService(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddAdminOptions();
+        services.AddMapsterSettings();
         services.AddControllersWithViews()
             .AddMvcOptions(options =>
             {

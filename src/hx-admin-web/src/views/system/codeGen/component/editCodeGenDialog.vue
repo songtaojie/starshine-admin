@@ -127,7 +127,7 @@ onMounted(async () => {
 	var resDb = await getAPI(SysCodeGenApi).apiSysCodeGenDatabaseListGet();
 	state.dbData = resDb.data.result;
 
-	let resMenu = await getAPI(SysMenuApi).apiSysMenuListGet();
+	let resMenu = await getAPI(SysMenuApi).getSysMenuList();
 	state.menuData = resMenu.data.result ?? [];
 
 	let resDicData = await getAPI(SysDictDataApi).apiSysDictDataDataListCodeGet('code_gen_create_type');

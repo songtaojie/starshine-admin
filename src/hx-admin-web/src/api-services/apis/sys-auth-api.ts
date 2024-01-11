@@ -17,7 +17,7 @@ export class SysAuthApi extends BaseAPI {
      * @memberof SysAuthApi
      */
     public async getCaptcha(options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<any>>> {
-        return this.GetAdminResult<any>({api:'/api/sys-auth/get-captcha', ...options});
+        return this.GetAdminResult<any>({api:'/api/sys-auth/getcaptcha', ...options});
     }
     /**
      * 
@@ -27,7 +27,7 @@ export class SysAuthApi extends BaseAPI {
      * @memberof SysAuthApi
      */
     public async getSystemConfig(options?: AxiosRequestConfig) : Promise<AxiosResponse<any>> {
-        return this.GetAdminResult<any>({api:'/api/sys-auth/system-config',...options});
+        return this.GetAdminResult<any>({api:'/api/sys-auth/systemconfig',...options});
     }
     /**
      * 用户名/密码：superadmin/123456
@@ -59,7 +59,7 @@ export class SysAuthApi extends BaseAPI {
      * @memberof SysAuthApi
      */
     public async getRefreshToken(accessToken: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<String>>> {
-        const api = `/api/sys-auth/refresh-token/${ encodeURIComponent(String(accessToken))}`;
+        const api = `/api/sys-auth/refreshtoken/${ encodeURIComponent(String(accessToken))}`;
         return this.GetAdminResult<String>({api,...options});
     }
    
@@ -71,7 +71,7 @@ export class SysAuthApi extends BaseAPI {
      * @memberof SysAuthApi
      */
     public async getUserInfo(options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<LoginUserOutput>>> {
-        const api = `/api/sys-auth/user-info`;
+        const api = `/api/sys-auth/userinfo`;
         return this.GetAdminResult<LoginUserOutput>({api,...options});
     }
 }

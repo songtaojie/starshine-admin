@@ -188,9 +188,9 @@ const submit = () => {
 	ruleFormRef.value.validate(async (valid: boolean) => {
 		if (!valid) return;
 		if (state.ruleForm.id != undefined && state.ruleForm.id > 0) {
-			await getAPI(SysMenuApi).apiSysMenuUpdatePost(state.ruleForm);
+			await getAPI(SysMenuApi).updateSysMenu(state.ruleForm);
 		} else {
-			await getAPI(SysMenuApi).apiSysMenuAddPost(state.ruleForm);
+			await getAPI(SysMenuApi).addSysMenu(state.ruleForm);
 		}
 		closeDialog();
 	});

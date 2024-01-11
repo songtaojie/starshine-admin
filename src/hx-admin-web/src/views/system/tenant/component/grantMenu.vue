@@ -56,7 +56,7 @@ const state = reactive({
 
 onMounted(async () => {
 	state.loading = true;
-	var res = await getAPI(SysMenuApi).apiSysMenuListGet();
+	var res = await getAPI(SysMenuApi).getSysMenuList();
 	state.menuData = res.data.result;
 	state.loading = false;
 });

@@ -212,7 +212,7 @@ onMounted(async () => {
 	}
 
 	// 加载未读的站内信
-	var res = await getAPI(SysNoticeApi).apiSysNoticeUnReadListGet();
+	var res = await getAPI(SysNoticeApi).getUnReadList();
 	state.noticeList = res.data.result ?? [];
 
 	// 接收站内信

@@ -98,7 +98,7 @@ onUnmounted(() => {
 // 查询操作
 const handleQuery = async () => {
 	state.loading = true;
-	var res = await getAPI(SysMenuApi).apiSysMenuListGet(state.queryParams.title, state.queryParams.type);
+	var res = await getAPI(SysMenuApi).getSysMenuList(state.queryParams.title, state.queryParams.type);
 	state.menuData = res.data.result ?? [];
 	state.loading = false;
 };
@@ -130,7 +130,7 @@ const delMenu = (row: any) => {
 		type: 'warning',
 	})
 		.then(async () => {
-			await getAPI(SysMenuApi).apiSysMenuDeletePost({ id: row.id });
+			await getAPI(SysMenuApi).deleteSysMenu({ id: row.id });
 			handleQuery();
 			ElMessage.success('删除成功');
 		})
