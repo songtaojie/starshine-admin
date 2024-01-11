@@ -37,6 +37,7 @@ public class RouteAuthorizationHandler : AuthorizationHandler<RouteAuthorization
     public IAuthenticationSchemeProvider Schemes { get; set; }
     private readonly IUserContext _userContext;
     private readonly ISysMenuService _sysMenuService;
+    private IEnumerable<string> _globalRoutePath = new List<string> { "/login" };
     /// <summary>
     /// 构造函数注入
     /// </summary>
@@ -108,7 +109,7 @@ public class RouteAuthorizationHandler : AuthorizationHandler<RouteAuthorization
             return;
         }
         //处理授权策略，判断该用户能否访问该接口
-        var questUrl = httpContext.Request.Path.Value.ToLower();
+       
         //var userId = _userContext.UserId;
         //var cacheKey = string.Format(CacheKeyConfig.AuthRouterKey, userId);
 
@@ -137,6 +138,12 @@ public class RouteAuthorizationHandler : AuthorizationHandler<RouteAuthorization
             context.Fail();
             return;
         }
+        var routePath = httpContext.Request.Headers["Path"].ToString();
+        if (_globalRoutePath.Contains(routePath))
+        {
+            context.Succeed(requirement);
+            return;
+        }
         //判断请求是否拥有凭据，即有没有登录
         var defaultAuthenticate = await Schemes.GetDefaultAuthenticateSchemeAsync();
         if (defaultAuthenticate != null)
@@ -147,31 +154,18 @@ public class RouteAuthorizationHandler : AuthorizationHandler<RouteAuthorization
             {
                 //if (!isTestCurrent)
                 httpContext.User = result.Principal;
-                //foreach (var route in routeList) 
-                //{
-                //    if (!string.IsNullOrEmpty(route) && route.Contains("{") && route.Contains("}"))
-                //    {
-                //        var regex = new Regex("\\{[a-z]+\\}");
-                //        var matchs = regex.Matches(route);
-                //        foreach (var r in matchs)
-                //        {
-                //            var routeKey = r.ToString().Replace("{", "").Replace("}", "");
-                //            var routeValue = httpContext.Request.RouteValues[routeKey].ToString();
-                //            route = route.Replace("{" + routeKey + "}", routeValue);
-                //        }
-                //    }
-                //}
+                context.Succeed(requirement);
 
-                // 获取当前用户的角色信息
-                var isMatch = routeList.Any(m => FixRoute(questUrl).Equals(FixRoute(m), StringComparison.OrdinalIgnoreCase));
-                if (isMatch)
-                {
-                    context.Succeed(requirement);
-                }
-                else
-                {
-                    context.Fail();
-                }
+                //// 获取当前用户的角色信息
+                //var isMatch = routeList.Any(m => FixRoute(routePath).Equals(FixRoute(m), StringComparison.OrdinalIgnoreCase));
+                //if (isMatch)
+                //{
+                //    context.Succeed(requirement);
+                //}
+                //else
+                //{
+                //    context.Fail();
+                //}
             }
         }
     }

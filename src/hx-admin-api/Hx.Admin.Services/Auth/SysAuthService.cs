@@ -120,9 +120,23 @@ public class SysAuthService : BaseService<SysUser>, ISysAuthService
             throw new UserFriendlyException("账号不存在") { ErrorCode="9000"};
 
         // 获取机构
-        var org = await _rep.Context.Queryable<SysOrg>().FirstAsync(u => u.Id == user.OrgId);
+        var org = await _rep.Context.Queryable<SysOrg>()
+            .Where(u => u.Id == user.OrgId)
+            .Select(u => new
+            { 
+                u.Id,
+                u.Name
+            })
+            .FirstAsync();
         // 获取职位
-        var pos = await _rep.Context.Queryable<SysPos>().FirstAsync(u => u.Id == user.PosId);
+        var pos = await _rep.Context.Queryable<SysPos>()
+            .Where(u => u.Id == user.PosId)
+            .Select(u => new
+            {
+                u.Id,
+                u.Name
+            })
+            .FirstAsync();
         // 获取拥有按钮权限集合
         var buttons = await _sysMenuService.GetOwnBtnPermList();
 

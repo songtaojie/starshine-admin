@@ -8,7 +8,7 @@
 import globalAxios, { AxiosInstance } from 'axios';
 import { Configuration } from '../api-services';
 import { BaseAPI, BASE_PATH } from '../api-services/base';
-
+import router from '/@/router/index';
 import { ElMessage } from 'element-plus';
 import { Local, Session } from './storage';
 import {isArray,isObject} from './other';
@@ -55,7 +55,8 @@ axiosInstance.interceptors.request.use(
 		if (accessToken) {
 			// 将 token 添加到请求报文头中
 			conf.headers!['Authorization'] = `Bearer ${accessToken}`;
-
+			const { path } = router.currentRoute.value;
+			conf.headers!['Path'] = path;
 			// 判断 accessToken 是否过期
 			const jwt: any = decryptJWT(accessToken);
 			const exp = getJWTDate(jwt.exp as number);
