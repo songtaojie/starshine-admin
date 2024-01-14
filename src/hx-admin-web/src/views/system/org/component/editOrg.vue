@@ -101,9 +101,9 @@ const submit = () => {
 	ruleFormRef.value.validate(async (valid: boolean) => {
 		if (!valid) return;
 		if (state.ruleForm.id != undefined && state.ruleForm.id > 0) {
-			await getAPI(SysOrgApi).apiSysOrgUpdatePost(state.ruleForm);
+			await getAPI(SysOrgApi).updateSysOrg(state.ruleForm);
 		} else {
-			await getAPI(SysOrgApi).apiSysOrgAddPost(state.ruleForm);
+			await getAPI(SysOrgApi).addSysOrg(state.ruleForm);
 		}
 		mittBus.emit('submitRefresh');
 		state.isShowDialog = false;

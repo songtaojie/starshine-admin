@@ -22,13 +22,14 @@ public class SysPosService : BaseService<SysPos>, ISysPosService
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    public async Task<IEnumerable<SysPos>> GetList(PosInput input)
+    public async Task<IEnumerable<ListSysPosOutput>> GetList(ListSysPosInput input)
     {
         return await _rep.AsQueryable()
-            .WhereIF(!string.IsNullOrWhiteSpace(input.Name), u => u.Name.Contains(input.Name.Trim()))
-            .WhereIF(!string.IsNullOrWhiteSpace(input.Code), u => u.Code!.Contains(input.Code.Trim()))
+            .WhereIF(!string.IsNullOrWhiteSpace(input.Name), u => u.Name.Contains(input.Name!.Trim()))
+            .WhereIF(!string.IsNullOrWhiteSpace(input.Code), u => u.Code!.Contains(input.Code!.Trim()))
             .OrderBy(u => u.Sort)
             .OrderBy(u => u.CreateTime,OrderByType.Desc)
+            .Select<ListSysPosOutput>()
             .ToListAsync();
     }
 

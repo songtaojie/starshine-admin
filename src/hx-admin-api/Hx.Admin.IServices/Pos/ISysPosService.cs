@@ -14,5 +14,5 @@ public interface ISysPosService : IBaseService<SysPos>, IScopedDependency
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    Task<IEnumerable<SysPos>> GetList(PosInput input);
+    Task<IEnumerable<ListSysPosOutput>> GetList(ListSysPosInput input);
 }

@@ -260,9 +260,9 @@ const state = reactive({
 
 onMounted(async () => {
 	state.loading = true;
-	var res = await getAPI(SysPosApi).apiSysPosListGet();
+	var res = await getAPI(SysPosApi).getSysPosList();
 	state.posData = res.data.result ?? [];
-	var res1 = await getAPI(SysRoleApi).apiSysRoleListGet();
+	var res1 = await getAPI(SysRoleApi).getSysRoleList();
 	state.roleData = res1.data.result ?? [];
 	state.loading = false;
 });

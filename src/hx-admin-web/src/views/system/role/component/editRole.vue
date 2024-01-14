@@ -21,7 +21,7 @@
 					</el-col>
 					<el-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12" class="mb20">
 						<el-form-item label="排序">
-							<el-input-number v-model="state.ruleForm.orderNo" placeholder="排序" class="w100" />
+							<el-input-number v-model="state.ruleForm.sort" placeholder="排序" class="w100" />
 						</el-form-item>
 					</el-col>
 					<el-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12" class="mb20">
@@ -47,7 +47,6 @@
 								:props="{ children: 'children', label: 'title', class: treeNodeClass }"
 								icon="ele-Menu"
 								highlight-current
-								default-expand-all
 							/>
 						</el-form-item>
 					</el-col>
@@ -88,7 +87,7 @@ const state = reactive({
 onMounted(async () => {
 	state.loading = true;
 	var res = await getAPI(SysMenuApi).getSysMenuList();
-	state.menuData = res.data.result ?? [];
+	state.menuData = res.data.data ?? [];
 	state.loading = false;
 });
 
@@ -97,9 +96,9 @@ const openDialog = async (row: any) => {
 	treeRef.value?.setCheckedKeys([]); // 清空选中值
 	state.ruleForm = JSON.parse(JSON.stringify(row));
 	if (JSON.stringify(row) !== '{}') {
-		var res = await getAPI(SysRoleApi).apiSysRoleOwnMenuListGet(row.id);
+		var res = await getAPI(SysRoleApi).getRoleOwnMenuList(row.id);
 		setTimeout(() => {
-			treeRef.value?.setCheckedKeys(res.data.result);
+			treeRef.value?.setCheckedKeys(res.data.data!);
 		}, 100);
 	}
 	state.isShowDialog = true;
@@ -122,9 +121,9 @@ const submit = () => {
 		if (!valid) return;
 		state.ruleForm.menuIdList = treeRef.value?.getCheckedKeys() as Array<number>; //.concat(treeRef.value?.getHalfCheckedKeys());
 		if (state.ruleForm.id != undefined && state.ruleForm.id > 0) {
-			await getAPI(SysRoleApi).apiSysRoleUpdatePost(state.ruleForm);
+			await getAPI(SysRoleApi).updateSysRole(state.ruleForm);
 		} else {
-			await getAPI(SysRoleApi).apiSysRoleAddPost(state.ruleForm);
+			await getAPI(SysRoleApi).addSysRole(state.ruleForm);
 		}
 		closeDialog();
 	});

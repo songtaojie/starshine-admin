@@ -22,7 +22,7 @@ export interface AdminResultPagedListResult<T> {
      * @type {PagedListResult<T>}
      * @memberof AdminResultPagedListResult
      */
-    result?: PagedListResult<T>;
+    data?: PagedListResult<T>;
     /**
      * 附加数据
      * @type {any}

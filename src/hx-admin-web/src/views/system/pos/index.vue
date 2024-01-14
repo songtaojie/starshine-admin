@@ -25,14 +25,14 @@
 				<el-table-column type="index" label="序号" width="55" align="center" />
 				<el-table-column prop="name" label="职位名称" show-overflow-tooltip />
 				<el-table-column prop="code" label="职位编码" show-overflow-tooltip />
-				<el-table-column prop="orderNo" label="排序" width="70" align="center" show-overflow-tooltip />
+				<el-table-column prop="sort" label="排序" width="70" align="center" show-overflow-tooltip />
 				<el-table-column label="状态" width="70" align="center" show-overflow-tooltip>
 					<template #default="scope">
 						<el-tag type="success" v-if="scope.row.status === 1">启用</el-tag>
 						<el-tag type="danger" v-else>禁用</el-tag>
 					</template>
 				</el-table-column>
-				<el-table-column prop="createTime" label="修改时间" align="center" show-overflow-tooltip />
+				<el-table-column prop="updateTime" label="修改时间" align="center" show-overflow-tooltip />
 				<el-table-column prop="remark" label="备注" show-overflow-tooltip />
 				<el-table-column label="操作" width="140" fixed="right" align="center" show-overflow-tooltip>
 					<template #default="scope">
@@ -82,8 +82,8 @@ onUnmounted(() => {
 // 查询操作
 const handleQuery = async () => {
 	state.loading = true;
-	var res = await getAPI(SysPosApi).apiSysPosListGet(state.queryParams.name, state.queryParams.code);
-	state.posData = res.data.result ?? [];
+	var res = await getAPI(SysPosApi).getSysPosList(state.queryParams.name, state.queryParams.code);
+	state.posData = res.data.data ?? [];
 	state.loading = false;
 };
 
@@ -114,7 +114,7 @@ const delPos = (row: any) => {
 		type: 'warning',
 	})
 		.then(async () => {
-			await getAPI(SysPosApi).apiSysPosDeletePost({ id: row.id });
+			await getAPI(SysPosApi).deleteSysPos({ id: row.id });
 			handleQuery();
 			ElMessage.success('删除成功');
 		})

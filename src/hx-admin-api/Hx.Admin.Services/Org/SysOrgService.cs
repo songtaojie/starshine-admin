@@ -34,30 +34,73 @@ public class SysOrgService : BaseService<SysOrg>, ISysOrgService
     /// 获取机构列表
     /// </summary>
     /// <returns></returns>
-    public async Task<IEnumerable<SysOrg>> GetList(OrgInput input)
+    public async Task<IEnumerable<ListOrgOutput>> GetList(ListOrgInput input)
     {
         var orgIdList = await GetUserOrgIdList();
 
-        var iSugarQueryable = _rep.AsQueryable().OrderBy(u => u.Sort);
+        var query = _rep.AsQueryable().OrderBy(u => u.Sort).OrderByDescending(u => u.UpdateTime);
 
         // 条件筛选可能造成无法构造树（列表数据）
         if (!string.IsNullOrWhiteSpace(input.Name) || !string.IsNullOrWhiteSpace(input.Code))
         {
-            return await iSugarQueryable.WhereIF(orgIdList.Any(), u => orgIdList.Contains(u.Id))
+            return await query.WhereIF(orgIdList.Any(), u => orgIdList.Contains(u.Id))
                 .WhereIF(!string.IsNullOrWhiteSpace(input.Name), u => u.Name.Contains(input.Name))
                 .WhereIF(!string.IsNullOrWhiteSpace(input.Code), u => u.Code!.Contains(input.Code))
+                .Select(u => new ListOrgOutput
+                {
+                    Id = u.Id,
+                    Code = u.Code,
+                    Name = u.Name,
+                    Pid = u.Pid,
+                    Remark = u.Remark,
+                    Sort = u.Sort,
+                    Status = u.Status,
+                    UpdateTime = u.UpdateTime ?? u.CreateTime,
+                })
                 .ToListAsync();
         }
 
         if (input.Id > 0)
         {
-            return await iSugarQueryable.WhereIF(orgIdList.Any(), u => orgIdList.Contains(u.Id)).ToChildListAsync(u => u.Pid, input.Id, true);
+            return await query.WhereIF(orgIdList.Any(), u => orgIdList.Contains(u.Id))
+                .Select(u=> new ListOrgOutput
+                { 
+                    Id = u.Id,
+                    Code = u.Code,
+                    Name = u.Name,
+                    Pid = u.Pid,
+                    Remark = u.Remark,
+                    Sort = u.Sort,
+                    Status = u.Status,
+                    UpdateTime = u.UpdateTime ?? u.CreateTime,
+                })
+                .ToChildListAsync(u => u.Pid, input.Id, true);
         }
         else
         {
-            return _userManager.SuperAdmin ?
-                await iSugarQueryable.ToTreeAsync(u => u.Children, u => u.Pid, 0) :
-                await iSugarQueryable.ToTreeAsync(u => u.Children, u => u.Pid, 0, orgIdList.Select(d => (object)d).ToArray());
+            return _userManager.SuperAdmin 
+                ? await query.Select<ListOrgOutput>(u => new ListOrgOutput
+                    {
+                        Id = u.Id,
+                        Code = u.Code,
+                        Name = u.Name,
+                        Pid = u.Pid,
+                        Remark = u.Remark,
+                        Sort = u.Sort,
+                        Status = u.Status,
+                        UpdateTime = u.UpdateTime ?? u.CreateTime,
+                    }) .ToTreeAsync(u => u.Children, u => u.Pid, 0, u => u.Id) 
+                : await query.Select(u => new ListOrgOutput
+                    {
+                        Id = u.Id,
+                        Code = u.Code,
+                        Name = u.Name,
+                        Pid = u.Pid,
+                        Remark = u.Remark,
+                        Sort = u.Sort,
+                        Status = u.Status,
+                        UpdateTime = u.UpdateTime ?? u.CreateTime,
+                    }).ToTreeAsync(u => u.Children, u => u.Pid, 0, orgIdList.Select(d => (object)d).ToArray());
         }
     }
 
@@ -102,12 +145,11 @@ public class SysOrgService : BaseService<SysOrg>, ISysOrgService
     {
         if (input.Pid != 0)
         {
-            var pOrg = await FirstOrDefaultAsync(u => u.Id == input.Pid);
-            if (pOrg == null)
-                throw new UserFriendlyException("当前机构信息不存在");
+            var isExistPOrg = await ExistAsync(u => u.Id == input.Pid);
+            if (!isExistPOrg) throw new UserFriendlyException("上级机构不存在");
         }
         if (input.Id == input.Pid)
-            throw new UserFriendlyException("当前机构Id不能与父机构Id相同");
+            throw new UserFriendlyException("当前机构Id不能与上级机构Id相同");
 
         var isExist = await ExistAsync(u => u.Name == input.Name  && u.Id != input.Id);
         if (isExist)
@@ -119,7 +161,7 @@ public class SysOrgService : BaseService<SysOrg>, ISysOrgService
         // 父Id不能为自己的子节点
         var childIdList = await GetChildIdListWithSelfById(input.Id);
         if (childIdList.Contains(input.Pid))
-            throw new UserFriendlyException("当前机构Id不能与父机构Id相同");
+            throw new UserFriendlyException("当前机构Id不能与上级机构Id相同");
 
         // 是否有权限操作此机构
         var dataScopes = await GetUserOrgIdList();
@@ -147,15 +189,14 @@ public class SysOrgService : BaseService<SysOrg>, ISysOrgService
         }
 
         // 若机构有用户则禁止删除
-        var orgHasEmp = await _rep.Change<SysUser>()
+        var orgHasUser = await _rep.Change<SysUser>()
             .AnyAsync(u => u.OrgId == input.Id);
-        if (orgHasEmp)
-            throw new UserFriendlyException("该机构下有用户禁止删除");
+        if (orgHasUser)  throw new UserFriendlyException("该机构下有用户，请先取消用户关联机构");
 
         // 若扩展机构有用户则禁止删除
         var hasExtOrgEmp = await _sysUserExtOrgService.HasUserOrg(sysOrg.Id);
         if (hasExtOrgEmp)
-            throw new UserFriendlyException("附属机构下有用户禁止删除");
+            throw new UserFriendlyException("附属机构下有用户，请先取消用户关联附属机构");
 
         // 若子机构有用户则禁止删除
         var orgTreeList = await _rep.AsQueryable().ToChildListAsync(u => u.Pid, input.Id, true);

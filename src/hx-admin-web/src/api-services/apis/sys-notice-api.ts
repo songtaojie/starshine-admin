@@ -2,9 +2,7 @@ import { AxiosResponse, AxiosRequestConfig } from 'axios';
 // Some imports not used depending on template conditions
 // @ts-ignore
 import {  BaseAPI } from '../base';
-import { AddNoticeInput,AdminResult,AdminResultPagedListResult,SysNotice,SysNoticeUser } from '../models';
-import { DeleteNoticeInput } from '../models';
-import { NoticeInput } from '../models';
+import { AddNoticeInput,AdminResult,AdminResultPagedListResult,SysNotice,SysNoticeUser,BaseIdInput } from '../models';
 import { PageNoticeInput } from '../models';
 import { UpdateNoticeInput } from '../models';
 
@@ -24,20 +22,20 @@ export class SysNoticeApi extends BaseAPI {
      * @memberof SysNoticeApi
      */
     public async addSysNotice(body?: AddNoticeInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        const api = `/api/sysNotice/add`;
+        const api = `/api/sys-notice/add`;
         return this.PostVoid({api,data:body,...options});
     }
     /**
      * 
      * @summary 删除通知公告
-     * @param {DeleteNoticeInput} [body] 
+     * @param {BaseIdInput} [body] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof SysNoticeApi
      */
-    public async deleteSysNotice(body?: DeleteNoticeInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        const api = `/api/sysNotice/delete`;
-        return this.DeleteVoid({api,...options});
+    public async deleteSysNotice(data?: BaseIdInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
+        const api = `/api/sys-notice/delete`;
+        return this.DeleteVoid({api,data,...options});
     }
     /**
      * 
@@ -48,7 +46,7 @@ export class SysNoticeApi extends BaseAPI {
      * @memberof SysNoticeApi
      */
     public async getSysNoticePage(body?: PageNoticeInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResultPagedListResult<SysNotice>>> {
-        const api = `/api/sysNotice/page`;
+        const api = `/api/sys-notice/getpage`;
         return this.PageAdminResult<SysNotice>({api,params:body,...options});
     }
     /**
@@ -66,7 +64,7 @@ export class SysNoticeApi extends BaseAPI {
      * @memberof SysNoticeApi
      */
     public async getReceivedPage(options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResultPagedListResult<SysNoticeUser>>> {
-        const api = `/api/sysNotice/pageReceived`;
+        const api = `/api/sys-notice/getreceivedpage`;
         return this.PageAdminResult<SysNoticeUser>({api,...options});
     }
     /**
@@ -77,8 +75,8 @@ export class SysNoticeApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof SysNoticeApi
      */
-    public async publicSysNotice(body?: NoticeInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        const api = `/api/sysNotice/public`;
+    public async publicSysNotice(body?: BaseIdInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
+        const api = `/api/sys-notice/public`;
         return this.PostVoid({api,data:body,...options});
     }
     /**
@@ -89,8 +87,8 @@ export class SysNoticeApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof SysNoticeApi
      */
-    public async setSysNoticeRead(body?: NoticeInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        const api = `/api/sysNotice/setRead`;
+    public async setSysNoticeRead(body?: BaseIdInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
+        const api = `/api/sys-notice/setRead`;
         return this.PostVoid({api,data:body,...options});
     }
     /**
@@ -101,7 +99,7 @@ export class SysNoticeApi extends BaseAPI {
      * @memberof SysNoticeApi
      */
     public async getUnReadList(options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<Array<SysNotice>>>> {
-        const api = `/api/sysNotice/unReadList`;
+        const api = `/api/sys-notice/getunreadlist`;
         return this.GetAdminResult<Array<SysNotice>>({api,...options});
     }
     /**
@@ -113,7 +111,7 @@ export class SysNoticeApi extends BaseAPI {
      * @memberof SysNoticeApi
      */
     public async updateSysNotice(body?: UpdateNoticeInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        const api = `/api/sysNotice/update`;
+        const api = `/api/sys-notice/update`;
         return this.PostVoid({api,data:body,...options});
     }
 }

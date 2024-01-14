@@ -5,7 +5,7 @@ public class MenuInput
     /// <summary>
     /// 标题
     /// </summary>
-    public string Title { get; set; }
+    public string? Title { get; set; }
 
     /// <summary>
     /// 菜单类型（1目录 2菜单 3按钮）

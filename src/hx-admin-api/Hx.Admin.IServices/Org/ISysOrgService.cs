@@ -13,7 +13,7 @@ public interface ISysOrgService : IBaseService<SysOrg>, IScopedDependency
     /// 获取机构列表
     /// </summary>
     /// <returns></returns>
-    Task<IEnumerable<SysOrg>> GetList(OrgInput input);
+    Task<IEnumerable<ListOrgOutput>> GetList(ListOrgInput input);
 
     /// <summary>
     /// 增加机构

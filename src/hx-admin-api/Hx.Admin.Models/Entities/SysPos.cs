@@ -15,8 +15,8 @@ public class SysPos : AuditedEntityBase
     /// <summary>
     /// 编码
     /// </summary>
-    [SugarColumn(ColumnDescription = "编码",IsNullable =true, Length = 64)]
-    public string? Code { get; set; }
+    [SugarColumn(ColumnDescription = "编码",Length = 64)]
+    public string Code { get; set; }
 
     /// <summary>
     /// 排序

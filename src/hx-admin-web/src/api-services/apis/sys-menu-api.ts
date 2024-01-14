@@ -48,7 +48,7 @@ export class SysMenuApi extends BaseAPI {
      * @memberof SysMenuApi
      */
     public async getSysMenuList(title?: string, type?: MenuTypeEnum, options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<Array<SysMenu>>>> {
-        const api = `/api/sys-menu/list`;
+        const api = `/api/sys-menu/getlist`;
         const params = {
             title,
             type
@@ -63,7 +63,7 @@ export class SysMenuApi extends BaseAPI {
      * @memberof SysMenuApi
      */
     public async getLoginMenuTree(options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<Array<MenuOutput>>>> {
-        const api = `/api/sys-menu/loginmenutree`;
+        const api = `/api/sys-menu/getloginmenutree`;
         return this.GetAdminResult<Array<MenuOutput>>({api,...options});
     }
     /**
@@ -74,7 +74,7 @@ export class SysMenuApi extends BaseAPI {
      * @memberof SysMenuApi
      */
     public async getOwnBtnPermList(options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<Array<string>>>> {
-        const api = `/api/sys-menu/ownbtnpermlist`;
+        const api = `/api/sys-menu/getownbtnpermlist`;
         return this.GetAdminResult<Array<string>>({api,...options});
     }
     /**

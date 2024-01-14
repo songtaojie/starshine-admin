@@ -32,7 +32,7 @@ public interface IBaseService<TEntity> where TEntity : EntityBase, new()
     /// </summary>
     /// <param name="entity">数据实体</param>
     /// <returns></returns>
-    Task<bool> InsertAsync(TEntity entity);
+    Task<long> InsertAsync(TEntity entity);
 
     /// <summary>
     /// 插入一条数据
@@ -40,7 +40,7 @@ public interface IBaseService<TEntity> where TEntity : EntityBase, new()
     /// <typeparam name="T"></typeparam>
     /// <param name="entity"></param>
     /// <returns></returns>
-    Task<bool> InsertAsync<TModel>([NotNull] TModel model) where TModel : class, new();
+    Task<long> InsertAsync<TModel>([NotNull] TModel model) where TModel : class, new();
 
     /// <summary>
     /// 插入集合
@@ -51,6 +51,20 @@ public interface IBaseService<TEntity> where TEntity : EntityBase, new()
     #endregion
 
     #region 更新
+
+    /// <summary>
+    /// 更新
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    Task<bool> UpdateAsync<T>(T model);
+
+    /// <summary>
+    /// 更新
+    /// </summary>
+    /// <param name="entity"></param>
+    /// <returns></returns>
     Task<bool> UpdateAsync(TEntity entity);
 
     /// <summary>

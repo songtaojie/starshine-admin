@@ -9,5 +9,5 @@ export interface BaseIdInput {
        * @type {number}
        * @memberof BaseIdInput
        */
-    id?: number;
+    id: number;
   }

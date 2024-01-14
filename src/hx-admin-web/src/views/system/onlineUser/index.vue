@@ -127,7 +127,7 @@ const openDrawer = () => {
 const handleQuery = async () => {
 	state.loading = true;
 	let params = Object.assign(state.queryParams, state.tableParams);
-	var res = await getAPI(SysOnlineUserApi).apiSysOnlineUserPagePost(params);
+	var res = await getAPI(SysOnlineUserApi).getSysOnlineUser(params);
 	state.onlineUserList = res.data.result?.items ?? [];
 	state.tableParams.total = res.data.result?.total;
 	state.loading = false;

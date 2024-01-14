@@ -42,7 +42,7 @@ public class SysMenuController : AdminControllerBase
     /// 更新菜单
     /// </summary>
     /// <returns></returns>
-    [HttpGet, ActionName("LoginMenuTree")]
+    [HttpGet]
     public async Task<IEnumerable<MenuOutput>> GetLoginMenuTree()
     {
         return await _service.GetLoginMenuTree();
@@ -51,7 +51,7 @@ public class SysMenuController : AdminControllerBase
     /// 获取菜单列表
     /// </summary>
     /// <returns></returns>
-    [HttpGet, ActionName("list")]
+    [HttpGet]
     public async Task<IEnumerable<SysMenu>> GetList([FromQuery]MenuInput input)
     {
         return await _service.GetList(input);
@@ -70,7 +70,7 @@ public class SysMenuController : AdminControllerBase
     /// 获取用户拥有按钮权限集合
     /// </summary>
     /// <returns></returns>
-    [HttpGet,ActionName("OwnBtnPermList")]
+    [HttpGet]
     public async Task<IEnumerable<string>> GetOwnBtnPermList()
     {
        return await _service.GetOwnBtnPermList();

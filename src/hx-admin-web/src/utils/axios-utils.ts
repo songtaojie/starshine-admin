@@ -130,7 +130,7 @@ axiosInstance.interceptors.response.use(
 			clearAccessTokens();
 		} else if (data.statusCode === undefined) {
 			return Promise.resolve(res);
-		} else if (data.statusCode !== 200) {
+		} else if (data.statusCode !== 200 && data.statusCode !== 204) {
 			var message;
 			// 判断 serve.message 是否为对象
 			if (isObject(data.errors) || isArray(data.errors)) {
@@ -144,7 +144,7 @@ axiosInstance.interceptors.response.use(
 			}
 			throw new Error(message);
 		}
-
+		
 		return res;
 	},
 	(error) => {

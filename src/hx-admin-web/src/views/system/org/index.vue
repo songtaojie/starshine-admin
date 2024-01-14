@@ -30,14 +30,14 @@
 					<el-table :data="state.orgData" style="width: 100%" v-loading="state.loading" row-key="id" default-expand-all :tree-props="{ children: 'children', hasChildren: 'hasChildren' }" border>
 						<el-table-column prop="name" label="机构名称" show-overflow-tooltip />
 						<el-table-column prop="code" label="机构编码" show-overflow-tooltip />
-						<el-table-column prop="orderNo" label="排序" width="70" align="center" show-overflow-tooltip />
+						<el-table-column prop="sort" label="排序" width="70" align="center" show-overflow-tooltip />
 						<el-table-column label="状态" width="70" align="center" show-overflow-tooltip>
 							<template #default="scope">
 								<el-tag type="success" v-if="scope.row.status === 1">启用</el-tag>
 								<el-tag type="danger" v-else>禁用</el-tag>
 							</template>
 						</el-table-column>
-						<el-table-column prop="createTime" label="修改时间" align="center" show-overflow-tooltip />
+						<el-table-column prop="updateTime" label="修改时间" align="center" show-overflow-tooltip />
 						<el-table-column prop="remark" label="备注" show-overflow-tooltip />
 						<el-table-column label="操作" width="140" fixed="right" align="center" show-overflow-tooltip>
 							<template #default="scope">
@@ -96,8 +96,8 @@ onUnmounted(() => {
 // 查询操作
 const handleQuery = async () => {
 	state.loading = true;
-	var res = await getAPI(SysOrgApi).apiSysOrgListGet(state.queryParams.id, state.queryParams.name, state.queryParams.code);
-	state.orgData = res.data.result ?? [];
+	var res = await getAPI(SysOrgApi).getSysOrgList(state.queryParams);
+	state.orgData = res.data.data ?? [];
 	state.loading = false;
 
 	// 若无选择节点并且查询条件为空时
@@ -132,7 +132,7 @@ const delOrg = (row: any) => {
 		type: 'warning',
 	})
 		.then(async () => {
-			await getAPI(SysOrgApi).apiSysOrgDeletePost({ id: row.id });
+			await getAPI(SysOrgApi).deleteSysOrg({ id: row.id });
 			ElMessage.success('删除成功');
 			mittBus.emit('submitRefresh');
 		})

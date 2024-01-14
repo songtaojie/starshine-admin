@@ -14,7 +14,7 @@ public interface ISysRoleService : IBaseService<SysRole>, IScopedDependency
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    Task<PagedListResult<SysRole>> GetPage(PageRoleInput input);
+    Task<PagedListResult<PageRoleOutput>> GetPage(PageRoleInput input);
 
     /// <summary>
     /// 获取角色列表

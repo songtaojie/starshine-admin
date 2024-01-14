@@ -37,7 +37,6 @@ export const useUserInfo = defineStore('userInfo', {
 		},
 		// 获取当前用户信息
 		getApiUserInfo() {
-			debugger
 			return new Promise((resolve) => {
 				getAPI(SysAuthApi)
 					.getUserInfo()

@@ -12,7 +12,7 @@ namespace Hx.Admin.Core;
 /// 实体操作基服务
 /// </summary>
 /// <typeparam name="TEntity"></typeparam>
-public abstract class BaseService<TEntity> where TEntity : class, new()
+public abstract class BaseService<TEntity> where TEntity : EntityBase, new()
 {
     protected readonly ISqlSugarRepository<TEntity> _rep;
 
@@ -59,7 +59,7 @@ public abstract class BaseService<TEntity> where TEntity : class, new()
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
-    public virtual async Task<bool> InsertAsync<TModel>([NotNull] TModel model) where TModel : class,new()
+    public virtual async Task<long> InsertAsync<TModel>([NotNull] TModel model) where TModel : class,new()
     {
         return await InsertAsync(model.Adapt<TEntity>());
     }
@@ -69,14 +69,15 @@ public abstract class BaseService<TEntity> where TEntity : class, new()
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
-    public virtual async Task<bool> InsertAsync([NotNull] TEntity entity)
+    public virtual async Task<long> InsertAsync([NotNull] TEntity entity)
     {
         if (await BeforeInsertAsync(entity))
         {
             await _rep.InsertAsync(entity);
-            return await AfterInsertAsync(entity);
+            await AfterInsertAsync(entity);
+            return entity.Id;
         }
-        return false;  
+        return 0;  
     }
 
     /// <summary>
@@ -105,7 +106,7 @@ public abstract class BaseService<TEntity> where TEntity : class, new()
     /// <summary>
     /// 更新实体
     /// </summary>
-    /// <param name="entity"></param>
+    /// <param name="model"></param>
     /// <returns></returns>
     public virtual async Task<bool> UpdateAsync<T>(T model)
     {

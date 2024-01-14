@@ -142,8 +142,8 @@ onUnmounted(() => {
 // 查询机构数据
 const loadOrgData = async () => {
 	state.loading = true;
-	var res = await getAPI(SysOrgApi).apiSysOrgListGet(0);
-	state.orgTreeData = res.data.result ?? [];
+	var res = await getAPI(SysOrgApi).getSysOrgList(0);
+	state.orgTreeData = res.data.data ?? [];
 	state.loading = false;
 };
 
@@ -152,8 +152,8 @@ const handleQuery = async () => {
 	state.loading = true;
 	let params = Object.assign(state.queryParams, state.tableParams);
 	var res = await getAPI(SysUserApi).getUserPage(params);
-	state.userData = res.data.result?.items ?? [];
-	state.tableParams.total = res.data.result?.total;
+	state.userData = res.data.data?.items ?? [];
+	state.tableParams.total = res.data.data?.total;
 	state.loading = false;
 };
 

@@ -38,12 +38,14 @@ public class SysRoleService : BaseService<SysRole>, ISysRoleService
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    public async Task<PagedListResult<SysRole>> GetPage(PageRoleInput input)
+    public async Task<PagedListResult<PageRoleOutput>> GetPage(PageRoleInput input)
     {
         return await _rep.AsQueryable()
             .WhereIF(!string.IsNullOrWhiteSpace(input.Name), u => u.Name.Contains(input.Name))
             .WhereIF(!string.IsNullOrWhiteSpace(input.Code), u => u.Code!.Contains(input.Code))
             .OrderBy(u => u.Sort)
+            .OrderBy(u => u.CreateTime,OrderByType.Desc)
+            .Select<PageRoleOutput>()
             .ToPagedListAsync(input.Page, input.PageSize);
     }
 

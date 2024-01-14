@@ -11,7 +11,7 @@
   },
   "CorsAccessorSettings": {
     "WithExposedHeaders": [ "Content-Disposition", "X-Pagination", "access-token", "x-access-token" ], // 如果前端不代理且是axios请求
-    "SignalRSupport": true // 启用 SignalR 跨域支持
+    "EnabledSignalR": true // 启用 SignalR 跨域支持
   },
   "SnowId": {
     "WorkerId": 1, // 机器码 全局唯一

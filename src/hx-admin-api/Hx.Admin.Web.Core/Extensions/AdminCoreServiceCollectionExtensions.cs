@@ -22,6 +22,7 @@ using FluentEmail.Smtp;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Hx.Sdk.Core;
 using Hx.Common;
+using SqlSugar;
 
 namespace Microsoft.Extensions.DependencyInjection;
 public static class AdminCoreServiceCollectionExtensions
@@ -39,11 +40,11 @@ public static class AdminCoreServiceCollectionExtensions
                 options.JsonSerializerOptions.Converters.Add(new DateTimeJsonConverter());
                 options.JsonSerializerOptions.Converters.Add(new DateTimeNullJsonConverter());
                 options.JsonSerializerOptions.Converters.Add(new LongJsonConverter());
-            }).AddNewtonsoftJson();
+            });
         services.AddJwtAuthentication();
         services.AddAuthoriationSetup();
         services.AddCache();
-        services.AddSqlSugar();
+        services.AddSqlSugarSetup();
         // 配置Nginx转发获取客户端真实IP
         // 注1：如果负载均衡不是在本机通过 Loopback 地址转发请求的，一定要加上options.KnownNetworks.Clear()和options.KnownProxies.Clear()
         // 注2：如果设置环境变量 ASPNETCORE_FORWARDEDHEADERS_ENABLED 为 True，则不需要下面的配置代码

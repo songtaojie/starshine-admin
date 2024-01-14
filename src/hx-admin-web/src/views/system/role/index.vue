@@ -34,14 +34,14 @@
 						<el-tag effect="plain" v-else-if="scope.row.dataScope === 5">自定义数据</el-tag>
 					</template>
 				</el-table-column>
-				<el-table-column prop="orderNo" label="排序" width="70" align="center" show-overflow-tooltip />
+				<el-table-column prop="sort" label="排序" width="70" align="center" show-overflow-tooltip />
 				<el-table-column label="状态" width="70" align="center" show-overflow-tooltip>
 					<template #default="scope">
 						<el-tag type="success" v-if="scope.row.status === 1">启用</el-tag>
 						<el-tag type="danger" v-else>禁用</el-tag>
 					</template>
 				</el-table-column>
-				<el-table-column prop="createTime" label="修改时间" align="center" show-overflow-tooltip />
+				<el-table-column prop="updateTime" label="修改时间" align="center" show-overflow-tooltip />
 				<el-table-column prop="remark" label="备注" show-overflow-tooltip />
 				<el-table-column label="操作" width="110" fixed="right" align="center" show-overflow-tooltip>
 					<template #default="scope">
@@ -80,8 +80,8 @@ import { onMounted, onUnmounted, reactive, ref } from 'vue';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import mittBus from '/@/utils/mitt';
 import { auth } from '/@/utils/authFunction';
-import EditRole from '/@/views/system/role/component/editRole.vue';
-import GrantData from '/@/views/system/role/component/grantData.vue';
+import EditRole from './component/editRole.vue';
+import GrantData from './component/grantData.vue';
 
 import { getAPI } from '/@/utils/axios-utils';
 import { SysRoleApi } from '/@/api-services/api';
@@ -120,9 +120,9 @@ onUnmounted(() => {
 const handleQuery = async () => {
 	state.loading = true;
 	let params = Object.assign(state.queryParams, state.tableParams);
-	var res = await getAPI(SysRoleApi).apiSysRolePagePost(params);
-	state.roleData = res.data.result?.items ?? [];
-	state.tableParams.total = res.data.result?.total;
+	var res = await getAPI(SysRoleApi).getSysRolePage(params);
+	state.roleData = res.data.data?.items ?? [];
+	state.tableParams.total = res.data.data?.total;
 	state.loading = false;
 };
 
@@ -158,7 +158,7 @@ const delRole = (row: any) => {
 		type: 'warning',
 	})
 		.then(async () => {
-			await getAPI(SysRoleApi).apiSysRoleDeletePost({ id: row.id });
+			await getAPI(SysRoleApi).deleteSysRole({ id: row.id });
 			handleQuery();
 			ElMessage.success('删除成功');
 		})
