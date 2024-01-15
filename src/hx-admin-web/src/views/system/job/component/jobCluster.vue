@@ -40,7 +40,7 @@ onMounted(async () => {
 // 查询操作
 const handleQuery = async () => {
 	state.loading = true;
-	var res = await getAPI(SysJobApi).apiSysJobJobClusterListGet();
+	var res = await getAPI(SysJobApi).getJobClusterList();
 	state.jobClusterList = res.data.result ?? [];
 	state.loading = false;
 };

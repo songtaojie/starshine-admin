@@ -31,7 +31,7 @@
 							<el-button icon="ele-AlarmClock" @click="cancelSleep" />
 						</el-tooltip>
 						<el-tooltip content="强制触发所有作业持久化">
-							<el-button icon="ele-Connection" @click="persistAll" />
+							<el-button icon="ele-Connection" @click="persistAllJob" />
 						</el-tooltip>
 					</el-button-group>
 					<el-button icon="ele-Coin" @click="openJobCluster" plain> 集群控制 </el-button>
@@ -260,7 +260,7 @@ onUnmounted(() => {
 const handleQuery = async () => {
 	state.loading = true;
 	let params = Object.assign(state.queryParams, state.tableParams);
-	var res = await getAPI(SysJobApi).apiSysJobPageJobDetailPost(params);
+	var res = await getAPI(SysJobApi).getJobDetailPage(params);
 	state.jobData = res.data.result?.items ?? [];
 	state.tableParams.total = res.data.result?.total;
 	state.loading = false;
@@ -293,7 +293,7 @@ const delJobDetail = (row: JobOutput) => {
 		type: 'warning',
 	})
 		.then(async () => {
-			await getAPI(SysJobApi).apiSysJobDeleteJobDetailPost({ jobId: row.jobDetail?.jobId });
+			await getAPI(SysJobApi).deleteJobDetail({ jobId: row.jobDetail?.jobId });
 			handleQuery();
 			ElMessage.success('删除成功');
 		})
@@ -320,7 +320,7 @@ const delJobTrigger = (row: SysJobTrigger) => {
 		type: 'warning',
 	})
 		.then(async () => {
-			await getAPI(SysJobApi).apiSysJobDeleteJobTriggerPost({ jobId: row.jobId, triggerId: row.triggerId });
+			await getAPI(SysJobApi).deleteJobTrigger({ jobId: row.jobId, triggerId: row.triggerId });
 			handleQuery();
 			ElMessage.success('删除成功');
 		})
@@ -341,13 +341,13 @@ const handleCurrentChange = (val: number) => {
 
 // 启动所有作业
 const startAllJob = async () => {
-	await getAPI(SysJobApi).apiSysJobStartAllJobPost();
+	await getAPI(SysJobApi).startAllJob();
 	ElMessage.success('启动所有作业');
 };
 
 // 暂停所有作业
 const pauseAllJob = async () => {
-	await getAPI(SysJobApi).apiSysJobPauseAllJobPost();
+	await getAPI(SysJobApi).pauseAllJob();
 	ElMessage.success('暂停所有作业');
 };
 
@@ -359,31 +359,31 @@ const startJob = async (row: JobOutput) => {
 
 // 暂停某个作业
 const pauseJob = async (row: JobOutput) => {
-	await getAPI(SysJobApi).apiSysJobPauseJobPost({ jobId: row.jobDetail?.jobId });
+	await getAPI(SysJobApi).pauseJob({ jobId: row.jobDetail?.jobId });
 	ElMessage.success('暂停作业');
 };
 
 // 启动触发器
 const startTrigger = async (row: SysJobTrigger) => {
-	await getAPI(SysJobApi).apiSysJobStartTriggerPost({ jobId: row.jobId, triggerId: row.triggerId });
+	await getAPI(SysJobApi).startTrigger({ jobId: row.jobId, triggerId: row.triggerId });
 	ElMessage.success('启动触发器');
 };
 
 // 暂停触发器
 const pauseTrigger = async (row: SysJobTrigger) => {
-	await getAPI(SysJobApi).apiSysJobPauseTriggerPost({ jobId: row.jobId, triggerId: row.triggerId });
+	await getAPI(SysJobApi).pauseTrigger({ jobId: row.jobId, triggerId: row.triggerId });
 	ElMessage.success('暂停触发器');
 };
 
 // 强制唤醒作业调度器
 const cancelSleep = async () => {
-	await getAPI(SysJobApi).apiSysJobCancelSleepPost();
+	await getAPI(SysJobApi).cancelJobSleep();
 	ElMessage.success('强制唤醒作业调度器');
 };
 
 // 强制触发所有作业持久化
-const persistAll = async () => {
-	await getAPI(SysJobApi).apiSysJobPersistAllPost();
+const persistAllJob = async () => {
+	await getAPI(SysJobApi).persistAllJob();
 	ElMessage.success('强制触发所有作业持久化');
 };
 

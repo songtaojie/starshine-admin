@@ -19,7 +19,7 @@ export class SysRoleApi extends BaseAPI {
     /**
      * 
      * @summary 增加角色
-     * @param {AddRoleInput} [body] 
+     * @param {AddRoleInput} [data] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof SysRoleApi

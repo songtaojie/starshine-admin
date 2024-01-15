@@ -235,9 +235,9 @@ const submit = () => {
 		}
 
 		if (state.ruleForm.id != undefined && state.ruleForm.id > 0) {
-			await getAPI(SysJobApi).apiSysJobUpdateJobDetailPost(state.ruleForm);
+			await getAPI(SysJobApi).updateJobDetail(state.ruleForm);
 		} else {
-			await getAPI(SysJobApi).apiSysJobAddJobDetailPost(state.ruleForm);
+			await getAPI(SysJobApi).addJobDetail(state.ruleForm);
 		}
 		closeDialog();
 	});
