@@ -33,6 +33,16 @@ public class SysRoleController : AdminControllerBase
     }
 
     /// <summary>
+    /// 获取角色列表
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet]
+    public async Task<IEnumerable<RoleOutput>> GetList()
+    {
+        return await _service.GetList();
+    }
+
+    /// <summary>
     /// 增加角色
     /// </summary>
     /// <param name="input"></param>

@@ -11,7 +11,7 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { NoticeUserStatusEnum } from './sys-notice-enum';
+import { NoticeUserStatusEnum } from './enums/sys-notice-enum';
 import { SysNotice } from './sys-notice';
 /**
  * 系统通知公告用户表

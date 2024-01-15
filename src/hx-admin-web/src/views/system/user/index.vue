@@ -40,11 +40,6 @@
 							</template>
 						</el-table-column>
 						<el-table-column prop="realName" label="姓名" width="120" show-overflow-tooltip />
-						<el-table-column label="出生日期" width="100" align="center" show-overflow-tooltip>
-							<template #default="scope">
-								{{ formatDate(new Date(scope.row.birthday), 'YYYY-mm-dd') }}
-							</template>
-						</el-table-column>
 						<el-table-column label="性别" width="70" align="center" show-overflow-tooltip>
 							<template #default="scope">
 								<el-tag type="success" v-if="scope.row.sex === 1"> 男 </el-tag>
@@ -54,11 +49,11 @@
 						<el-table-column prop="phone" label="手机号码" width="120" align="center" show-overflow-tooltip />
 						<el-table-column label="状态" width="70" align="center" show-overflow-tooltip>
 							<template #default="scope">
-								<el-switch v-model="scope.row.status" :active-value="1" :inactive-value="2" size="small" @change="changeStatus(scope.row)" v-auth="'sysUser:setStatus'" />
+								<el-switch v-model="scope.row.status" :active-value="1" :inactive-value="2" size="small" @change="changeStatus(scope.row)" :disabled="!auth('sysUser:setStatus')" />
 							</template>
 						</el-table-column>
-						<el-table-column prop="orderNo" label="排序" width="70" align="center" show-overflow-tooltip />
-						<el-table-column prop="createTime" label="修改时间" width="160" show-overflow-tooltip />
+						<el-table-column prop="sort" label="排序" width="70" align="center" show-overflow-tooltip />
+						<el-table-column prop="updateTime" label="修改时间" width="160" show-overflow-tooltip />
 						<el-table-column prop="remark" label="备注" show-overflow-tooltip />
 						<el-table-column label="操作" width="110" align="center" fixed="right" show-overflow-tooltip>
 							<template #default="scope">
@@ -96,7 +91,6 @@
 <script lang="ts" setup name="sysUser">
 import { onMounted, onUnmounted, reactive, ref } from 'vue';
 import { ElMessageBox, ElMessage } from 'element-plus';
-import { formatDate } from '/@/utils/formatTime';
 import { auth } from '/@/utils/authFunction';
 import mittBus from '/@/utils/mitt';
 import OrgTree from '/@/views/system/org/component/orgTree.vue';
@@ -225,8 +219,8 @@ const resetUserPwd = async (row: any) => {
 		type: 'warning',
 	})
 		.then(async () => {
-			await getAPI(SysUserApi).resetUserPwd({ id: row.id });
-			ElMessage.success('密码重置成功：123456');
+			var res = await getAPI(SysUserApi).resetUserPwd({ id: row.id });
+			ElMessage.success(`密码重置成功：${res.data.data}`);
 		})
 		.catch(() => {});
 };

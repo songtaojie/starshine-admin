@@ -1,4 +1,4 @@
-import { JobCreateTypeEnum } from './job-create-type-enum';
+import { JobCreateTypeEnum } from './enums/job-create-type-enum';
 import { BasePageInput } from './base/base-page-input';
 
 /**

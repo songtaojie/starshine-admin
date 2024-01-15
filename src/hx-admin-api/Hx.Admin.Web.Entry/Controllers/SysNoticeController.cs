@@ -24,7 +24,7 @@ public class SysNoticeController : AdminControllerBase
     /// <param name="input"></param>
     /// <returns></returns>
     [HttpGet]
-    public async Task<PagedListResult<SysNotice>> GetPage([FromQuery] PageNoticeInput input)
+    public async Task<PagedListResult<PageNoticeOutput>> GetPage([FromQuery] PageNoticeInput input)
     {
         return await _service.GetPage(input);
     }

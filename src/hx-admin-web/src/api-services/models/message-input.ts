@@ -11,7 +11,7 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { MessageTypeEnum } from './message-type-enum';
+import { MessageTypeEnum } from './enums/message-type-enum';
 /**
  * 
  * @export

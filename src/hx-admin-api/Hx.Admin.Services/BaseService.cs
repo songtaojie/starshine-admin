@@ -39,7 +39,7 @@ public abstract class BaseService<TEntity> where TEntity : EntityBase, new()
     /// <returns>满足当前条件的一个实体</returns>
     public async Task<TEntity> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate, bool defaultFilter = true)
     {
-        return await _rep.SingleAsync(predicate);
+        return await _rep.FirstOrDefaultAsync(predicate);
     }
     #endregion
 

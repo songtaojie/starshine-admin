@@ -1,6 +1,7 @@
 ﻿using Hx.Admin.IService;
 using Hx.Admin.Models;
 using Hx.Admin.Models.ViewModels.Menu;
+using Hx.Admin.Models.ViewModels.User;
 using Hx.Sdk.Core.DataEncryption;
 
 namespace Hx.Admin.Core.Service;
@@ -35,18 +36,23 @@ public class SysUserService : BaseService<SysUser>, ISysUserService
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    public async Task<PagedListResult<SysUser>> GetPage(PageUserInput input)
+    public async Task<PagedListResult<PageUserOutput>> GetPage(PageUserInput input)
     {
-        var orgList = input.OrgId > 0 ? await _sysOrgService.GetChildIdListWithSelfById(input.OrgId) :
-            _userManager.SuperAdmin ? null : await _sysOrgService.GetUserOrgIdList(); // 各管理员只能看到自己机构下的用户列表
+        var orgList = input.OrgId.HasValue && input.OrgId.Value > 0 
+                ? await _sysOrgService.GetChildIdListWithSelfById(input.OrgId.Value) 
+                : _userManager.SuperAdmin 
+                ? null 
+                : await _sysOrgService.GetUserOrgIdList(); // 各管理员只能看到自己机构下的用户列表
 
         return await _rep.AsQueryable()
-            .WhereIF(!_userManager.SuperAdmin, u => u.AccountType != AccountTypeEnum.SuperAdmin)
             .WhereIF(orgList != null, u => orgList.Contains(u.OrgId))
             .WhereIF(!string.IsNullOrWhiteSpace(input.Account), u => u.Account.Contains(input.Account))
             .WhereIF(!string.IsNullOrWhiteSpace(input.RealName), u => u.RealName.Contains(input.RealName))
             .WhereIF(!string.IsNullOrWhiteSpace(input.Phone), u => u.Phone!.Contains(input.Phone))
+            .WhereIF(!_userManager.SuperAdmin, u => u.AccountType != AccountTypeEnum.SuperAdmin)
             .OrderBy(u => u.Sort)
+            .OrderBy(u => u.CreateTime,OrderByType.Desc)
+            .Select<PageUserOutput>()
             .ToPagedListAsync(input.Page, input.PageSize);
     }
 
@@ -55,7 +61,7 @@ public class SysUserService : BaseService<SysUser>, ISysUserService
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    public async Task AddUser(AddUserInput input)
+    public async Task<long> AddUser(AddUserInput input)
     {
         var isExist = await ExistAsync(u => u.Account == input.Account);
         if (isExist)
@@ -68,6 +74,7 @@ public class SysUserService : BaseService<SysUser>, ISysUserService
         await _rep.InsertAsync(user);
         input.Id = user.Id;
         await UpdateRoleAndExtOrg(input);
+        return user.Id;
     }
 
     /// <summary>
@@ -202,13 +209,14 @@ public class SysUserService : BaseService<SysUser>, ISysUserService
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    public async Task<int> ResetPwd(ResetPwdUserInput input)
+    public async Task<string?> ResetPwd(ResetPwdUserInput input)
     {
         var password = await _sysConfigService.GetConfigValue<string>(CommonConst.SysPassword);
 
         var user = await FirstOrDefaultAsync(u => u.Id == input.Id);
         user.Password = CryptogramUtil.Encrypt(password);
-        return await _rep.Context.Updateable(user).UpdateColumns(u => u.Password).ExecuteCommandAsync();
+        await _rep.Context.Updateable(user).UpdateColumns(u => u.Password).ExecuteCommandAsync();
+        return password;
     }
 
     /// <summary>

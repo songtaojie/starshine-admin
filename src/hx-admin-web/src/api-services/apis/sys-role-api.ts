@@ -72,7 +72,7 @@ export class SysRoleApi extends BaseAPI {
      * @memberof SysRoleApi
      */
     public async getSysRoleList(options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<Array<RoleOutput>>>> {
-        const api = `/api/sys-role/list`;
+        const api = `/api/sys-role/getlist`;
         return this.GetAdminResult<Array<RoleOutput>>({api,...options});
     }
     /**

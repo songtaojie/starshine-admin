@@ -1,4 +1,4 @@
-﻿namespace Hx.Admin.Models.ViewModels.Menu;
+﻿namespace Hx.Admin.Models.ViewModels.User;
 
 public class UserInput : BaseIdParam
 {
@@ -8,28 +8,7 @@ public class UserInput : BaseIdParam
     public StatusEnum Status { get; set; }
 }
 
-public class PageUserInput : BasePageParam
-{
-    /// <summary>
-    /// 账号
-    /// </summary>
-    public string Account { get; set; }
 
-    /// <summary>
-    /// 姓名
-    /// </summary>
-    public string RealName { get; set; }
-
-    /// <summary>
-    /// 手机号
-    /// </summary>
-    public string Phone { get; set; }
-
-    /// <summary>
-    /// 查询时所选机构Id
-    /// </summary>
-    public long OrgId { get; set; }
-}
 
 public class AddUserInput : SysUser
 {

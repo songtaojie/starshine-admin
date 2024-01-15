@@ -10,7 +10,6 @@ public class SysNotice : AuditedEntityBase
     /// 标题
     /// </summary>
     [SugarColumn(ColumnDescription = "标题", Length = 32)]
-    [Required, MaxLength(32)]
     public string Title { get; set; }
 
     /// <summary>

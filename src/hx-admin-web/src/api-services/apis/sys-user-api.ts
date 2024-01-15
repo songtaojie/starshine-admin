@@ -1,4 +1,3 @@
-
 import { AxiosResponse,AxiosRequestConfig } from 'axios';
 import { BaseAPI} from '../base';
 import { AddUserInput, AdminResult,SysUserExtOrg,AdminResultPagedListResult,ChangePwdInput,DeleteUserInput,PageUserInput } from '../models';
@@ -20,7 +19,7 @@ export class SysUserApi extends BaseAPI {
      * @memberof SysUserApi
      */
     public async addUser(body?: AddUserInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<void>>> {
-        const api = `/api/sysUser/add`;
+        const api = `/api/sys-user/add`;
         return this.PostAdminResult<void>({api,data:body,...options});
     }
     /**
@@ -31,7 +30,7 @@ export class SysUserApi extends BaseAPI {
      * @memberof SysUserApi
      */
     public async getUserBaseInfo(options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<SysUser>>> {
-        const api = `/api/sysUser/baseInfo`;
+        const api = `/api/sys-user/baseInfo`;
         return this.GetAdminResult<SysUser>({api,...options});
     }
     /**
@@ -43,7 +42,7 @@ export class SysUserApi extends BaseAPI {
      * @memberof SysUserApi
      */
     public async updateUserBaseInfo(data?: SysUser, options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<number>>> {
-        const api = `/api/sysUser/baseInfo`;
+        const api = `/api/sys-user/baseInfo`;
         return this.PostAdminResult<number>({api,data,...options});
     }
     /**
@@ -55,7 +54,7 @@ export class SysUserApi extends BaseAPI {
      * @memberof SysUserApi
      */
     public async changeUserPwd(data?: ChangePwdInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<number>>> {
-        const api = `/api/sysUser/changePwd`;
+        const api = `/api/sys-user/changePwd`;
         return this.PostAdminResult<number>({api,data,...options});
     }
     /**
@@ -67,7 +66,7 @@ export class SysUserApi extends BaseAPI {
      * @memberof SysUserApi
      */
     public async deleteUser(data?: DeleteUserInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        const api = `/api/sysUser/delete`;
+        const api = `/api/sys-user/delete`;
         return this.DeleteVoid({api,data,...options});
     }
     /**
@@ -79,7 +78,7 @@ export class SysUserApi extends BaseAPI {
      * @memberof SysUserApi
      */
     public async grantUserRole(data?: UserRoleInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        const api = `/api/sysUser/grantRole`;
+        const api = `/api/sys-user/grantRole`;
         return this.PostVoid({api,data,...options});
     }
     /**
@@ -91,7 +90,7 @@ export class SysUserApi extends BaseAPI {
      * @memberof SysUserApi
      */
     public async getUserOwnExtOrgList(userId: number, options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<Array<SysUserExtOrg>>>> {
-        const api = `/api/sysUser/ownExtOrgList/${encodeURIComponent(String(userId))}`;
+        const api = `/api/sys-user/getownextorglist/${encodeURIComponent(String(userId))}`;
         return this.GetAdminResult<Array<SysUserExtOrg>>({api,...options});
     }
     /**
@@ -103,7 +102,7 @@ export class SysUserApi extends BaseAPI {
      * @memberof SysUserApi
      */
     public async getUserOwnRoleList(userId: number, options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<Array<number>>>> {
-        const api = `/api/sysUser/ownRoleList/${encodeURIComponent(String(userId))}`;
+        const api = `/api/sys-user/getownrolelist/${encodeURIComponent(String(userId))}`;
         return this.GetAdminResult<Array<number>>({api,...options});
     }
     /**
@@ -115,7 +114,7 @@ export class SysUserApi extends BaseAPI {
      * @memberof SysUserApi
      */
     public async getUserPage(body?: PageUserInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResultPagedListResult<SysUser>>> {
-        const api = `/api/sysUser/page`;
+        const api = `/api/sys-user/getpage`;
         return this.PageAdminResult<SysUser>({api,params:body,...options});
     }
     /**
@@ -126,9 +125,9 @@ export class SysUserApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof SysUserApi
      */
-    public async resetUserPwd(body?: ResetPwdUserInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<number>>> {
-        const api = `/api/sysUser/resetPwd`;
-        return this.PostAdminResult<number>({api,data:body,...options});
+    public async resetUserPwd(body?: ResetPwdUserInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<string>>> {
+        const api = `/api/sys-user/resetPwd`;
+        return this.PostAdminResult<string>({api,data:body,...options});
     }
     /**
      * 
@@ -139,7 +138,7 @@ export class SysUserApi extends BaseAPI {
      * @memberof SysUserApi
      */
     public async setUserStatus(body?: UserInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<number>>> {
-        const api = `/api/sysUser/setStatus`;
+        const api = `/api/sys-user/setStatus`;
         return this.PostAdminResult<number>({api,data:body,...options});
     }
     /**
@@ -151,7 +150,7 @@ export class SysUserApi extends BaseAPI {
      * @memberof SysUserApi
      */
     public async apiSysUserUpdatePost(body?: UpdateUserInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        const api = `/api/sysUser/update`;
+        const api = `/api/sys-user/update`;
         return this.PostVoid({api,data:body,...options});
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Hx.Admin.Models;
 using Hx.Admin.Models.ViewModels.Menu;
+using Hx.Admin.Models.ViewModels.User;
 using Hx.Common.DependencyInjection;
 
 namespace Hx.Admin.IService;
@@ -14,14 +15,14 @@ public interface ISysUserService : IBaseService<SysUser>, IScopedDependency
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    Task<PagedListResult<SysUser>> GetPage(PageUserInput input);
+    Task<PagedListResult<PageUserOutput>> GetPage(PageUserInput input);
 
     /// <summary>
     /// 增加用户
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    Task AddUser(AddUserInput input);
+    Task<long> AddUser(AddUserInput input);
 
     /// <summary>
     /// 更新用户
@@ -75,7 +76,7 @@ public interface ISysUserService : IBaseService<SysUser>, IScopedDependency
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    Task<int> ResetPwd(ResetPwdUserInput input);
+    Task<string?> ResetPwd(ResetPwdUserInput input);
 
     /// <summary>
     /// 获取用户拥有角色集合

@@ -1,5 +1,5 @@
 import { BasePageInput } from './base/base-page-input';
-import { DataScopeEnum } from './data-scope-enum';
+import { DataScopeEnum } from './enums/data-scope-enum';
 import { StatusEnum } from './enums/status-enum';
 
 /**

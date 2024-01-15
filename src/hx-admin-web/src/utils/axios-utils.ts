@@ -133,12 +133,18 @@ axiosInstance.interceptors.response.use(
 		} else if (data.statusCode !== 200 && data.statusCode !== 204) {
 			var message;
 			// 判断 serve.message 是否为对象
-			if (isObject(data.errors) || isArray(data.errors)) {
+			if(isArray(data.errors)) {
+				message = (data.errors  as Array<string>).join('<br/>');
+			} else if(isObject(data.errors)) {
 				message = JSON.stringify(data.errors);
 			} else {
 				message = data.errors;
 			}
-			ElMessage.error(message);
+			ElMessage.error({
+				dangerouslyUseHTMLString: true,
+				message
+			});
+			// ElMessage.error(message,{dangerouslyUseHTMLString: true,});
 			if(data.errorCode === "9000") {
 				clearAccessTokens();
 			}

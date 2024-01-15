@@ -11,7 +11,7 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { MenuTypeEnum } from './menu-type-enum';
+import { MenuTypeEnum } from './enums/menu-type-enum';
 import { StatusEnum } from './enums/status-enum';
 import { SysMenu } from './sys-menu';
 /**

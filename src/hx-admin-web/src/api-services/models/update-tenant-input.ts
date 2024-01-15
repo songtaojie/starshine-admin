@@ -13,7 +13,7 @@
  */
 import { DbType } from './db-type';
 import { StatusEnum } from './enums/status-enum';
-import { TenantTypeEnum } from './tenant-type-enum';
+import { TenantTypeEnum } from './enums/tenant-type-enum';
 /**
  * 
  * @export

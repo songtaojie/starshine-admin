@@ -261,9 +261,9 @@ const state = reactive({
 onMounted(async () => {
 	state.loading = true;
 	var res = await getAPI(SysPosApi).getSysPosList();
-	state.posData = res.data.result ?? [];
+	state.posData = res.data.data ?? [];
 	var res1 = await getAPI(SysRoleApi).getSysRoleList();
-	state.roleData = res1.data.result ?? [];
+	state.roleData = res1.data.data ?? [];
 	state.loading = false;
 });
 
@@ -273,9 +273,9 @@ const openDialog = async (row: any) => {
 	state.ruleForm = JSON.parse(JSON.stringify(row));
 	if (JSON.stringify(row) !== '{}') {
 		var resRole = await getAPI(SysUserApi).getUserOwnRoleList(row.id);
-		state.ruleForm.roleIdList = resRole.data.result;
+		state.ruleForm.roleIdList = resRole.data.data;
 		var resExtOrg = await getAPI(SysUserApi).getUserOwnExtOrgList(row.id);
-		state.ruleForm.extOrgIdList = resExtOrg.data.result;
+		state.ruleForm.extOrgIdList = resExtOrg.data.data;
 		state.isShowDialog = true;
 	} else state.isShowDialog = true;
 };

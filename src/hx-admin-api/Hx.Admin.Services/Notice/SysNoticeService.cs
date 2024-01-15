@@ -26,13 +26,15 @@ public class SysNoticeService : BaseService<SysNotice>, ISysNoticeService
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    public async Task<PagedListResult<SysNotice>> GetPage(PageNoticeInput input)
+    public async Task<PagedListResult<PageNoticeOutput>> GetPage(PageNoticeInput input)
     {
         return await _rep.AsQueryable()
-            .WhereIF(!string.IsNullOrWhiteSpace(input.Title), u => u.Title.Contains(input.Title.Trim()))
-            .WhereIF(input.Type > 0, u => u.Type == input.Type)
+            .WhereIF(!string.IsNullOrWhiteSpace(input.Title), u => u.Title.Contains(input.Title!.Trim()))
+            .WhereIF(input.Type.HasValue, u => u.Type == input.Type)
             .WhereIF(!_userManager.SuperAdmin, u => u.CreatorId == _userManager.UserId)
+            .OrderBy(u => u.PublicTime, OrderByType.Desc)
             .OrderBy(u => u.CreateTime, OrderByType.Desc)
+            .Select<PageNoticeOutput>()
             .ToPagedListAsync(input.Page, input.PageSize);
     }
     public override Task<bool> BeforeInsertAsync(SysNotice entity)

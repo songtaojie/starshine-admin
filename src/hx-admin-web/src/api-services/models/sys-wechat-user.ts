@@ -11,7 +11,7 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { PlatformTypeEnum } from './platform-type-enum';
+import { PlatformTypeEnum } from './enums/platform-type-enum';
 import { SysUser } from './sys-user';
 /**
  * 系统微信用户表

@@ -11,7 +11,7 @@
 				<el-row :gutter="35">
 					<el-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12" class="mb20">
 						<el-form-item label="标题" prop="title" :rules="[{ required: true, message: '标题不能为空', trigger: 'blur' }]">
-							<el-input v-model="state.ruleForm.title" placeholder="标题" clearable />
+							<el-input v-model="state.ruleForm.title" maxlength="32" show-word-limit placeholder="标题" clearable />
 						</el-form-item>
 					</el-col>
 					<el-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12" class="mb20">
