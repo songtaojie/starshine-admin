@@ -38,7 +38,6 @@ export * from './admin-result-sql-sugar-paged-list-sys-log-op';
 export * from './admin-result-sql-sugar-paged-list-sys-log-vis';
 export * from './admin-result-sql-sugar-paged-list-sys-region';
 export * from './admin-result-sql-sugar-paged-list-sys-user';
-export * from './admin-result-sql-sugar-paged-list-sys-wechat-user';
 export * from './admin-result-sql-sugar-paged-list-tenant-output';
 export * from './admin-result-sys-code-gen';
 export * from './admin-result-sys-code-gen-config';

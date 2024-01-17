@@ -113,7 +113,7 @@ onUnmounted(() => {
 const handleQuery = async () => {
 	state.loading = true;
 	let params = Object.assign(state.queryParams, state.tableParams);
-	var res = await getAPI(SysWechatUserApi).apiSysWechatUserPagePost(params);
+	var res = await getAPI(SysWechatUserApi).getSysWechatUserPage(params);
 	state.weChatUserData = res.data.result?.items ?? [];
 	state.tableParams.total = res.data.result?.total;
 	state.loading = false;
@@ -140,7 +140,7 @@ const delWeChatUser = (row: any) => {
 		type: 'warning',
 	})
 		.then(async () => {
-			await getAPI(SysWechatUserApi).apiSysWechatUserDeletePost({ id: row.id });
+			await getAPI(SysWechatUserApi).deleteSysWechatUser({ id: row.id });
 			handleQuery();
 			ElMessage.success('删除成功');
 		})
