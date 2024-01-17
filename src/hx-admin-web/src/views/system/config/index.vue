@@ -118,8 +118,8 @@ const getGroupList = async () => {
 		type: 'select',
 		options: [],
 	} as TableSearchType;
-	state.groupList = res.data.result ?? [];
-	res.data.result?.forEach((item) => {
+	state.groupList = res.data.data ?? [];
+	res.data.data?.forEach((item) => {
 		groupSearch.options?.push({ label: item, value: item });
 	});
 	let group = tb.tableData.search.filter((item) => {

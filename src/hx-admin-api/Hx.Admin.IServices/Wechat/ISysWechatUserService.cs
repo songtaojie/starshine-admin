@@ -15,5 +15,5 @@ public interface ISysWechatUserService : IBaseService<SysWechatUser>, IScopedDep
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    Task<PagedListResult<SysWechatUser>> GetPage(WechatUserInput input);
+    Task<PagedListResult<PageSysWechatUserOutput>> GetPage(PageWechatUserInput input);
 }

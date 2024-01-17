@@ -10,21 +10,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Hx.Admin.Models.ViewModels.Config;
-public class PageConfigInput : BasePageParam
+namespace Hx.Admin.Models.ViewModels.Wechat;
+
+public class PageWechatUserInput : BasePageParam
 {
     /// <summary>
-    /// 名称
+    /// 昵称
     /// </summary>
-    public string? Name { get; set; }
+    public string? NickName { get; set; }
 
     /// <summary>
-    /// 编码
+    /// 手机号码
     /// </summary>
-    public string? Code { get; set; }
-
-    /// <summary>
-    /// 分组编码
-    /// </summary>
-    public string? GroupCode { get; set; }
+    public string? PhoneNumber { get; set; }
 }

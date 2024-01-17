@@ -12,6 +12,97 @@
  * Do not edit the class manually.
  */
 import { StatusEnum } from './enums/status-enum';
+import { BasePageInput } from './base/base-page-input';
+/**
+ * 
+ * @export
+ * @interface PageConfigInput
+ */
+export interface PageConfigInput extends BasePageInput {
+    /**
+     * 名称
+     * @type {string}
+     * @memberof PageConfigInput
+     */
+    name?: string | null;
+    /**
+     * 编码
+     * @type {string}
+     * @memberof PageConfigInput
+     */
+    code?: string | null;
+    /**
+     * 分组编码
+     * @type {string}
+     * @memberof PageConfigInput
+     */
+    groupCode?: string | null;
+}
+
+/**
+ * 
+ * @export
+ * @interface AddConfigInput
+ */
+export interface AddConfigInput {
+    /**
+     * 名称
+     * @type {string}
+     * @memberof AddConfigInput
+     */
+    name: string;
+    /**
+     * 编码
+     * @type {string}
+     * @memberof AddConfigInput
+     */
+    code?: string | null;
+    /**
+     * 属性值
+     * @type {string}
+     * @memberof AddConfigInput
+     */
+    value?: string | null;
+    /**
+     * 
+     * @type {StatusEnum}
+     * @memberof AddConfigInput
+     */
+    sysFlag?: StatusEnum;
+    /**
+     * 分组编码
+     * @type {string}
+     * @memberof AddConfigInput
+     */
+    groupCode?: string | null;
+    /**
+     * 排序
+     * @type {number}
+     * @memberof AddConfigInput
+     */
+    sort?: number;
+    /**
+     * 备注
+     * @type {string}
+     * @memberof AddConfigInput
+     */
+    remark?: string | null;
+}
+
+/**
+ * 
+ * @export
+ * @interface UpdateConfigInput
+ */
+export interface UpdateConfigInput extends AddConfigInput {
+    /**
+     * 雪花Id
+     * @type {number}
+     * @memberof UpdateConfigInput
+     */
+    id: number;
+}
+
 /**
  * 系统参数配置表
  * @export

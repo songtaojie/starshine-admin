@@ -134,19 +134,25 @@ public class SysUserService : BaseService<SysUser>, ISysUserService
     /// 查看用户基本信息
     /// </summary>
     /// <returns></returns>
-    public async Task<SysUser> GetBaseInfo()
+    public async Task<BaseInfoOutput> GetBaseInfo()
     {
-        return await FirstOrDefaultAsync(u => u.Id == _userManager.UserId);
+        return await _rep.AsQueryable().Where(u => u.Id == _userManager.UserId)
+            .Select<BaseInfoOutput>()
+            .FirstAsync();
     }
 
     /// <summary>
     /// 更新用户基本信息
     /// </summary>
     /// <returns></returns>
-    public async Task<int> UpdateBaseInfo(SysUser user)
+    public async Task<bool> UpdateBaseInfo(UpdateBaseInfoInput input)
     {
+        var user = await FirstOrDefaultAsync(u => u.Id == input.Id);
+        if (user == null) throw new UserFriendlyException("用户信息不存在");
+        user = input.Adapt(user);
         return await _rep.Context.Updateable(user)
-            .IgnoreColumns(u => new { u.CreateTime, u.Account, u.Password, u.AccountType, u.OrgId, u.PosId }).ExecuteCommandAsync();
+            .UpdateColumns(u => new {u.RealName,u.NickName,u.Avatar,u.Sex,u.Birthday,u.Phone,u.Email,u.Address,u.Introduction,u.Remark,u.Signature })
+            .ExecuteCommandAsync() > 0;
     }
 
     /// <summary>

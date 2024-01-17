@@ -50,7 +50,7 @@ public interface ISysConfigService : IBaseService<SysConfig>,IScopedDependency
     /// 获取分组列表
     /// </summary>
     /// <returns></returns>
-    public Task<List<string?>> GetGroupList();
+    Task<IEnumerable<string?>> GetGroupList();
 
     /// <summary>
     /// 获取 Token 过期时间

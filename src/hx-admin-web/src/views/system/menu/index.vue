@@ -99,7 +99,7 @@ onUnmounted(() => {
 const handleQuery = async () => {
 	state.loading = true;
 	var res = await getAPI(SysMenuApi).getSysMenuList(state.queryParams.title, state.queryParams.type);
-	state.menuData = res.data.result ?? [];
+	state.menuData = res.data.data ?? [];
 	state.loading = false;
 };
 
