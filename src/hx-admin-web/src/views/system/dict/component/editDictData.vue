@@ -29,7 +29,7 @@
 					</el-col>
 					<el-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12" class="mb20">
 						<el-form-item label="排序">
-							<el-input-number v-model="state.ruleForm.orderNo" placeholder="排序" class="w100" />
+							<el-input-number v-model="state.ruleForm.sort" placeholder="排序" class="w100" />
 						</el-form-item>
 					</el-col>
 					<el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24" class="mb20">
@@ -71,9 +71,7 @@ const state = reactive({
 // 打开弹窗
 const openDialog = (row: any) => {
 	state.ruleForm = JSON.parse(JSON.stringify(row));
-	if (JSON.stringify(row) == '{}') {
-		state.ruleForm.dictTypeId = props.dictTypeId;
-	}
+	state.ruleForm.dictTypeId = props.dictTypeId;
 	state.isShowDialog = true;
 };
 
@@ -93,9 +91,9 @@ const submit = () => {
 	ruleFormRef.value.validate(async (valid: boolean) => {
 		if (!valid) return;
 		if (state.ruleForm.id != undefined && state.ruleForm.id > 0) {
-			await getAPI(SysDictDataApi).apiSysDictDataUpdatePost(state.ruleForm);
+			await getAPI(SysDictDataApi).updateSysDictData(state.ruleForm);
 		} else {
-			await getAPI(SysDictDataApi).apiSysDictDataAddPost(state.ruleForm);
+			await getAPI(SysDictDataApi).addSysDictData(state.ruleForm);
 		}
 		closeDialog();
 	});

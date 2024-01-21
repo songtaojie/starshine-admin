@@ -29,7 +29,7 @@
 					</el-col>
 					<el-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12" class="mb20">
 						<el-form-item label="排序">
-							<el-input-number v-model="state.ruleForm.orderNo" placeholder="排序" class="w100" />
+							<el-input-number v-model="state.ruleForm.sort" placeholder="排序" class="w100" />
 						</el-form-item>
 					</el-col>
 					<el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24" class="mb20">
@@ -89,9 +89,9 @@ const submit = () => {
 	ruleFormRef.value.validate(async (valid: boolean) => {
 		if (!valid) return;
 		if (state.ruleForm.id != undefined && state.ruleForm.id > 0) {
-			await getAPI(SysDictTypeApi).apiSysDictTypeUpdatePost(state.ruleForm);
+			await getAPI(SysDictTypeApi).updateSysDictType(state.ruleForm);
 		} else {
-			await getAPI(SysDictTypeApi).apiSysDictTypeAddPost(state.ruleForm);
+			await getAPI(SysDictTypeApi).addSysDictType(state.ruleForm);
 		}
 		closeDialog();
 	});

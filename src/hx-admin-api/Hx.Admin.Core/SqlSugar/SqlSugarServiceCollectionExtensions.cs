@@ -26,6 +26,8 @@ public static class SqlSugarServiceCollectionExtensions
                         entityInfo.SetValue(Yitter.IdGenerator.YitIdHelper.NextId());
                     if (entityInfo.PropertyName == "CreateTime")
                         entityInfo.SetValue(DateTime.Now);
+                    if (entityInfo.PropertyName == "UpdateTime")
+                        entityInfo.SetValue(DateTime.Now);
                 }
                 if (entityInfo.OperationType == DataFilterType.UpdateByObject)
                 {

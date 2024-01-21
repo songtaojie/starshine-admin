@@ -130,7 +130,7 @@ onMounted(async () => {
 	let resMenu = await getAPI(SysMenuApi).getSysMenuList();
 	state.menuData = resMenu.data.result ?? [];
 
-	let resDicData = await getAPI(SysDictDataApi).apiSysDictDataDataListCodeGet('code_gen_create_type');
+	let resDicData = await getAPI(SysDictDataApi).getSysDictDataListByCode('code_gen_create_type');
 	state.codeGenTypeList = resDicData.data.result;
 });
 

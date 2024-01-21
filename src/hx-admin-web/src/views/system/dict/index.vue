@@ -31,8 +31,8 @@
 						<el-tag type="danger" v-else>禁用</el-tag>
 					</template>
 				</el-table-column>
-				<el-table-column prop="orderNo" label="排序" width="70" align="center" show-overflow-tooltip />
-				<el-table-column prop="createTime" label="修改时间" align="center" show-overflow-tooltip />
+				<el-table-column prop="sort" label="排序" width="70" align="center" show-overflow-tooltip />
+				<el-table-column prop="updateTime" label="修改时间" align="center" show-overflow-tooltip />
 				<el-table-column prop="remark" label="备注" show-overflow-tooltip />
 				<el-table-column label="操作" width="210" fixed="right" align="center" show-overflow-tooltip>
 					<template #default="scope">
@@ -103,9 +103,9 @@ onUnmounted(() => {
 const handleQuery = async () => {
 	state.loading = true;
 	let params = Object.assign(state.queryParams, state.tableParams);
-	var res = await getAPI(SysDictTypeApi).apiSysDictTypePagePost(params);
-	state.dictTypeData = res.data.result?.items ?? [];
-	state.tableParams.total = res.data.result?.total;
+	var res = await getAPI(SysDictTypeApi).getSysDictTypePage(params);
+	state.dictTypeData = res.data.data?.items ?? [];
+	state.tableParams.total = res.data.data?.total;
 	state.loading = false;
 };
 
@@ -141,7 +141,7 @@ const delDictType = (row: any) => {
 		type: 'warning',
 	})
 		.then(async () => {
-			await getAPI(SysDictTypeApi).apiSysDictTypeDeletePost({ id: row.id });
+			await getAPI(SysDictTypeApi).deleteSysDictType({ id: row.id });
 			handleQuery();
 			ElMessage.success('删除成功');
 		})

@@ -55,7 +55,7 @@ const tb = reactive<TableDemoState>({
 			{ prop: 'value', width: 120, label: '属性值', align: 'center', sortable: 'custom', isCheck: true },
 			{ prop: 'sysFlag', width: 120, label: '内置参数', align: 'center', sortable: 'custom', isCheck: true },
 			{ prop: 'groupCode', width: 120, label: '分组编码', align: 'center', sortable: 'custom', isCheck: true },
-			{ prop: 'orderNo', width: 80, label: '排序', align: 'center', sortable: 'custom', isCheck: true },
+			{ prop: 'sort', width: 80, label: '排序', align: 'center', sortable: 'custom', isCheck: true },
 			{ prop: 'remark', label: '备注', align: '', headerAlign: 'center', sortable: 'custom', showOverflowTooltip: true, isCheck: true },
 			{ prop: 'action', width: 150, label: '操作', type: 'action', align: 'center', isCheck: true, fixed: 'right', hideCheck: true },
 		],

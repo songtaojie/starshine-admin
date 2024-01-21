@@ -11,11 +11,8 @@ namespace Hx.Admin.Core.Service;
 /// </summary>
 public class SysDictTypeService : BaseService<SysDictType>, ISysDictTypeService
 { 
-    private readonly ISysDictDataService _sysDictDataService;
-    public SysDictTypeService(ISqlSugarRepository<SysDictType> sysDictTypeRep, 
-        ISysDictDataService sysDictDataService) : base(sysDictTypeRep)
+    public SysDictTypeService(ISqlSugarRepository<SysDictType> sysDictTypeRep) : base(sysDictTypeRep)
     {
-        _sysDictDataService = sysDictDataService;
 
     }
 
@@ -26,8 +23,8 @@ public class SysDictTypeService : BaseService<SysDictType>, ISysDictTypeService
     public async Task<PagedListResult<PageDictTypeOutput>> GetPage(PageDictTypeInput input)
     {
         return await _rep.AsQueryable()
-            .WhereIF(!string.IsNullOrWhiteSpace(input.Code), u => u.Code.Contains(input.Code.Trim()))
-            .WhereIF(!string.IsNullOrWhiteSpace(input.Name), u => u.Name.Contains(input.Name.Trim()))
+            .WhereIF(!string.IsNullOrWhiteSpace(input.Code), u => u.Code.Contains(input.Code!.Trim()))
+            .WhereIF(!string.IsNullOrWhiteSpace(input.Name), u => u.Name.Contains(input.Name!.Trim()))
             .OrderBy(u => u.Sort)
             .Select<PageDictTypeOutput>()
             .ToPagedListAsync(input.Page, input.PageSize);
@@ -78,7 +75,7 @@ public class SysDictTypeService : BaseService<SysDictType>, ISysDictTypeService
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    public async Task SetStatus(SetDictTypeStatusInput input)
+    public async Task<bool> SetStatus(SetDictTypeStatusInput input)
     {
         var dictType = await FirstOrDefaultAsync(u => u.Id == input.Id);
         if (dictType == null)
@@ -86,7 +83,7 @@ public class SysDictTypeService : BaseService<SysDictType>, ISysDictTypeService
 
         if (!Enum.IsDefined(typeof(StatusEnum), input.Status))
             throw new UserFriendlyException($"状态值不正确");
-        dictType.Status = (StatusEnum)input.Status;
-        await UpdateAsync(dictType);
+        dictType.Status = input.Status;
+        return await UpdateAsync(dictType);
     }
 }

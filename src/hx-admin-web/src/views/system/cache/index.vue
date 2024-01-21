@@ -71,8 +71,8 @@ const handleQuery = async () => {
 	state.cacheKey = undefined;
 
 	state.loading = true;
-	var res = await getAPI(SysCacheApi).apiSysCacheKeyListGet();
-	let keyList: any = res.data.result;
+	var res = await getAPI(SysCacheApi).getSysCacheKeyList();
+	let keyList: any = res.data.data;
 
 	// 构造树（以分号分割）
 	for (let i = 0; i < keyList.length; i++) {
@@ -108,7 +108,7 @@ const delCache = () => {
 		type: 'warning',
 	})
 		.then(async () => {
-			await getAPI(SysCacheApi).apiSysCacheDeleteKeyPost(currentNode.value.id);
+			await getAPI(SysCacheApi).removeCacheByKey(currentNode.value.id);
 			handleQuery();
 			state.cacheValue = undefined;
 			state.cacheKey = undefined;
@@ -123,8 +123,8 @@ const nodeClick = async (node: any) => {
 
 	currentNode.value = node;
 	state.loading1 = true;
-	var res = await getAPI(SysCacheApi).apiSysCacheValueKeyGet(node.id);
-	state.cacheValue = res.data.result;
+	var res = await getAPI(SysCacheApi).getSysCacheValue(node.id);
+	state.cacheValue = res.data.data;
 	state.cacheKey = node.id;
 	state.loading1 = false;
 };

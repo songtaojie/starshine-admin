@@ -4,6 +4,7 @@
 //
 // 电话/微信：song977601042
 
+using Hx.Admin.IService;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,4 +38,11 @@ public class AddDictTypeInput
     /// 状态
     /// </summary>
     public StatusEnum Status { get; set; } = StatusEnum.Enable;
+}
+public class UpdateDictTypeInput : AddDictTypeInput
+{
+    /// <summary>
+    /// 主键id
+    /// </summary>
+    public long Id { get; set; }
 }
