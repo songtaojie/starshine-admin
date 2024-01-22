@@ -48,11 +48,5 @@
   <ItemGroup>
     <Folder Include="DataAnnotations\" />
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Common\NetCore\Hx.Cache\Hx.Cache.csproj" />
-    <ProjectReference Include="..\..\..\..\Common\NetCore\Hx.Sdk.Core\Hx.Sdk.Core.csproj" />
-    <ProjectReference Include="..\..\..\..\Common\NetCore\Hx.Sqlsugar\Hx.Sqlsugar.csproj" />
-  </ItemGroup>
  
 </Project>
