@@ -1,3 +1,4 @@
+using Flurl.Http;
 using System.Text.Json.Serialization;
 
 namespace Hx.Admin.Core;
@@ -70,20 +71,6 @@ public static class ComputerUtil
         return diskInfos;
     }
 
-    /// <summary>
-    /// 获取外网IP地址
-    /// </summary>
-    /// <returns></returns>
-    //public static string GetIpFromOnline()
-    //{
-    //    var url = "http://myip.ipip.net";
-    //    //var stream = url.GetAsStreamAsync().GetAwaiter().GetResult();
-    //    Stream stream = new MemoryStream();
-    //    var streamReader = new StreamReader(stream.Stream, stream.Encoding);
-    //    var html = streamReader.ReadToEnd();
-    //    return html.Replace("当前 IP：", "").Replace("来自于：", "");
-    //}
-
     public static bool IsUnix()
     {
         return RuntimeInformation.IsOSPlatform(OSPlatform.OSX) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
@@ -94,8 +81,11 @@ public static class ComputerUtil
         string cpuRate;
         if (IsUnix())
         {
-            string output = ShellUtil.Bash("top -b -n1 | grep \"Cpu(s)\" | awk '{print $2 + $4}'");
-            cpuRate = output.Trim();
+            cpuRate = GetUnixCPURateByTop();
+            if (string.IsNullOrEmpty(cpuRate))
+            {
+                cpuRate = GetUnixCPURateByStat();
+            }
         }
         else
         {
@@ -103,6 +93,85 @@ public static class ComputerUtil
             cpuRate = output.Replace("LoadPercentage", string.Empty).Trim();
         }
         return cpuRate;
+    }
+
+    /// <summary>
+    /// 通过top命令获取CPU使用率
+    /// </summary>
+    /// <returns></returns>
+    private static string GetUnixCPURateByTop()
+    {
+        try
+        {
+            string output = ShellUtil.Bash("top -bn2 -d.2");
+            // 解析输出并提取 CPU 使用率
+            string[] lines = output.Split(Environment.NewLine);
+
+            string cpuUsageLine = lines.FirstOrDefault(line => line.StartsWith("%Cpu(s):"));
+            if (cpuUsageLine != null)
+            {
+                string[] fields = cpuUsageLine.Split(",", StringSplitOptions.RemoveEmptyEntries);
+                var field = fields.FirstOrDefault(r => r.Contains("id"));
+                if (!string.IsNullOrWhiteSpace(field))
+                {
+                    string[] idleFields = field.Trim().Split(" ", StringSplitOptions.RemoveEmptyEntries);
+
+                    if (idleFields.Length >= 3)
+                    {
+                        double idlePercentage = double.Parse(idleFields[0]);
+
+                        // 计算 CPU 使用率
+                        //// 输出 CPU 使用率
+                        //Console.WriteLine($"CPU Usage: {cpuUsage:0.##}%");
+                        return (100 - idlePercentage).ToString();
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"使用top 命令获取cpu使用率失败，异常消息：{ex.Message}");
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// 通过/proc/stat文件获取CPU使用率
+    /// </summary>
+    /// <returns></returns>
+    private static string GetUnixCPURateByStat()
+    {
+        try
+        {
+            // 读取 /proc/stat 文件
+            string statFile = "/proc/stat";
+            string[] lines = File.ReadAllLines(statFile);
+
+            // 查找以 "cpu" 开头的行（即每个 CPU 核心的统计信息）
+            var cpuLines = lines.Where(line => line.StartsWith("cpu"));
+
+            foreach (string cpuLine in cpuLines)
+            {
+                string[] fields = cpuLine.Split(' ');
+
+                // 解析 CPU 统计信息
+                string cpuName = fields[0];
+                long.TryParse(fields[1], out long userTime);
+                long.TryParse(fields[2], out long niceTime);
+                long.TryParse(fields[3], out long systemTime);
+                long.TryParse(fields[4], out long idleTime);
+
+                // 计算 CPU 使用率
+                long totalTime = userTime + niceTime + systemTime + idleTime;
+                double usagePercent = ((double)(totalTime - idleTime) / totalTime) * 100;
+                return usagePercent.ToString();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"使用/proc/stat 命令获取cpu使用率失败，异常消息：{ex.Message}");
+        }
+        return null;
     }
 
     /// <summary>
@@ -135,6 +204,19 @@ public static class ComputerUtil
                 
         }
         return runTime;
+    }
+
+    /// <summary>
+    /// 获取外网IP地址
+    /// </summary>
+    /// <returns></returns>
+    public static string GetIpFromOnline()
+    {
+        var url = "http://myip.ipip.net";
+        var stream = url.GetStreamAsync().GetAwaiter().GetResult();
+        var streamReader = new StreamReader(stream);
+        var html = streamReader.ReadToEnd();
+        return html.Replace("当前 IP：", "").Replace("来自于：", "");
     }
 }
 

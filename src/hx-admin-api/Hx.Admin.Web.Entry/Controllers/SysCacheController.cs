@@ -27,7 +27,6 @@ public class SysCacheController : AdminControllerBase
     [HttpGet]
     public IEnumerable<string> GetKeyList()
     {
-        _cache.Set("Test","111");
         return _cache.GetAllKeys();
     }
 
