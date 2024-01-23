@@ -1,5 +1,6 @@
 using Hx.Admin.IService;
 using Hx.Admin.Models;
+using Hx.Admin.Models.ViewModels;
 using Hx.Admin.Models.ViewModels.Org;
 using Hx.Cache;
 
@@ -176,7 +177,7 @@ public class SysOrgService : BaseService<SysOrg>, ISysOrgService
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    public async Task DeleteOrg(DeleteOrgInput input)
+    public async Task DeleteOrg(BaseIdParam input)
     {
         var sysOrg = await FirstOrDefaultAsync(u => u.Id == input.Id);
 

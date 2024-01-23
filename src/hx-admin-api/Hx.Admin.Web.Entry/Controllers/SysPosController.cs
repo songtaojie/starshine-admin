@@ -5,6 +5,7 @@
 // 电话/微信：song977601042
 
 using Hx.Admin.IService;
+using Hx.Admin.Models.ViewModels;
 using Hx.Admin.Models.ViewModels.Org;
 using Hx.Admin.Models.ViewModels.Pos;
 
@@ -57,8 +58,9 @@ public class SysPosController : AdminControllerBase
     /// <param name="input"></param>
     /// <returns></returns>
     [HttpDelete]
-    public async Task Delete(DeleteOrgInput input)
+    public async Task Delete(BaseIdParam input)
     {
         await _service.DeleteAsync(input.Id);
     }
+
 }

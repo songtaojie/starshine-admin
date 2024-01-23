@@ -10,7 +10,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Hx.Admin.Models.ViewModels.Org;
-public class DeleteOrgInput : BaseIdParam
+namespace Hx.Admin.Models.ViewModels.Region;
+public class UpdateRegionInput : AddRegionInput
 {
+    /// <summary>
+    /// 主键id
+    /// </summary>
+    public long Id { get; set; }
 }

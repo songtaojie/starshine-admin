@@ -57,7 +57,7 @@ public class SysCacheController : AdminControllerBase
     /// </summary>
     /// <param name="key"></param>
     /// <returns></returns>
-    [HttpGet]
+    [HttpGet("{key}")]
     public dynamic GetValue(string key)
     {
         return _cache.Get<dynamic>(key);

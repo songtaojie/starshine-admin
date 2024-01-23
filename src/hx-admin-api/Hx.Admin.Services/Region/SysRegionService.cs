@@ -2,6 +2,7 @@
 using AngleSharp.Html.Dom;
 using Hx.Admin.IService;
 using Hx.Admin.Models;
+using Hx.Admin.Models.ViewModels;
 using Hx.Admin.Models.ViewModels.Region;
 
 namespace Hx.Admin.Core.Service;
@@ -20,12 +21,13 @@ public class SysRegionService : BaseService<SysRegion>, ISysRegionService
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    public async Task<PagedListResult<SysRegion>> GetPage(PageRegionInput input)
+    public async Task<PagedListResult<PageRegionOutput>> GetPage(PageRegionInput input)
     {
         return await _rep.AsQueryable()
             .WhereIF(input.Pid > 0, u => u.Pid == input.Pid || u.Id == input.Pid)
             .WhereIF(!string.IsNullOrWhiteSpace(input.Name), u => u.Name.Contains(input.Name))
-            .WhereIF(!string.IsNullOrWhiteSpace(input.Code), u => u.Code!.Contains(input.Code))
+            .WhereIF(!string.IsNullOrWhiteSpace(input.Code), u => u.Code.Contains(input.Code))
+            .Select<PageRegionOutput>()
             .ToPagedListAsync(input.Page, input.PageSize);
     }
 
@@ -34,9 +36,9 @@ public class SysRegionService : BaseService<SysRegion>, ISysRegionService
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    public async Task<List<SysRegion>> GetList(RegionInput input)
+    public async Task<IEnumerable<ListRegionOutput>> GetList(BaseIdParam input)
     {
-        return await _rep.ToListAsync(u => u.Pid == input.Id);
+        return await _rep.AsQueryable().Where(u => u.Pid == input.Id).Select<ListRegionOutput>().ToListAsync();
     }
 
     public override async Task<bool> BeforeInsertAsync(SysRegion entity)
@@ -74,7 +76,7 @@ public class SysRegionService : BaseService<SysRegion>, ISysRegionService
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    public async Task DeleteRegion(DeleteRegionInput input)
+    public async Task DeleteRegion(BaseIdParam input)
     {
         var regionTreeList = await _rep.AsQueryable().ToChildListAsync(u => u.Pid, input.Id, true);
         var regionIdList = regionTreeList.Select(u => u.Id).ToList();

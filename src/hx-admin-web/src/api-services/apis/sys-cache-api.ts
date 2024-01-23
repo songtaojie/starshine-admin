@@ -57,7 +57,7 @@ export class SysCacheApi extends BaseAPI {
      * @memberof SysCacheApi
      */
     public async getSysCacheValue(key: string) : Promise<AxiosResponse<AdminResult<any>>> {
-        const api = `/api/sys-cache/value/${encodeURIComponent(key)}`;
+        const api = `/api/sys-cache/getvalue/${encodeURIComponent(key)}`;
         return this.GetAdminResult<any>({api});
     }
 }

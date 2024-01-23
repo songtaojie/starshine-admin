@@ -1,6 +1,7 @@
 ﻿using AngleSharp;
 using AngleSharp.Html.Dom;
 using Hx.Admin.Models;
+using Hx.Admin.Models.ViewModels;
 using Hx.Admin.Models.ViewModels.Region;
 using Hx.Common.DependencyInjection;
 
@@ -17,22 +18,21 @@ public interface ISysRegionService : IBaseService<SysRegion>, IScopedDependency
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    Task<PagedListResult<SysRegion>> GetPage(PageRegionInput input);
+    Task<PagedListResult<PageRegionOutput>> GetPage(PageRegionInput input);
 
     /// <summary>
     /// 获取行政区域列表
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    Task<List<SysRegion>> GetList(RegionInput input);
-
+    Task<IEnumerable<ListRegionOutput>> GetList(BaseIdParam input);
 
     /// <summary>
     /// 删除行政区域
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    Task DeleteRegion(DeleteRegionInput input);
+    Task DeleteRegion(BaseIdParam input);
 
     /// <summary>
     /// 同步行政区域
