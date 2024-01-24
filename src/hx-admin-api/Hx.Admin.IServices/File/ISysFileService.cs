@@ -1,5 +1,6 @@
 using Hx.Admin.Core;
 using Hx.Admin.Models;
+using Hx.Admin.Models.ViewModels;
 using Hx.Admin.Models.ViewModels.File;
 using Hx.Common;
 using Hx.Common.DependencyInjection;
@@ -20,7 +21,7 @@ public interface ISysFileService : IBaseService<SysFile>, IScopedDependency
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    Task<PagedListResult<SysFile>> GetPage(PageFileInput input);
+    Task<PagedListResult<PageFileOutput>> GetPage(PageFileInput input);
 
     /// <summary>
     /// 上传文件
@@ -42,7 +43,7 @@ public interface ISysFileService : IBaseService<SysFile>, IScopedDependency
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    Task DeleteFile(DeleteFileInput input);
+    Task DeleteFile(BaseIdParam input);
 
     /// <summary>
     /// 上传头像
@@ -57,4 +58,11 @@ public interface ISysFileService : IBaseService<SysFile>, IScopedDependency
     /// <param name="file"></param>
     /// <returns></returns>
     Task<FileOutput> UploadSignature(IFormFile file);
+
+    /// <summary>
+    /// 获取下载文件
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
+    Task<DownloadFileOutput> GetDownloadFile(FileInput input);
 }

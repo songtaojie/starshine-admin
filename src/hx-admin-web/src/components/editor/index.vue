@@ -66,7 +66,7 @@ const state = reactive({
 				customUpload(file, insertFn) {
 					// console.log('customUpload', file);
 					const uploadFun = async () => {
-						const rps = await getAPI(SysFileApi).apiSysFileUploadFilePostForm(file);
+						const rps = await getAPI(SysFileApi).uploadSysFile(file);
 						if (rps.data.type == 'success' && rps.data.result != null) {
 							insertFn(rps.data.result.url, rps.data.result.name, rps.data.result.url);
 						} else {

@@ -228,7 +228,12 @@ export const ApiAxiosParamCreator = function (configuration?: Configuration) {
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            const needsSerialization = (typeof options.data !== "string") || (localVarRequestOptions.headers != undefined && localVarRequestOptions.headers['Content-Type'] === 'application/json');
+            let needsSerialization;
+            if(options.data instanceof FormData) {
+                needsSerialization = false;
+            }else {
+                needsSerialization = (typeof options.data !== "string") || (localVarRequestOptions.headers != undefined && localVarRequestOptions.headers['Content-Type'] === 'application/json');
+            }
             localVarRequestOptions.data =  needsSerialization ? JSON.stringify(options.data  !== undefined ? options.data  : {}) : (options.data  || "");
 
             return {

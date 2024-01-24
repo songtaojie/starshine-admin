@@ -1,12 +1,16 @@
+using Flurl.Http;
 using Hx.Admin.IService;
 using Hx.Admin.Models;
+using Hx.Admin.Models.ViewModels;
 using Hx.Admin.Models.ViewModels.File;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using OnceMi.AspNetCore.OSS;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Web;
 using Yitter.IdGenerator;
 
 namespace Hx.Admin.Core.Service;
@@ -48,13 +52,14 @@ public class SysFileService : BaseService<SysFile>, ISysFileService
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    public async Task<PagedListResult<SysFile>> GetPage(PageFileInput input)
+    public async Task<PagedListResult<PageFileOutput>> GetPage(PageFileInput input)
     {
         return await _rep.AsQueryable()
-            .WhereIF(!string.IsNullOrWhiteSpace(input.FileName), u => u.FileName!.Contains(input.FileName.Trim()))
+            .WhereIF(!string.IsNullOrWhiteSpace(input.FileName), u => u.FileName!.Contains(input.FileName!.Trim()))
             .WhereIF(input.StartTime.HasValue, u => u.CreateTime >= input.StartTime )
             .WhereIF(input.EndTime.HasValue, u => u.CreateTime <= input.EndTime)
             .OrderBy(u => u.CreateTime, OrderByType.Desc)
+            .Select<PageFileOutput>()
             .ToPagedListAsync(input.Page, input.PageSize);
     }
 
@@ -93,35 +98,43 @@ public class SysFileService : BaseService<SysFile>, ISysFileService
         return filelist;
     }
 
-    ///// <summary>
-    ///// 下载文件(文件流)
-    ///// </summary>
-    ///// <param name="input"></param>
-    ///// <returns></returns>
-    //public async Task<IActionResult> DownloadFile(FileInput input)
-    //{
-    //    var file = await GetFile(input);
-    //    var fileName = HttpUtility.UrlEncode(file.FileName, Encoding.GetEncoding("UTF-8"));
-    //    if (_OSSProviderOptions.IsEnable)
-    //    {
-    //        var filePath = string.Concat(file.FilePath, "/", input.Id.ToString() + file.Suffix);
-    //        var stream = await (await _OSSService.PresignedGetObjectAsync(file.BucketName.ToString(), filePath, 5)).GetAsStreamAsync();
-    //        return new FileStreamResult(stream.Stream, "application/octet-stream") { FileDownloadName = fileName + file.Suffix };
-    //    }
-    //    else
-    //    {
-    //        var filePath = Path.Combine(file.FilePath, input.Id.ToString() + file.Suffix);
-    //        var path = Path.Combine(App.WebHostEnvironment.WebRootPath, filePath);
-    //        return new FileStreamResult(new FileStream(path, FileMode.Open), "application/octet-stream") { FileDownloadName = fileName + file.Suffix };
-    //    }
-    //}
+    /// <summary>
+    /// 下载文件(文件流)
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
+    public async Task<DownloadFileOutput> GetDownloadFile(FileInput input)
+    {
+        var file = await FirstOrDefaultAsync(u=>u.Id == input.Id);
+        var fileName = HttpUtility.UrlEncode(file.FileName, Encoding.GetEncoding("UTF-8"));
+        if (_OSSProviderOptions.IsEnable)
+        {
+            var filePath = string.Concat(file.FilePath, "/", input.Id.ToString() + file.Suffix);
+            var stream = await (await _OSSService.PresignedGetObjectAsync(file.BucketName!.ToString(), filePath, 5)).GetStreamAsync();
+            return new DownloadFileOutput
+            {
+                Stream = stream,
+                FileName = fileName + file.Suffix
+            };
+        }
+        else
+        {
+            var filePath = Path.Combine(file.FilePath, input.Id.ToString() + file.Suffix);
+            var path = Path.Combine(_webHostEnvironment.WebRootPath, filePath);
+            return new DownloadFileOutput
+            {
+                Stream = new FileStream(path, FileMode.Open),
+                FileName = fileName + file.Suffix
+            };
+        }
+    }
 
     /// <summary>
     /// 删除文件
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    public async Task DeleteFile(DeleteFileInput input)
+    public async Task DeleteFile(BaseIdParam input)
     {
         var file = await FirstOrDefaultAsync(u => u.Id == input.Id);
         if (file != null)

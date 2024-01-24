@@ -208,7 +208,7 @@ onMounted(async () => {
 	state.loading = false;
 
 	mittBus.on('uploadCropperImg', async (e) => {
-		var res = await getAPI(SysFileApi).apiSysFileUploadAvatarPostForm(e.img);
+		var res = await getAPI(SysFileApi).uploadAvatar(e.img);
 		userInfos.value.avatar = res.data.result?.url + '';
 	});
 });
@@ -232,7 +232,7 @@ const saveUploadSign = async () => {
 	const { isEmpty, data } = signaturePadRef.value.saveSignature();
 	if (isEmpty) return;
 
-	var res = await getAPI(SysFileApi).apiSysFileUploadSignaturePostForm(base64ToFile(data, userInfos.value.account + '.png'));
+	var res = await getAPI(SysFileApi).uploadSignature(base64ToFile(data, userInfos.value.account + '.png'));
 	userInfos.value.signature = res.data.result?.url + '';
 
 	clearSign();
@@ -252,7 +252,7 @@ const clearSign = () => {
 
 // 上传手写电子签名
 const uploadSignFile = async (file: any) => {
-	var res = await getAPI(SysFileApi).apiSysFileUploadSignaturePostForm(file.raw);
+	var res = await getAPI(SysFileApi).uploadSignature(file.raw);
 	userInfos.value.signature = res.data.result?.url + '';
 };
 
@@ -263,7 +263,7 @@ const handleChangeSignFile = (_file: any, fileList: []) => {
 
 // 上传头像文件回调
 const uploadAvatarFile = async (file: any) => {
-	var res = await getAPI(SysFileApi).apiSysFileUploadAvatarPostForm(file.raw);
+	var res = await getAPI(SysFileApi).uploadAvatar(file.raw);
 	userInfos.value.avatar = res.data.result?.url + '';
 	uploadAvatarRef.value?.clearFiles();
 };

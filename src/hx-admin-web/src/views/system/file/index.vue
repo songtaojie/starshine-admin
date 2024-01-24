@@ -146,9 +146,9 @@ const handleQuery = async () => {
 
 	state.loading = true;
 	let params = Object.assign(state.queryParams, state.tableParams);
-	var res = await getAPI(SysFileApi).apiSysFilePagePost(params);
-	state.fileData = res.data.result?.items ?? [];
-	state.tableParams.total = res.data.result?.total;
+	var res = await getAPI(SysFileApi).getFilePage(params);
+	state.fileData = res.data.data?.items ?? [];
+	state.tableParams.total = res.data.data?.total;
 	state.loading = false;
 };
 
@@ -174,7 +174,7 @@ const handleChange = (file: any, fileList: []) => {
 // 上传
 const uploadFile = async () => {
 	if (state.fileList.length < 1) return;
-	await getAPI(SysFileApi).apiSysFileUploadFilePostForm(state.fileList[0].raw);
+	await getAPI(SysFileApi).uploadSysFile(state.fileList[0].raw);
 	handleQuery();
 	ElMessage.success('上传成功');
 	state.dialogVisible = false;
@@ -194,7 +194,7 @@ const delFile = (row: any) => {
 		type: 'warning',
 	})
 		.then(async () => {
-			await getAPI(SysFileApi).apiSysFileDeletePost({ id: row.id });
+			await getAPI(SysFileApi).deleteFile({ id: row.id });
 			handleQuery();
 			ElMessage.success('删除成功');
 		})
