@@ -98,6 +98,7 @@ import Sortable from 'sortablejs';
 import { storeToRefs } from 'pinia';
 import { useThemeConfig } from '/@/stores/themeConfig';
 import { exportExcel } from '/@/utils/exportExcel';
+import { AdminResultPagedListResult,BasePageInput } from '/@/api-services/models';
 // import '/@/theme/tableTool.scss';
 
 // 定义父组件传过来的值
@@ -146,12 +147,7 @@ const state = reactive({
 	loading: false,
 	importLoading: false,
 	total: 0,
-	page: {
-		page: 1,
-		pageSize: 10,
-		field: '',
-		order: '',
-	},
+	page: { } as BasePageInput,
 	showPagination: true,
 	selectlist: [] as EmptyObjectType[],
 	checkListAll: true,
@@ -225,9 +221,9 @@ const onImportTableAll = async () => {
 	if (setHeader.value.length <= 0) return ElMessage.error('没有勾选要导出的列');
 	state.importLoading = true;
 	const param = Object.assign({}, props.param, { page: 1, pageSize: 99999 });
-	const res = await props.getData(param);
+	const res = await props.getData(param) as AdminResultPagedListResult<any>;
 	state.importLoading = false;
-	const data = res.result?.items ?? [];
+	const data = res.data?.items ?? [];
 	importData(data);
 };
 // 导出方法
@@ -278,15 +274,15 @@ const handleList = async () => {
 	state.loading = true;
 	let param = Object.assign({}, props.param, { ...state.page });
 	Object.keys(param).forEach((key) => !param[key] && delete param[key]);
-	const res = await props.getData(param);
+	const res = await props.getData(param) as AdminResultPagedListResult<any>;
 	state.loading = false;
-	if (res.result.items) {
+	if (res.data && res.data.items) {
 		state.showPagination = true;
-		state.data = res.result?.items ?? [];
-		state.total = res.result?.total ?? 0;
+		state.data = res.data?.items ?? [];
+		state.total = res.data?.total ?? 0;
 	} else {
 		state.showPagination = false;
-		state.data = res.result ?? [];
+		state.data = res.data?.items ?? [];
 	}
 };
 

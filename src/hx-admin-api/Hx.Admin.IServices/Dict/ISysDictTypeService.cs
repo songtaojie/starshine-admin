@@ -28,5 +28,5 @@ public interface ISysDictTypeService : IBaseService<SysDictType>, IScopedDepende
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    Task SetStatus(SetDictTypeStatusInput input);
+    Task<bool> SetStatus(SetDictTypeStatusInput input);
 }

@@ -11,17 +11,17 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Hx.Admin.Models.ViewModels.Dict;
-public class PageDictTypeOutput
+public class PageDictDataOutput
 {
     /// <summary>
-    /// 主键id
+    /// 字典值Id
     /// </summary>
     public long Id { get; set; }
 
     /// <summary>
-    /// 名称
+    /// 值
     /// </summary>
-    public string Name { get; set; }
+    public string Value { get; set; }
 
     /// <summary>
     /// 编码
@@ -31,7 +31,7 @@ public class PageDictTypeOutput
     /// <summary>
     /// 排序
     /// </summary>
-    public int Sort { get; set; } 
+    public int Sort { get; set; }
 
     /// <summary>
     /// 备注

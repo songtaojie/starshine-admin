@@ -10,9 +10,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Hx.Admin.Models.ViewModels.Dict;
-public class PageDictTypeInput : BasePageParam
+namespace Hx.Admin.Models.ViewModels.Region;
+public class PageRegionInput : BasePageParam
 {
+    /// <summary>
+    /// 父节点Id
+    /// </summary>
+    public long Pid { get; set; }
+
     /// <summary>
     /// 名称
     /// </summary>

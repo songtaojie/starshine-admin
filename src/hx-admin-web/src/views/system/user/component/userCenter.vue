@@ -173,7 +173,7 @@ import mittBus from '/@/utils/mitt';
 
 import { clearAccessTokens, getAPI } from '/@/utils/axios-utils';
 import { SysFileApi, SysUserApi } from '/@/api-services/api';
-import { ChangePwdInput, SysUser } from '/@/api-services/models';
+import { ChangePwdInput, SysUserBaseInfo } from '/@/api-services/models';
 
 const stores = useUserInfo();
 const { userInfos } = storeToRefs(stores);
@@ -187,7 +187,7 @@ const state = reactive({
 	loading: false,
 	avatarLoading: false,
 	signDialogVisible: false,
-	ruleFormBase: {} as SysUser,
+	ruleFormBase: {} as SysUserBaseInfo,
 	ruleFormPassword: {} as ChangePwdInput,
 	signOptions: {
 		penColor: '#000000',
@@ -204,7 +204,7 @@ const state = reactive({
 onMounted(async () => {
 	state.loading = true;
 	var res = await getAPI(SysUserApi).getUserBaseInfo();
-	state.ruleFormBase = res.data.result ?? { account: '' };
+	state.ruleFormBase = res.data.data ?? { };
 	state.loading = false;
 
 	mittBus.on('uploadCropperImg', async (e) => {

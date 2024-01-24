@@ -73,6 +73,14 @@ public interface IBaseService<TEntity> where TEntity : EntityBase, new()
     /// <param name="entity">实体</param>
     /// <param name="fields">要更新的字段的集合</param>
     Task<bool> UpdatePartialAsync(TEntity entity, params string[] fields);
+
+    /// <summary>
+    /// 更新实体的部分字段
+    /// </summary>
+    /// <param name="entity">实体</param>
+    /// <param name="columns">要更新的字段的集合</param>
+    /// <returns></returns>
+    Task<bool> UpdatePartialAsync(TEntity entity, Expression<Func<TEntity, object>> columns);
     #endregion
 
     #region 判断

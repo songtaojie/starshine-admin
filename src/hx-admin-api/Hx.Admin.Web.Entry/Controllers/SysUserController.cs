@@ -69,9 +69,19 @@ public class SysUserController : AdminControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet]
-    public async Task<SysUser> GetBaseInfo()
+    public async Task<BaseInfoOutput> GetBaseInfo()
     {
         return await _service.GetBaseInfo();
+    }
+
+    /// <summary>
+    /// 查看用户基本信息
+    /// </summary>
+    /// <returns></returns>
+    [HttpPost]
+    public async Task<bool> UpdateBaseInfo(UpdateBaseInfoInput input)
+    {
+        return await _service.UpdateBaseInfo(input);
     }
 
     /// <summary>

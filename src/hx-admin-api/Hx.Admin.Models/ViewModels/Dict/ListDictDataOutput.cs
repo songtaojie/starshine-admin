@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Hx.Admin.Models.ViewModels.Dict;
-public class PageDictTypeOutput
+public class ListDictDataOutput
 {
     /// <summary>
     /// 主键id
@@ -19,32 +19,12 @@ public class PageDictTypeOutput
     public long Id { get; set; }
 
     /// <summary>
-    /// 名称
+    /// 值
     /// </summary>
-    public string Name { get; set; }
+    public string Value { get; set; }
 
     /// <summary>
     /// 编码
     /// </summary>
     public string Code { get; set; }
-
-    /// <summary>
-    /// 排序
-    /// </summary>
-    public int Sort { get; set; } 
-
-    /// <summary>
-    /// 备注
-    /// </summary>
-    public string? Remark { get; set; }
-
-    /// <summary>
-    /// 状态
-    /// </summary>
-    public StatusEnum Status { get; set; }
-
-    /// <summary>
-    /// 更新时间
-    /// </summary>
-    public DateTime? UpdateTime { get; set; }
 }

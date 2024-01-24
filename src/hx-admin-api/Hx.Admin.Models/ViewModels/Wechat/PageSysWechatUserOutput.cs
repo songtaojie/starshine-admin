@@ -14,6 +14,11 @@ namespace Hx.Admin.Models.ViewModels.Wechat;
 public class PageSysWechatUserOutput
 {
     /// <summary>
+    /// 主键id
+    /// </summary>
+    public long Id { get; set; }
+
+    /// <summary>
     /// 系统用户Id
     /// </summary>
     public long UserId { get; set; }
@@ -21,12 +26,17 @@ public class PageSysWechatUserOutput
     /// <summary>
     /// 平台类型
     /// </summary>
-    public PlatformTypeEnum PlatformType { get; set; } = PlatformTypeEnum.微信公众号;
+    public PlatformTypeEnum PlatformType { get; set; }
 
     /// <summary>
     /// OpenId
     /// </summary>
     public string OpenId { get; set; }
+
+    /// <summary>
+    /// 会话密钥
+    /// </summary>
+    public string? SessionKey { get; set; }
 
     /// <summary>
     /// UnionId
@@ -67,6 +77,7 @@ public class PageSysWechatUserOutput
     /// 国家
     /// </summary>
     public string? Country { get; set; }
+
 
     /// <summary>
     /// 用户授权的作用域，使用逗号分隔

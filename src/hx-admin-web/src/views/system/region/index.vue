@@ -108,9 +108,9 @@ onUnmounted(() => {
 const handleQuery = async () => {
 	state.loading = true;
 	let params = Object.assign(state.queryParams, state.tableParams);
-	var res = await getAPI(SysRegionApi).apiSysRegionPagePost(params);
-	state.regionData = res.data.result?.items ?? [];
-	state.tableParams.total = res.data.result?.total;
+	var res = await getAPI(SysRegionApi).getRegionPage(params);
+	state.regionData = res.data.data?.items ?? [];
+	state.tableParams.total = res.data.data?.total;
 	state.loading = false;
 };
 
@@ -143,7 +143,7 @@ const delRegion = (row: any) => {
 		type: 'warning',
 	})
 		.then(async () => {
-			await getAPI(SysRegionApi).apiSysRegionDeletePost({ id: row.id });
+			await getAPI(SysRegionApi).deleteRegion({ id: row.id });
 			ElMessage.success('删除成功');
 			mittBus.emit('submitRefresh');
 		})
@@ -172,7 +172,7 @@ const handlSync = async () => {
 				type: 'success',
 				position: 'bottom-right',
 			});
-			await getAPI(SysRegionApi).apiSysRegionSyncPost({ timeout: 1000 * 60 * 30 });
+			await getAPI(SysRegionApi).syncRegion({ timeout: 1000 * 60 * 30 });
 		})
 		.catch(() => {});
 };

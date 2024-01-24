@@ -16,13 +16,13 @@ public interface ISysDictDataService : IBaseService<SysDictData>, IScopedDepende
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    Task<PagedListResult<SysDictData>> GetPage(PageDictDataInput input);
+    Task<PagedListResult<PageDictDataOutput>> GetPage(PageDictDataInput input);
 
     /// <summary>
     /// 获取字典值列表
     /// </summary>
     /// <returns></returns>
-    Task<IEnumerable<SysDictData>> GetList(GetDataDictDataInput input);
+    Task<IEnumerable<ListDictDataOutput>> GetList(GetDataDictDataInput input);
 
     /// <summary>
     /// 修改字典值状态
@@ -36,20 +36,20 @@ public interface ISysDictDataService : IBaseService<SysDictData>, IScopedDepende
     /// </summary>
     /// <param name="dictTypeId"></param>
     /// <returns></returns>
-    Task<List<SysDictData>> GetDictDataListByDictTypeId(long dictTypeId);
+    Task<IEnumerable<ListDictDataOutput>> GetDictDataListByDictTypeId(long dictTypeId);
 
     /// <summary>
     /// 根据字典类型编码获取字典值集合
     /// </summary>
     /// <param name="code"></param>
     /// <returns></returns>
-    Task<List<SysDictData>> GetDataList(string code);
+    Task<IEnumerable<ListDictDataOutput>> GetDataList(string code);
 
     /// <summary>
     /// 根据查询条件获取字典值集合
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    Task<List<SysDictData>> GetDataList(QueryDictDataInput input);
+    Task<IEnumerable<ListDictDataOutput>> GetDataList(QueryDictDataInput input);
 
 }

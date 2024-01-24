@@ -1,4 +1,5 @@
 using Hx.Admin.Models;
+using Hx.Admin.Models.ViewModels;
 using Hx.Admin.Models.ViewModels.Org;
 using Hx.Common.DependencyInjection;
 
@@ -34,7 +35,7 @@ public interface ISysOrgService : IBaseService<SysOrg>, IScopedDependency
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    Task DeleteOrg(DeleteOrgInput input);
+    Task DeleteOrg(BaseIdParam input);
 
     /// <summary>
     /// 根据用户Id获取机构Id集合

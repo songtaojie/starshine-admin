@@ -1,5 +1,27 @@
 import { PlatformTypeEnum } from './enums/platform-type-enum';
 import { SysUser } from './sys-user';
+import { BasePageInput } from './base/base-page-input';
+/**
+ * 
+ * @export
+ * @interface PageWechatUserInput
+ */
+export interface PageWechatUserInput extends BasePageInput{
+    /**
+     * 昵称
+     * @type {string}
+     * @memberof PageWechatUserInput
+     */
+    nickName?: string | null;
+    /**
+     * 手机号码
+     * @type {string}
+     * @memberof PageWechatUserInput
+     */
+    phoneNumber?: string | null;
+}
+
+
 /**
  * 系统微信用户表
  * @export

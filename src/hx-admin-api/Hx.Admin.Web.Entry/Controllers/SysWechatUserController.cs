@@ -21,7 +21,7 @@ public class SysWechatUserController : AdminControllerBase
     }
 
     /// <summary>
-    /// 获取微信用户列表
+    /// 获取用户分页列表
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
@@ -30,4 +30,5 @@ public class SysWechatUserController : AdminControllerBase
     {
         return await _service.GetPage(input);
     }
+
 }

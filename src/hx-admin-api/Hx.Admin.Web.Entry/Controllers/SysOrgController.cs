@@ -8,6 +8,7 @@ using Hx.Admin.IService;
 using Hx.Admin.Models.ViewModels.Notice;
 using Hx.Admin.Models;
 using Hx.Admin.Models.ViewModels.Org;
+using Hx.Admin.Models.ViewModels;
 
 namespace Hx.Admin.Web.Entry.Controllers;
 
@@ -59,7 +60,7 @@ public class SysOrgController : AdminControllerBase
     /// <param name="input"></param>
     /// <returns></returns>
     [HttpDelete]
-    public async Task Delete(DeleteOrgInput input)
+    public async Task Delete(BaseIdParam input)
     {
         await _service.DeleteOrg(input);
     }

@@ -11,15 +11,16 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Hx.Admin.Models.ViewModels.Wechat;
+
 public class PageWechatUserInput : BasePageParam
 {
     /// <summary>
     /// 昵称
     /// </summary>
-    public string NickName { get; set; }
+    public string? NickName { get; set; }
 
     /// <summary>
     /// 手机号码
     /// </summary>
-    public string PhoneNumber { get; set; }
+    public string? PhoneNumber { get; set; }
 }

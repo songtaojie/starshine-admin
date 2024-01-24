@@ -352,6 +352,90 @@ export interface UserInput {
 /**
  * 系统用户表
  * @export
+ * @interface SysUserBaseInfo
+ */
+export interface SysUserBaseInfo {
+    /**
+     * 雪花Id
+     * @type {number}
+     * @memberof SysUserBaseInfo
+     */
+    id?: number;
+    /**
+     * 真实姓名
+     * @type {string}
+     * @memberof SysUserBaseInfo
+     */
+    realName?: string | null;
+    /**
+     * 昵称
+     * @type {string}
+     * @memberof SysUserBaseInfo
+     */
+    nickName?: string | null;
+    /**
+     * 头像
+     * @type {string}
+     * @memberof SysUserBaseInfo
+     */
+    avatar?: string | null;
+    /**
+     * 
+     * @type {GenderEnum}
+     * @memberof SysUserBaseInfo
+     */
+    sex?: GenderEnum;
+
+    /**
+     * 出生日期
+     * @type {Date}
+     * @memberof SysUserBaseInfo
+     */
+    birthday?: Date | null;
+
+    /**
+     * 手机号码
+     * @type {string}
+     * @memberof SysUserBaseInfo
+     */
+    phone?: string | null;
+   
+    /**
+     * 邮箱
+     * @type {string}
+     * @memberof SysUserBaseInfo
+     */
+    email?: string | null;
+    /**
+     * 地址
+     * @type {string}
+     * @memberof SysUser
+     */
+    address?: string | null;
+    /**
+     * 个人简介
+     * @type {string}
+     * @memberof SysUserBaseInfo
+     */
+    introduction?: string | null;
+ 
+    /**
+     * 备注
+     * @type {string}
+     * @memberof SysUserBaseInfo
+     */
+    remark?: string | null;
+    /**
+     * 电子签名
+     * @type {string}
+     * @memberof SysUserBaseInfo
+     */
+    signature?: string | null;
+}
+
+/**
+ * 系统用户表
+ * @export
  * @interface SysUser
  */
 export interface SysUser {

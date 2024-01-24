@@ -2,6 +2,7 @@ using Hx.Admin.IService;
 using Hx.Admin.Models;
 using Hx.Admin.Models.ViewModels.Dict;
 using RazorEngine.Compilation.ImpromptuInterface.InvokeExt;
+using static SKIT.FlurlHttpClient.Wechat.Api.Models.ComponentTCBBatchCreateContainerServiceVersionRequest.Types;
 
 namespace Hx.Admin.Core.Service;
 
@@ -19,13 +20,15 @@ public class SysDictDataService : BaseService<SysDictData>, ISysDictDataService
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    public async Task<PagedListResult<SysDictData>> GetPage(PageDictDataInput input)
+    public async Task<PagedListResult<PageDictDataOutput>> GetPage(PageDictDataInput input)
     {
         return await _rep.AsQueryable()
             .Where(u => u.DictTypeId == input.DictTypeId)
             .WhereIF(!string.IsNullOrWhiteSpace(input.Code), u => u.Code.Contains(input.Code!.Trim()))
             .WhereIF(!string.IsNullOrWhiteSpace(input.Value), u => u.Value.Contains(input.Value!.Trim()))
             .OrderBy(u => u.Sort)
+            .OrderByDescending(u => u.CreateTime)
+            .Select<PageDictDataOutput>()
             .ToPagedListAsync(input.Page, input.PageSize);
     }
 
@@ -33,7 +36,7 @@ public class SysDictDataService : BaseService<SysDictData>, ISysDictDataService
     /// 获取字典值列表
     /// </summary>
     /// <returns></returns>
-    public async Task<IEnumerable<SysDictData>> GetList(GetDataDictDataInput input)
+    public async Task<IEnumerable<ListDictDataOutput>> GetList(GetDataDictDataInput input)
     {
         return await GetDictDataListByDictTypeId(input.DictTypeId);
     }
@@ -89,11 +92,13 @@ public class SysDictDataService : BaseService<SysDictData>, ISysDictDataService
     /// </summary>
     /// <param name="dictTypeId"></param>
     /// <returns></returns>
-    public async Task<List<SysDictData>> GetDictDataListByDictTypeId(long dictTypeId)
+    public async Task<IEnumerable<ListDictDataOutput>> GetDictDataListByDictTypeId(long dictTypeId)
     {
         return await _rep.AsQueryable()
             .Where(u => u.DictTypeId == dictTypeId)
             .OrderBy(u => u.Sort)
+            .OrderByDescending(u => u.CreateTime)
+            .Select<ListDictDataOutput>()
             .ToListAsync();
     }
 
@@ -102,12 +107,18 @@ public class SysDictDataService : BaseService<SysDictData>, ISysDictDataService
     /// </summary>
     /// <param name="code"></param>
     /// <returns></returns>
-    public async Task<List<SysDictData>> GetDataList(string code)
+    public async Task<IEnumerable<ListDictDataOutput>> GetDataList(string code)
     {
         return await _rep.Context.Queryable<SysDictType>()
-            .LeftJoin<SysDictData>((a, b) => a.Id == b.DictTypeId)
-            .Where((a, b) => a.Code == code && a.Status == StatusEnum.Enable && b.Status == StatusEnum.Enable)
-            .Select((a, b) => b).ToListAsync();
+            .LeftJoin<SysDictData>((u, sdd) => u.Id == sdd.DictTypeId)
+            .Where((u, sdd) => u.Code == code && u.Status == StatusEnum.Enable && sdd.Status == StatusEnum.Enable)
+            .Select((u, sdd) => new ListDictDataOutput
+            { 
+                Id = sdd.Id,
+                Code = sdd.Code,
+                Value = sdd.Value
+
+            }).ToListAsync();
     }
 
     /// <summary>
@@ -115,13 +126,19 @@ public class SysDictDataService : BaseService<SysDictData>, ISysDictDataService
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    public async Task<List<SysDictData>> GetDataList(QueryDictDataInput input)
+    public async Task<IEnumerable<ListDictDataOutput>> GetDataList(QueryDictDataInput input)
     {
         return await _rep.Context.Queryable<SysDictType>()
-            .LeftJoin<SysDictData>((a, b) => a.Id == b.DictTypeId)
-            .Where((a, b) => a.Code == input.Code)
-            .WhereIF(input.Status.HasValue, (a, b) => b.Status == (StatusEnum)input.Status!.Value)
-            .Select((a, b) => b).ToListAsync();
+            .LeftJoin<SysDictData>((u, sdd) => u.Id == sdd.DictTypeId)
+           .Where((u, sdd) => u.Code == input.Code && u.Status == StatusEnum.Enable && sdd.Status == StatusEnum.Enable)
+           .WhereIF(input.Status.HasValue, (u, sdd) => sdd.Status == input.Status!.Value)
+           .Select((u, sdd) => new ListDictDataOutput
+           {
+               Id = sdd.Id,
+               Code = sdd.Code,
+               Value = sdd.Value
+
+           }).ToListAsync();
     }
 
     /// <summary>

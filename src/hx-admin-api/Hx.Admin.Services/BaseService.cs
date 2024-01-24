@@ -1,7 +1,6 @@
 ﻿using AngleSharp.Dom;
 using Hx.Sqlsugar;
 using Nest;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 using SqlSugar;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
@@ -132,7 +131,7 @@ public abstract class BaseService<TEntity> where TEntity : EntityBase, new()
     {
         if (await BeforeUpdateAsync(entity))
         {
-            return await _rep.UpdateAsync(entity) > 0;
+            return await _rep.Context.Updateable(entity).IgnoreColumns(true).ExecuteCommandAsync() > 0;
         }
         return false;
     }
@@ -145,6 +144,17 @@ public abstract class BaseService<TEntity> where TEntity : EntityBase, new()
     {
         return await _rep.Context.Updateable(entity).UpdateColumns(fields).ExecuteCommandAsync() > 0;
     }
+
+    /// <summary>
+    /// 更新实体的部分字段
+    /// </summary>
+    /// <param name="entity">实体</param>
+    /// <param name="columns">要更新的字段的集合</param>
+    public virtual async Task<bool> UpdatePartialAsync(TEntity entity, Expression<Func<TEntity, object>> columns)
+    {
+        return await _rep.Context.Updateable(entity).UpdateColumns(columns).ExecuteCommandAsync() > 0;
+    }
+
     #endregion
 
     #region 判断

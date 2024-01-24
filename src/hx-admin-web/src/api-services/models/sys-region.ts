@@ -11,7 +11,143 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { SysRegion } from './sys-region';
+import { BasePageInput } from './base/base-page-input';
+
+
+/**
+ * 
+ * @export
+ * @interface AddRegionInput
+ */
+export interface AddRegionInput {
+    
+    /**
+     * 父Id
+     * @type {number}
+     * @memberof AddRegionInput
+     */
+    pid?: number;
+    /**
+     * 简称
+     * @type {string}
+     * @memberof AddRegionInput
+     */
+    shortName?: string | null;
+    /**
+     * 组合名
+     * @type {string}
+     * @memberof AddRegionInput
+     */
+    mergerName?: string | null;
+    /**
+     * 行政代码
+     * @type {string}
+     * @memberof AddRegionInput
+     */
+    code?: string | null;
+    /**
+     * 邮政编码
+     * @type {string}
+     * @memberof AddRegionInput
+     */
+    zipCode?: string | null;
+    /**
+     * 区号
+     * @type {string}
+     * @memberof AddRegionInput
+     */
+    cityCode?: string | null;
+    /**
+     * 层级
+     * @type {number}
+     * @memberof AddRegionInput
+     */
+    level?: number;
+    /**
+     * 拼音
+     * @type {string}
+     * @memberof AddRegionInput
+     */
+    pinYin?: string | null;
+    /**
+     * 经度
+     * @type {number}
+     * @memberof AddRegionInput
+     */
+    lng?: number;
+    /**
+     * 维度
+     * @type {number}
+     * @memberof AddRegionInput
+     */
+    lat?: number;
+    /**
+     * 排序
+     * @type {number}
+     * @memberof AddRegionInput
+     */
+    sort?: number;
+    /**
+     * 备注
+     * @type {string}
+     * @memberof AddRegionInput
+     */
+    remark?: string | null;
+    /**
+     * 机构子项
+     * @type {Array<SysRegion>}
+     * @memberof AddRegionInput
+     */
+    children?: Array<SysRegion> | null;
+    /**
+     * 名称
+     * @type {string}
+     * @memberof AddRegionInput
+     */
+    name: string;
+}
+
+/**
+ * 
+ * @export
+ * @interface UpdateRegionInput
+ */
+export interface UpdateRegionInput extends AddRegionInput {
+    /**
+     * 雪花Id
+     * @type {number}
+     * @memberof UpdateRegionInput
+     */
+    id: number;
+}
+
+/**
+ * 
+ * @export
+ * @interface PageRegionInput
+ */
+export interface PageRegionInput extends BasePageInput {
+    /**
+     * 父节点Id
+     * @type {number}
+     * @memberof PageRegionInput
+     */
+    pid?: number;
+    /**
+     * 名称
+     * @type {string}
+     * @memberof PageRegionInput
+     */
+    name?: string | null;
+    /**
+     * 编码
+     * @type {string}
+     * @memberof PageRegionInput
+     */
+    code?: string | null;
+}
+
+
 /**
  * 系统行政地区表
  * @export

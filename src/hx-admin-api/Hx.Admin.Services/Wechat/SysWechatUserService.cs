@@ -24,7 +24,7 @@ public class SysWechatUserService : BaseService<SysWechatUser>, ISysWechatUserSe
         return await _rep.AsQueryable()
             .WhereIF(!string.IsNullOrWhiteSpace(input.NickName), u => u.NickName!.Contains(input.NickName))
             .WhereIF(!string.IsNullOrWhiteSpace(input.PhoneNumber), u => u.Mobile!.Contains(input.PhoneNumber))
-            .OrderBy(u => u.CreateTime, OrderByType.Desc)
+            .OrderBy(u => u.Id, OrderByType.Desc)
             .Select<PageSysWechatUserOutput>()
             .ToPagedListAsync(input.Page, input.PageSize);
     }

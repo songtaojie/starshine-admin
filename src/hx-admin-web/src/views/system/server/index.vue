@@ -1,6 +1,6 @@
 <template>
 	<div class="sys-server-container">
-		<el-row :gutter="8">
+		<el-row :gutter="8" style="margin-bottom: 8px;" >
 			<el-col :md="12" :sm="24">
 				<el-card shadow="hover" header="系统信息">
 					<table class="sysInfo_table">
@@ -39,7 +39,7 @@
 					</table>
 				</el-card>
 			</el-col>
-			<el-col :md="12" :sm="24">
+			<el-col :md="12" :sm="24" >
 				<el-card shadow="hover" header="使用信息">
 					<el-row>
 						<el-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12" style="text-align: center">
@@ -97,8 +97,9 @@
 				</el-card>
 			</el-col>
 		</el-row>
-		<el-card shadow="hover" header="程序集信息" style="margin-top: 8px;--el-card-padding:10px;">
-			<div style="overflow-y: auto;padding-bottom: 10px;">
+		
+		<el-card shadow="hover" header="程序集信息" style="margin-bottom: 8px;--el-card-padding:10px;">
+			<div style="overflow-y: auto;padding-bottom: 20px;">
 				<div v-for="d in state.assemblyInfo" :key="d.name" style="display: inline-flex; margin: 4px;">
 					<el-tag round>
 						<div style="display: inline-flex">
@@ -109,7 +110,7 @@
 				</div>
 			</div>
 		</el-card>
-		<el-card shadow="hover" header="磁盘信息" style="margin-top: 8px">
+		<el-card shadow="hover" header="磁盘信息" >
 			<el-row>
 				<el-col
 					:span="4"
@@ -161,26 +162,27 @@ onMounted(async () => {
 
 // 服务器配置信息
 const loadMachineBaseInfo = async () => {
-	var res = await getAPI(SysServerApi).apiSysServerServerBaseGet();
-	state.machineBaseInfo = res.data.result;
+	var res = await getAPI(SysServerApi).getServerBase();
+	state.machineBaseInfo = res.data.data;
 };
 
 // 服务器内存信息
 const loadMachineUseInfo = async () => {
-	var res = await getAPI(SysServerApi).apiSysServerServerUsedGet();
-	state.machineUseInfo = res.data.result;
+	var res = await getAPI(SysServerApi).getServerUsed();
+	state.machineUseInfo = res.data.data;
 };
 
 // 服务器磁盘信息
 const loadMachineDiskInfo = async () => {
-	var res = await getAPI(SysServerApi).apiSysServerServerDiskGet();
-	state.machineDiskInfo = res.data.result;
+	var res = await getAPI(SysServerApi).getServerDisk();
+	state.machineDiskInfo = res.data.data;
 };
 
 // 框架程序集信息
 const loadAssemblyInfo = async () => {
-	var res = await getAPI(SysServerApi).apiSysServerAssemblyListGet();
-	state.assemblyInfo = res.data.result;
+	var res = await getAPI(SysServerApi).getServerAssemblyList();
+	state.assemblyInfo = res.data.data;
+	console.log(state.assemblyInfo,'11111111')
 };
 
 // 实时刷新内存

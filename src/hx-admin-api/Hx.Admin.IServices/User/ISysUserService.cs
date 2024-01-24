@@ -42,13 +42,13 @@ public interface ISysUserService : IBaseService<SysUser>, IScopedDependency
     /// 查看用户基本信息
     /// </summary>
     /// <returns></returns>
-    Task<SysUser> GetBaseInfo();
+    Task<BaseInfoOutput> GetBaseInfo();
 
     /// <summary>
     /// 更新用户基本信息
     /// </summary>
     /// <returns></returns>
-    Task<int> UpdateBaseInfo(SysUser user);
+    Task<bool> UpdateBaseInfo(UpdateBaseInfoInput user);
 
     /// <summary>
     /// 设置用户状态

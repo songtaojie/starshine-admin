@@ -1,7 +1,7 @@
 import { AxiosResponse,AxiosRequestConfig } from 'axios';
 import { BaseAPI} from '../base';
 import { AddUserInput, AdminResult,SysUserExtOrg,AdminResultPagedListResult,ChangePwdInput,DeleteUserInput,PageUserInput } from '../models';
-import { ResetPwdUserInput,SysUser,UpdateUserInput,UserInput,UserRoleInput } from '../models';
+import { ResetPwdUserInput,SysUser,SysUserBaseInfo,UpdateUserInput,UserInput,UserRoleInput } from '../models';
 
 /**
  * SysUserApi - object-oriented interface
@@ -29,21 +29,21 @@ export class SysUserApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof SysUserApi
      */
-    public async getUserBaseInfo(options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<SysUser>>> {
-        const api = `/api/sys-user/baseInfo`;
-        return this.GetAdminResult<SysUser>({api,...options});
+    public async getUserBaseInfo(options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<SysUserBaseInfo>>> {
+        const api = `/api/sys-user/getbaseInfo`;
+        return this.GetAdminResult<SysUserBaseInfo>({api,...options});
     }
     /**
      * 
      * @summary 更新用户基本信息
-     * @param {SysUser} [body] 
+     * @param {SysUserBaseInfo} [body] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof SysUserApi
      */
-    public async updateUserBaseInfo(data?: SysUser, options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<number>>> {
+    public async updateUserBaseInfo(data?: SysUserBaseInfo, options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<boolean>>> {
         const api = `/api/sys-user/baseInfo`;
-        return this.PostAdminResult<number>({api,data,...options});
+        return this.PostAdminResult<boolean>({api,data,...options});
     }
     /**
      * 

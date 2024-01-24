@@ -124,7 +124,7 @@ public class SysConfigService :BaseService<SysConfig>, ISysConfigService
     /// 获取分组列表
     /// </summary>
     /// <returns></returns>
-    public async Task<List<string?>> GetGroupList()
+    public async Task<IEnumerable<string?>> GetGroupList()
     {
         return await _rep.AsQueryable().GroupBy(u => u.GroupCode).Select(u => u.GroupCode).ToListAsync();
     }

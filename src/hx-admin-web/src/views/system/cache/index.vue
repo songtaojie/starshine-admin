@@ -33,7 +33,7 @@
 							<el-button icon="ele-Delete" size="small" type="danger" @click="delCache" v-auth="'sysCache:delete'"> 删除缓存 </el-button>
 						</div>
 					</template>
-					<vue-json-pretty :data="state.cacheValue" showLength showIcon showLineNumber showSelectController />
+					<vue-json-pretty ref="jsonprettyRef" :data="true" />
 				</el-card>
 			</el-col>
 		</el-row>
@@ -52,11 +52,12 @@ import { SysCacheApi } from '/@/api-services';
 
 const treeRef = ref<InstanceType<typeof ElTree>>();
 const currentNode = ref<any>({});
+const jsonprettyRef = ref<any>({});
 const state = reactive({
 	loading: false,
 	loading1: false,
 	cacheData: [] as any,
-	cacheValue: undefined,
+	cacheValue: undefined as any,
 	cacheKey: undefined,
 });
 
@@ -71,8 +72,8 @@ const handleQuery = async () => {
 	state.cacheKey = undefined;
 
 	state.loading = true;
-	var res = await getAPI(SysCacheApi).apiSysCacheKeyListGet();
-	let keyList: any = res.data.result;
+	var res = await getAPI(SysCacheApi).getSysCacheKeyList();
+	let keyList: any = res.data.data;
 
 	// 构造树（以分号分割）
 	for (let i = 0; i < keyList.length; i++) {
@@ -108,7 +109,7 @@ const delCache = () => {
 		type: 'warning',
 	})
 		.then(async () => {
-			await getAPI(SysCacheApi).apiSysCacheDeleteKeyPost(currentNode.value.id);
+			await getAPI(SysCacheApi).removeCacheByKey(currentNode.value.id);
 			handleQuery();
 			state.cacheValue = undefined;
 			state.cacheKey = undefined;
@@ -123,8 +124,9 @@ const nodeClick = async (node: any) => {
 
 	currentNode.value = node;
 	state.loading1 = true;
-	var res = await getAPI(SysCacheApi).apiSysCacheValueKeyGet(node.id);
-	state.cacheValue = res.data.result;
+	var res = await getAPI(SysCacheApi).getSysCacheValue(node.id);
+	var data = res.data.data;
+	state.cacheValue = {data};
 	state.cacheKey = node.id;
 	state.loading1 = false;
 };

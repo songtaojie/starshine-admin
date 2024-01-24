@@ -11,12 +11,17 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Hx.Admin.Models.ViewModels.Dict;
-public class PageDictTypeInput : BasePageParam
+public class PageDictDataInput : BasePageParam
 {
     /// <summary>
-    /// 名称
+    /// 字典类型Id
     /// </summary>
-    public string? Name { get; set; }
+    public long DictTypeId { get; set; }
+
+    /// <summary>
+    /// 值
+    /// </summary>
+    public string? Value { get; set; }
 
     /// <summary>
     /// 编码

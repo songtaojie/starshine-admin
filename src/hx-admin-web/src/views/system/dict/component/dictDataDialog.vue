@@ -38,8 +38,8 @@
 							<el-tag type="danger" v-else>禁用</el-tag>
 						</template>
 					</el-table-column>
-					<el-table-column prop="orderNo" label="排序" width="70" align="center" show-overflow-tooltip />
-					<el-table-column prop="createTime" label="修改时间" align="center" show-overflow-tooltip />
+					<el-table-column prop="sort" label="排序" width="70" align="center" show-overflow-tooltip />
+					<el-table-column prop="updateTime" label="修改时间" align="center" show-overflow-tooltip />
 					<el-table-column prop="remark" label="备注" show-overflow-tooltip />
 					<el-table-column label="操作" width="140" fixed="right" align="center" show-overflow-tooltip>
 						<template #default="scope">
@@ -114,9 +114,9 @@ const openDialog = async (row: any) => {
 const handleQuery = async () => {
 	state.loading = true;
 	let params = Object.assign(state.queryParams, state.tableParams);
-	var res = await getAPI(SysDictDataApi).apiSysDictDataPagePost(params);
-	state.dictDataData = res.data.result?.items ?? [];
-	state.tableParams.total = res.data.result?.total;
+	var res = await getAPI(SysDictDataApi).getSysDictDataPage(params);
+	state.dictDataData = res.data.data?.items ?? [];
+	state.tableParams.total = res.data.data?.total;
 	state.loading = false;
 };
 
@@ -147,7 +147,7 @@ const delDictData = (row: any) => {
 		type: 'warning',
 	})
 		.then(async () => {
-			await getAPI(SysDictDataApi).apiSysDictDataDeletePost({ id: row.id });
+			await getAPI(SysDictDataApi).deleteSysDictData({ id: row.id });
 			handleQuery();
 			ElMessage.success('删除成功');
 		})
