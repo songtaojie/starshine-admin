@@ -15,15 +15,14 @@ namespace Hx.Admin.Core.Service;
 /// </summary>
 public class SysRegionService : BaseService<SysRegion>, ISysRegionService
 {
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
     private readonly ILogger _logger;
     public SysRegionService(ISqlSugarRepository<SysRegion> sysRegionRep, 
-        IServiceProvider serviceProvider,
-        ILogger<SysRegionService> logger) : base(sysRegionRep)
+        ILogger<SysRegionService> logger,
+        IServiceScopeFactory serviceScopeFactory) : base(sysRegionRep)
     {
-        _serviceProvider = serviceProvider;
         _logger = logger;
-
+        _serviceScopeFactory = serviceScopeFactory;
     }
 
     /// <summary>
@@ -105,14 +104,14 @@ public class SysRegionService : BaseService<SysRegion>, ISysRegionService
         {
             try
             {
+                using var scope = _serviceScopeFactory.CreateScope();
                 // 国家统计局行政区域2022年
                 var url = "http://www.stats.gov.cn/sj/tjbz/tjyqhdmhcxhfdm/2022/index.html";
                 var context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
                 var dom = await context.OpenAsync(url);
                 // 省级
                 var itemList = dom.QuerySelectorAll("table.provincetable tr.provincetr td a");
-
-                using var scope = _serviceProvider.CreateScope();
+               
                 var sysRegionRep = scope.ServiceProvider.GetRequiredService<ISqlSugarRepository<SysRegion>>();
                 using var db = sysRegionRep.Context.CopyNew();
                 foreach (IHtmlAnchorElement item in itemList)
@@ -125,7 +124,7 @@ public class SysRegionService : BaseService<SysRegion>, ISysRegionService
                         Remark = item.Href,
                         Level = 1,
                     };
-                    await sysRegionRep.InsertAsync(region);
+                    await db.Insertable(region).ExecuteCommandAsync();
                     // 市级
                     var dom1 = await context.OpenAsync(item.Href);
                     var itemList1 = dom1.QuerySelectorAll("table.citytable tr.citytr td a");
@@ -141,7 +140,7 @@ public class SysRegionService : BaseService<SysRegion>, ISysRegionService
                             Remark = item1.Href,
                             Level = 2,
                         };
-                        await sysRegionRep.InsertAsync(region1);
+                        await db.Insertable(region1).ExecuteCommandAsync();
 
                         // 区县级
                         var dom2 = await context.OpenAsync(item1.Href);
@@ -158,7 +157,7 @@ public class SysRegionService : BaseService<SysRegion>, ISysRegionService
                                 Remark = item2.Href,
                                 Level = 3,
                             };
-                            await sysRegionRep.InsertAsync(region2);
+                            await db.Insertable(region2).ExecuteCommandAsync();
 
                             // 街道级
                             var dom3 = await context.OpenAsync(item2.Href);
@@ -175,14 +174,14 @@ public class SysRegionService : BaseService<SysRegion>, ISysRegionService
                                     Remark = item3.Href,
                                     Level = 4,
                                 };
-                                await sysRegionRep.InsertAsync(region3);
+                                await db.Insertable(region3).ExecuteCommandAsync();
 
                                 // 村级
                                 var dom4 = await context.OpenAsync(item3.Href);
                                 var itemList4 = dom4.QuerySelectorAll("table.villagetable tr.villagetr td");
                                 for (var i4 = 0; i4 < itemList4.Length; i4 += 3)
                                 {
-                                    await sysRegionRep.InsertAsync(new SysRegion
+                                    await db.Insertable(new SysRegion
                                     {
                                         Id = Yitter.IdGenerator.YitIdHelper.NextId(),
                                         Pid = region3.Id,
@@ -190,7 +189,7 @@ public class SysRegionService : BaseService<SysRegion>, ISysRegionService
                                         Code = itemList4[i4].TextContent,
                                         CityCode = itemList4[i4 + 1].TextContent,
                                         Level = 5,
-                                    });
+                                    }).ExecuteCommandAsync();
                                 }
                             }
                         }

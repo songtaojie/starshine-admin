@@ -1,9 +1,7 @@
-import { AxiosResponse, AxiosRequestConfig } from 'axios';
-// Some imports not used depending on template conditions
-// @ts-ignore
+import { AxiosResponse } from 'axios';
 import {  BaseAPI} from '../base';
 import { AddMenuInput,AdminResult,MenuOutput,SysMenu } from '../models';
-import { DeleteMenuInput } from '../models';
+import { BaseIdInput } from '../models';
 import { MenuTypeEnum } from '../models';
 import { UpdateMenuInput } from '../models';
 
@@ -17,26 +15,26 @@ export class SysMenuApi extends BaseAPI {
     /**
      * 
      * @summary 增加菜单
-     * @param {AddMenuInput} [body] 
+     * @param {AddMenuInput} [data] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof SysMenuApi
      */
-    public async addSysMenu(body?: AddMenuInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
+    public async addSysMenu(data?: AddMenuInput) : Promise<AxiosResponse<void>> {
         const api = `/api/sys-menu/add`;
-        return this.PostVoid({api,data:body,...options});
+        return this.PostVoid({api,data});
     }
     /**
      * 
      * @summary 删除菜单
-     * @param {DeleteMenuInput} [body] 
+     * @param {BaseIdInput} [data] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof SysMenuApi
      */
-    public async deleteSysMenu(body?: DeleteMenuInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
+    public async deleteSysMenu(data?: BaseIdInput) : Promise<AxiosResponse<void>> {
         const api = `/api/sys-menu/delete`;
-        return this.DeleteVoid({api,data:body,...options});
+        return this.DeleteVoid({api,data});
     }
     /**
      * 
@@ -47,13 +45,13 @@ export class SysMenuApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof SysMenuApi
      */
-    public async getSysMenuList(title?: string, type?: MenuTypeEnum, options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<Array<SysMenu>>>> {
+    public async getSysMenuList(title?: string, type?: MenuTypeEnum) : Promise<AxiosResponse<AdminResult<Array<SysMenu>>>> {
         const api = `/api/sys-menu/getlist`;
         const params = {
             title,
             type
         }
-        return this.GetAdminResult<Array<SysMenu>>({api,params,...options});
+        return this.GetAdminResult<Array<SysMenu>>({api,params});
     }
     /**
      * 
@@ -62,9 +60,9 @@ export class SysMenuApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof SysMenuApi
      */
-    public async getLoginMenuTree(options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<Array<MenuOutput>>>> {
+    public async getLoginMenuTree() : Promise<AxiosResponse<AdminResult<Array<MenuOutput>>>> {
         const api = `/api/sys-menu/getloginmenutree`;
-        return this.GetAdminResult<Array<MenuOutput>>({api,...options});
+        return this.GetAdminResult<Array<MenuOutput>>({api});
     }
     /**
      * 
@@ -73,20 +71,20 @@ export class SysMenuApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof SysMenuApi
      */
-    public async getOwnBtnPermList(options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<Array<string>>>> {
+    public async getOwnBtnPermList() : Promise<AxiosResponse<AdminResult<Array<string>>>> {
         const api = `/api/sys-menu/getownbtnpermlist`;
-        return this.GetAdminResult<Array<string>>({api,...options});
+        return this.GetAdminResult<Array<string>>({api});
     }
     /**
      * 
      * @summary 更新菜单
-     * @param {UpdateMenuInput} [body] 
+     * @param {UpdateMenuInput} [data] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof SysMenuApi
      */
-    public async updateSysMenu(body?: UpdateMenuInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
+    public async updateSysMenu(data?: UpdateMenuInput) : Promise<AxiosResponse<void>> {
         const api = `/api/sys-menu/update`;
-        return this.PostVoid({api,data:body,...options});
+        return this.PostVoid({api,data});
     }
 }
