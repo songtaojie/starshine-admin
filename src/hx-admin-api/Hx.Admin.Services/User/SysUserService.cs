@@ -2,6 +2,7 @@
 using Hx.Admin.Models;
 using Hx.Admin.Models.ViewModels.Menu;
 using Hx.Admin.Models.ViewModels.User;
+using Hx.Sdk.Core;
 using Hx.Sdk.Core.DataEncryption;
 
 namespace Hx.Admin.Core.Service;
@@ -40,7 +41,7 @@ public class SysUserService : BaseService<SysUser>, ISysUserService
     {
         var orgList = input.OrgId.HasValue && input.OrgId.Value > 0 
                 ? await _sysOrgService.GetChildIdListWithSelfById(input.OrgId.Value) 
-                : _userManager.SuperAdmin 
+                : _userManager.IsSuperAdmin 
                 ? null 
                 : await _sysOrgService.GetUserOrgIdList(); // 各管理员只能看到自己机构下的用户列表
 
@@ -49,7 +50,7 @@ public class SysUserService : BaseService<SysUser>, ISysUserService
             .WhereIF(!string.IsNullOrWhiteSpace(input.Account), u => u.Account.Contains(input.Account))
             .WhereIF(!string.IsNullOrWhiteSpace(input.RealName), u => u.RealName.Contains(input.RealName))
             .WhereIF(!string.IsNullOrWhiteSpace(input.Phone), u => u.Phone!.Contains(input.Phone))
-            .WhereIF(!_userManager.SuperAdmin, u => u.AccountType != AccountTypeEnum.SuperAdmin)
+            .WhereIF(!_userManager.IsSuperAdmin, u => u.AccountType != AccountTypeEnum.SuperAdmin)
             .OrderBy(u => u.Sort)
             .OrderBy(u => u.CreateTime,OrderByType.Desc)
             .Select<PageUserOutput>()
@@ -118,7 +119,7 @@ public class SysUserService : BaseService<SysUser>, ISysUserService
             throw new UserFriendlyException("账户信息已存在");
         if (user.AccountType == AccountTypeEnum.SuperAdmin)
             throw new UserFriendlyException("禁止删除此账号");
-        if (user.Id == _userManager.UserId)
+        if (user.Id == _userManager.GetUserId<long>())
             throw new UserFriendlyException("禁止删自己账号");
 
         await DeleteAsync(user);
@@ -136,7 +137,8 @@ public class SysUserService : BaseService<SysUser>, ISysUserService
     /// <returns></returns>
     public async Task<BaseInfoOutput> GetBaseInfo()
     {
-        return await _rep.AsQueryable().Where(u => u.Id == _userManager.UserId)
+        var userId = _userManager.GetUserId<long>();
+        return await _rep.AsQueryable().Where(u => u.Id == userId)
             .Select<BaseInfoOutput>()
             .FirstAsync();
     }
@@ -194,7 +196,8 @@ public class SysUserService : BaseService<SysUser>, ISysUserService
     /// <returns></returns>
     public async Task<int> ChangePwd(ChangePwdInput input)
     {
-        var user = await FirstOrDefaultAsync(u => u.Id == _userManager.UserId);
+        var userId = _userManager.GetUserId<long>();
+        var user = await FirstOrDefaultAsync(u => u.Id == userId);
         if (CryptogramUtil.CryptoType == CryptogramEnum.MD5.ToString())
         {
             if (user.Password != MD5Encryption.Encrypt(input.PasswordOld))

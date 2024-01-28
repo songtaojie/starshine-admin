@@ -11,18 +11,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Hx.Admin.Core.SqlSugar;
+namespace Hx.Admin.Core;
 /// <summary>
 /// 监听泛型主机启动事件
 /// </summary>
-internal class SqlsugarHostedService : IHostedService
+public class SqlSugarHostedService : IHostedService
 {
     private readonly IHost _host;
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="host"></param>
-    public SqlsugarHostedService(IHost host)
+    public SqlSugarHostedService(IHost host)
     {
         _host = host;
     }

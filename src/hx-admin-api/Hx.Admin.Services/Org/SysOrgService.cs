@@ -79,7 +79,7 @@ public class SysOrgService : BaseService<SysOrg>, ISysOrgService
         }
         else
         {
-            return _userManager.SuperAdmin 
+            return _userManager.IsSuperAdmin 
                 ? await query.Select<ListOrgOutput>(u => new ListOrgOutput
                     {
                         Id = u.Id,
@@ -120,7 +120,7 @@ public class SysOrgService : BaseService<SysOrg>, ISysOrgService
             throw new UserFriendlyException($"已存在编码为【{input.Code}】的机构");
 
         var orgIdList = await GetUserOrgIdList();
-        if (!_userManager.SuperAdmin)
+        if (!_userManager.IsSuperAdmin)
         {
             // 新增机构父Id不是0，则进行权限校验
             if (input.Pid != 0)
@@ -166,7 +166,7 @@ public class SysOrgService : BaseService<SysOrg>, ISysOrgService
 
         // 是否有权限操作此机构
         var dataScopes = await GetUserOrgIdList();
-        if (!_userManager.SuperAdmin && (!dataScopes.Any() || !dataScopes.Contains(input.Id)))
+        if (!_userManager.IsSuperAdmin && (!dataScopes.Any() || !dataScopes.Contains(input.Id)))
             throw new UserFriendlyException("没有权限操作机构");
 
         await _rep.Context.Updateable(input.Adapt<SysOrg>()).IgnoreColumns(true).ExecuteCommandAsync();
@@ -182,7 +182,7 @@ public class SysOrgService : BaseService<SysOrg>, ISysOrgService
         var sysOrg = await FirstOrDefaultAsync(u => u.Id == input.Id);
 
         // 是否有权限操作此机构
-        if (!_userManager.SuperAdmin)
+        if (!_userManager.IsSuperAdmin)
         {
             var dataScopes = await GetUserOrgIdList();
             if (!dataScopes.Any() || !dataScopes.Contains(sysOrg.Id))
@@ -225,18 +225,19 @@ public class SysOrgService : BaseService<SysOrg>, ISysOrgService
     /// <returns></returns>
     public async Task<IEnumerable<long>> GetUserOrgIdList()
     {
-        if (_userManager.SuperAdmin)
+        if (_userManager.IsSuperAdmin)
             return new List<long>();
 
-        var userId = _userManager.UserId;
+        var userId = _userManager.GetUserId<long>();
+        var orgId = _userManager.GetOrgId<long>();
         var orgIdList = _cache.Get<List<long>>($"{CacheConst.KeyOrgIdList}{userId}");
         if (orgIdList == null || orgIdList.Count < 1)
         {
             var orgList1 = await _sysUserExtOrgService.GetUserExtOrgList(userId);
             var orgList2 = await GetUserRoleOrgIdList(userId);
             orgIdList = orgList1.Select(u => u.OrgId).Union(orgList2).ToList();
-            if (!orgIdList.Contains(_userManager.OrgId))
-                orgIdList.Add(_userManager.OrgId);
+            if (!orgIdList.Contains(orgId))
+                orgIdList.Add(orgId);
             _cache.Set($"{CacheConst.KeyOrgIdList}{userId}", orgIdList); // 存缓存
         }
         return orgIdList;
@@ -298,7 +299,7 @@ public class SysOrgService : BaseService<SysOrg>, ISysOrgService
     /// <returns></returns>
     private async Task<List<long>> GetOrgIdListByDataScope(int dataScope)
     {
-        var orgId = _userManager.OrgId;
+        var orgId = _userManager.GetOrgId<long>();
         var orgIdList = new List<long>();
         // 若数据范围是全部，则获取所有机构Id集合
         if (dataScope == (int)DataScopeEnum.All)

@@ -7,6 +7,7 @@ using Lazy.Captcha.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
+using System.Security.Claims;
 
 namespace Hx.Admin.Core.Service;
 
@@ -86,12 +87,10 @@ public class SysAuthService : BaseService<SysUser>, ISysAuthService
         // 生成Token令牌
         var accessToken = JWTEncryption.Encrypt(new Dictionary<string, object>
         {
-            { ClaimConst.UserId, user.Id },
-            { ClaimConst.Account, user.Account },
-            { ClaimConst.RealName, user.RealName },
-            { ClaimConst.AccountType, user.AccountType },
-            { ClaimConst.OrgId, user.OrgId },
-            { ClaimConst.OrgName, user.SysOrg?.Name },
+            { ClaimTypes.NameIdentifier, user.Id },
+            { ClaimTypes.Role, Enum.GetName(user.AccountType) },
+            { ClaimTypes.Name, user.RealName },
+            { HxClaimTypes.OrgId, user.OrgId },
         }, tokenExpire);
         // 生成刷新Token令牌
         var refreshToken = JWTEncryption.GenerateRefreshToken(accessToken, refreshTokenExpire);
@@ -115,7 +114,8 @@ public class SysAuthService : BaseService<SysUser>, ISysAuthService
     /// <returns></returns>
     public async Task<LoginUserOutput> GetUserInfo()
     {
-        var user = await FirstOrDefaultAsync(u => u.Id == _userContext.UserId);
+        var userId = _userContext.GetUserId<long>();
+        var user = await FirstOrDefaultAsync(u => u.Id == userId);
         if (user == null)
             throw new UserFriendlyException("账号不存在") { ErrorCode="9000"};
 
@@ -170,7 +170,7 @@ public class SysAuthService : BaseService<SysUser>, ISysAuthService
     /// </summary>
     public void Logout()
     {
-        if (string.IsNullOrEmpty(_userContext.Account))
+        if (!_userContext.IsAuthenticated)
             throw new UserFriendlyException("账号信息不存在");
         _userContext.HttpContext?.SignoutToSwagger();
     }

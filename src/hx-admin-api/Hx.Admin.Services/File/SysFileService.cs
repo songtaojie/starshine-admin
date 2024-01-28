@@ -277,7 +277,8 @@ public class SysFileService : BaseService<SysFile>, ISysFileService
     public async Task<FileOutput> UploadAvatar([Required] IFormFile file)
     {
         var sysUserRep = _rep.Change<SysUser>();
-        var user = await sysUserRep.FirstOrDefaultAsync(u => u.Id == _userManager.UserId);
+        var userId = _userManager.GetUserId<long>();
+        var user = await sysUserRep.FirstOrDefaultAsync(u => u.Id == userId);
         // 删除当前用户已有头像
         if (!string.IsNullOrWhiteSpace(user.Avatar))
         {
@@ -299,7 +300,8 @@ public class SysFileService : BaseService<SysFile>, ISysFileService
     public async Task<FileOutput> UploadSignature([Required] IFormFile file)
     {
         var sysUserRep = _rep.Change<SysUser>();
-        var user = await sysUserRep.FirstOrDefaultAsync(u => u.Id == _userManager.UserId);
+        var userId = _userManager.GetUserId<long>();
+        var user = await sysUserRep.FirstOrDefaultAsync(u => u.Id == userId);
         // 删除当前用户已有电子签名
         if (!string.IsNullOrWhiteSpace(user.Signature) && user.Signature.EndsWith(".png"))
         {

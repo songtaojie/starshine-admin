@@ -33,7 +33,7 @@ public class SysMenuService : BaseService<SysMenu>, ISysMenuService
     /// <returns></returns>
     public async Task<IEnumerable<MenuOutput>> GetLoginMenuTree()
     {
-        if (_userManager.SuperAdmin)
+        if (_userManager.IsSuperAdmin)
         {
             var menuList = await _rep.AsQueryable()
                 .Where(u => u.Type != MenuTypeEnum.Btn && u.Status == StatusEnum.Enable)
@@ -73,7 +73,7 @@ public class SysMenuService : BaseService<SysMenu>, ISysMenuService
     /// <returns></returns>
     public async Task<IEnumerable<SysMenu>> GetList( MenuInput input)
     {
-        var menuIdList = _userManager.SuperAdmin ? new List<long>() : await GetMenuIdList();
+        var menuIdList = _userManager.IsSuperAdmin ? new List<long>() : await GetMenuIdList();
 
         // 有筛选条件时返回list列表（防止构造不出树）
         if (!string.IsNullOrWhiteSpace(input.Title) || input.Type is > 0)
@@ -85,7 +85,7 @@ public class SysMenuService : BaseService<SysMenu>, ISysMenuService
                 .OrderBy(u => u.Sort).ToListAsync();
         }
 
-        return _userManager.SuperAdmin ?
+        return _userManager.IsSuperAdmin ?
             await _rep.AsQueryable().OrderBy(u => u.Sort).ToTreeAsync(u => u.Children, u => u.Pid, 0) :
             await _rep.AsQueryable()
                 .OrderBy(u => u.Sort).ToTreeAsync(u => u.Children, u => u.Pid, 0, menuIdList.Select(d => (object)d).ToArray()); // 角色菜单授权时
@@ -199,7 +199,7 @@ public class SysMenuService : BaseService<SysMenu>, ISysMenuService
         var permissions = _cache.Get<List<string?>>(cacheKey);
         if (permissions == null || permissions.Count == 0)
         {
-            var menuIdList = _userManager.SuperAdmin ? new List<long>() : await GetMenuIdList();
+            var menuIdList = _userManager.IsSuperAdmin ? new List<long>() : await GetMenuIdList();
             permissions = await _rep.AsQueryable()
                 .Where(u => u.Type == MenuTypeEnum.Menu)
                 .WhereIF(menuIdList.Any(), u => menuIdList.Contains(u.Id))
@@ -220,7 +220,7 @@ public class SysMenuService : BaseService<SysMenu>, ISysMenuService
         var permissions = _cache.Get<List<string?>>(cacheKey);
         if (permissions == null || permissions.Count == 0)
         {
-            var menuIdList = _userManager.SuperAdmin ? new List<long>() : await GetMenuIdList();
+            var menuIdList = _userManager.IsSuperAdmin ? new List<long>() : await GetMenuIdList();
             permissions = await _rep.AsQueryable()
                 .Where(u => u.Type == MenuTypeEnum.Btn)
                 .WhereIF(menuIdList.Any(), u => menuIdList.Contains(u.Id))
@@ -263,7 +263,7 @@ public class SysMenuService : BaseService<SysMenu>, ISysMenuService
     /// <returns></returns>
     private async Task<IEnumerable<long>> GetMenuIdList()
     {
-        var roleIdList = await _sysUserRoleService.GetUserRoleIdList(_userManager.UserId);
+        var roleIdList = await _sysUserRoleService.GetUserRoleIdList(_userManager.GetUserId<long>());
         return await _sysRoleMenuService.GetRoleMenuIdList(roleIdList);
     }
 }

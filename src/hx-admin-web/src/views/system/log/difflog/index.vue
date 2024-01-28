@@ -53,7 +53,7 @@ import { onMounted, reactive } from 'vue';
 import { ElMessage } from 'element-plus';
 
 import { getAPI } from '/@/utils/axios-utils';
-import { SysLogDiffApi } from '/@/api-services/api';
+import { SysLogApi } from '/@/api-services/api';
 import { SysLogDiff } from '/@/api-services/models';
 
 const state = reactive({
@@ -81,9 +81,9 @@ const handleQuery = async () => {
 
 	state.loading = true;
 	let params = Object.assign(state.queryParams, state.tableParams);
-	var res = await getAPI(SysLogDiffApi).apiSysLogDiffPagePost(params);
-	state.logData = res.data.result?.items ?? [];
-	state.tableParams.total = res.data.result?.total;
+	var res = await getAPI(SysLogApi).getDiffLogPage(params);
+	state.logData = res.data.data?.items ?? [];
+	state.tableParams.total = res.data.data?.total;
 	state.loading = false;
 };
 
@@ -97,7 +97,7 @@ const resetQuery = () => {
 // 清空日志
 const clearLog = async () => {
 	state.loading = true;
-	await getAPI(SysLogDiffApi).apiSysLogDiffClearPost();
+	await getAPI(SysLogApi).clearDiffLog();
 	state.loading = false;
 
 	ElMessage.success('清空成功');

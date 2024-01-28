@@ -28,10 +28,11 @@ public class SysNoticeService : BaseService<SysNotice>, ISysNoticeService
     /// <returns></returns>
     public async Task<PagedListResult<PageNoticeOutput>> GetPage(PageNoticeInput input)
     {
+        var userId = _userManager.GetUserId<long>();
         return await _rep.AsQueryable()
             .WhereIF(!string.IsNullOrWhiteSpace(input.Title), u => u.Title.Contains(input.Title!.Trim()))
             .WhereIF(input.Type.HasValue, u => u.Type == input.Type)
-            .WhereIF(!_userManager.SuperAdmin, u => u.CreatorId == _userManager.UserId)
+            .WhereIF(!_userManager.IsSuperAdmin, u => u.CreatorId == userId)
             .OrderBy(u => u.PublicTime, OrderByType.Desc)
             .OrderBy(u => u.CreateTime, OrderByType.Desc)
             .Select<PageNoticeOutput>()
@@ -103,11 +104,12 @@ public class SysNoticeService : BaseService<SysNotice>, ISysNoticeService
     /// <returns></returns>
     public async Task SetRead(NoticeInput input)
     {
+        var userId = _userManager.GetUserId<long>();
         await _rep.Context.Updateable<SysNoticeUser>().SetColumns(u => new SysNoticeUser
         {
             ReadStatus = NoticeUserStatusEnum.READ,
             ReadTime = DateTime.Now
-        }).Where( u => u.NoticeId == input.Id && u.UserId == _userManager.UserId).ExecuteCommandAsync();
+        }).Where( u => u.NoticeId == input.Id && u.UserId == userId).ExecuteCommandAsync();
     }
 
     /// <summary>
@@ -117,8 +119,9 @@ public class SysNoticeService : BaseService<SysNotice>, ISysNoticeService
     /// <returns></returns>
     public async Task<PagedListResult<SysNoticeUser>> GetPageReceived(PageNoticeInput input)
     {
+        var userId = _userManager.GetUserId<long>();
         return await _rep.Context.Queryable<SysNoticeUser>().Includes(u => u.SysNotice)
-            .Where(u => u.UserId == _userManager.UserId)
+            .Where(u => u.UserId == userId)
             .WhereIF(!string.IsNullOrWhiteSpace(input.Title), u => u.SysNotice.Title.Contains(input.Title!.Trim()))
             .WhereIF(input.Type is > 0, u => u.SysNotice.Type == input.Type)
             .OrderBy(u => u.SysNotice.CreateTime, OrderByType.Desc)
@@ -131,8 +134,9 @@ public class SysNoticeService : BaseService<SysNotice>, ISysNoticeService
     /// <returns></returns>
     public async Task<List<SysNotice>> GetUnReadList()
     {
+        var userId = _userManager.GetUserId<long>();
         var noticeUserList = await _rep.Context.Queryable<SysNoticeUser>().Includes(u => u.SysNotice)
-            .Where(u => u.UserId == _userManager.UserId && u.ReadStatus == NoticeUserStatusEnum.UNREAD)
+            .Where(u => u.UserId == userId && u.ReadStatus == NoticeUserStatusEnum.UNREAD)
             .OrderBy(u => u.SysNotice.CreateTime, OrderByType.Desc).ToListAsync();
         return noticeUserList.Select(t => t.SysNotice).ToList();
     }
@@ -143,8 +147,8 @@ public class SysNoticeService : BaseService<SysNotice>, ISysNoticeService
     /// <param name="notice"></param>
     private void InitNoticeInfo(SysNotice notice)
     {
-        notice.PublicUserId = _userManager.UserId;
-        notice.PublicUserName = _userManager.RealName;
-        notice.PublicOrgId = _userManager.OrgId;
+        notice.PublicUserId = _userManager.GetUserId<long>();
+        notice.PublicUserName = _userManager.UserName;
+        notice.PublicOrgId = _userManager.GetOrgId<long>();
     }
 }

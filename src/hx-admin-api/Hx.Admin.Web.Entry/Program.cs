@@ -1,3 +1,4 @@
+using Hx.Admin.Serilog;
 using Serilog;
 using Serilog.Events;
 
@@ -5,7 +6,7 @@ Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
     .Enrich.FromLogContext()
     .WriteTo.Console()
-    .CreateBootstrapLogger(); 
+    .CreateBootstrapLogger();
 
 try
 {
@@ -13,12 +14,7 @@ try
     var builder = WebApplication.CreateBuilder(args);
     builder.ConfigureHxWebApp();
     builder.Services.AddAdminCoreService(builder.Configuration);
-    builder.Host.UseSerilog((context, services, configuration) => configuration
-             .ReadFrom.Configuration(context.Configuration)
-             .ReadFrom.Services(services)
-             .Enrich.FromLogContext()
-             .WriteTo.Console());
-   
+    builder.Host.UseSerilogSetup();
     var app = builder.Build();
     app.UseAdminCoreApp(builder.Environment);
     app.Run();

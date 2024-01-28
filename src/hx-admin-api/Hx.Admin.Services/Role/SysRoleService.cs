@@ -118,7 +118,7 @@ public class SysRoleService : BaseService<SysRole>, ISysRoleService
 
         var role = await FirstOrDefaultAsync(u => u.Id == input.Id);
         var dataScope = input.DataScope;
-        if (!_userManager.SuperAdmin)
+        if (!_userManager.IsSuperAdmin)
         {
             // 非超级管理员没有全部数据范围权限
             if (dataScope == (int)DataScopeEnum.All)

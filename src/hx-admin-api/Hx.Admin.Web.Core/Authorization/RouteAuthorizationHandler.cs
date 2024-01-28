@@ -35,19 +35,19 @@ public class RouteAuthorizationHandler : AuthorizationHandler<RouteAuthorization
     /// 验证方案提供对象
     /// </summary>
     public IAuthenticationSchemeProvider Schemes { get; set; }
-    private readonly IUserContext _userContext;
+    private readonly UserManager _userManager;
     private readonly ISysMenuService _sysMenuService;
     private IEnumerable<string> _globalRoutePath = new List<string> { "/login" };
     /// <summary>
     /// 构造函数注入
     /// </summary>
     /// <param name="schemes"></param>
-    /// <param name="userContext"></param>
+    /// <param name="userManager"></param>
     /// <param name="sysMenuService"></param>
-    public RouteAuthorizationHandler(IAuthenticationSchemeProvider schemes, IUserContext userContext, ISysMenuService sysMenuService)
+    public RouteAuthorizationHandler(IAuthenticationSchemeProvider schemes, UserManager userManager, ISysMenuService sysMenuService)
     {
         Schemes = schemes;
-        _userContext = userContext;
+        _userManager = userManager;
         _sysMenuService = sysMenuService;
     }
 
@@ -84,7 +84,7 @@ public class RouteAuthorizationHandler : AuthorizationHandler<RouteAuthorization
 
     private async Task AuthorizeHandleAsync(AuthorizationHandlerContext context, RouteAuthorizationRequirement requirement)
     {
-        var httpContext = context.GetCurrentHttpContext() ?? _userContext.HttpContext;
+        var httpContext = context.GetCurrentHttpContext() ?? _userManager.HttpContext;
         var endpoint = httpContext.GetEndpoint();
         // 判断action上是否有跳过授权策略的
         var skipAuthorization = endpoint.Metadata.GetMetadata<SkipRouteAuthorizationAttribute>();
@@ -103,7 +103,7 @@ public class RouteAuthorizationHandler : AuthorizationHandler<RouteAuthorization
         }
 
         // 排除超管
-        if (_userContext.IsSuperAdmin)
+        if (_userManager.IsSuperAdmin)
         {
             context.Succeed(requirement);
             return;

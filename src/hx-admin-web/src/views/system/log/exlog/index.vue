@@ -95,7 +95,7 @@ import { ElMessage } from 'element-plus';
 import { downloadByData, getFileName } from '/@/utils/download';
 
 import { getAPI } from '/@/utils/axios-utils';
-import { SysLogExApi } from '/@/api-services/api';
+import { SysLogApi } from '/@/api-services/api';
 import { SysLogEx } from '/@/api-services/models';
 
 const state = reactive({
@@ -128,9 +128,9 @@ const handleQuery = async () => {
 
 	state.loading = true;
 	let params = Object.assign(state.queryParams, state.tableParams);
-	var res = await getAPI(SysLogExApi).apiSysLogExPagePost(params);
-	state.logData = res.data.result?.items ?? [];
-	state.tableParams.total = res.data.result?.total;
+	var res = await getAPI(SysLogApi).getExLogPage(params);
+	state.logData = res.data.data?.items ?? [];
+	state.tableParams.total = res.data.data?.total;
 	state.loading = false;
 };
 
@@ -144,7 +144,7 @@ const resetQuery = () => {
 // 清空日志
 const clearLog = async () => {
 	state.loading = true;
-	await getAPI(SysLogExApi).apiSysLogExClearPost();
+	await getAPI(SysLogApi).clearExLog();
 	state.loading = false;
 
 	ElMessage.success('清空成功');
@@ -154,7 +154,7 @@ const clearLog = async () => {
 // 导出日志
 const exportLog = async () => {
 	state.loading = true;
-	var res = await getAPI(SysLogExApi).apiSysLogExExportPost(state.queryParams, { responseType: 'blob' });
+	var res = await getAPI(SysLogApi).exportOpLog(state.queryParams, { responseType: 'blob' });
 	state.loading = false;
 
 	var fileName = getFileName(res.headers);
