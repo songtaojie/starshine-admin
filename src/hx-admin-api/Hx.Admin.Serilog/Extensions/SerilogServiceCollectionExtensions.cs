@@ -15,6 +15,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
+using Hx.Admin.Serilog.Extensions;
 
 namespace Hx.Admin.Serilog;
 public static class SerilogServiceCollectionExtensions
@@ -26,19 +27,25 @@ public static class SerilogServiceCollectionExtensions
         {
             loggerConfig
              .ReadFrom.Configuration(context.Configuration)
-             .ReadFrom.Services(services);
-            
+             .ReadFrom.Services(services)
+             .Enrich.FromLogContext()
+            .WriteToConsole()
+            //将日志保存到文件中
+            .WriteToFile()
+            //配置日志库
+            .WriteToLogBatching();//输出到控制台
+
         });
-        //var loggerConfiguration = new LoggerConfiguration()
-        //    .ReadFrom.Configuration(builder.Configuration);
-        //loggerConfiguration.WriteTo;
-        //    .Enrich.FromLogContext()
-        //    //输出到控制台
-        //    .WriteToConsole()
-        //    //将日志保存到文件中
-        //    .WriteToFile()
-        //    //配置日志库
-        //    .WriteToLogBatching();
+        var loggerConfiguration = new LoggerConfiguration()
+            .ReadFrom.Configuration(builder.Configuration);
+        loggerConfiguration.WriteTo;
+            .Enrich.FromLogContext()
+            //输出到控制台
+            .WriteToConsole()
+            //将日志保存到文件中
+            .WriteToFile()
+            //配置日志库
+            .WriteToLogBatching();
 
         //var option = App.GetOptions<SeqOptions>();
         ////配置Seq日志中心

@@ -1,28 +1,34 @@
-using NLog;
-using NLog.Web;
+using Serilog;
+using Serilog.Events;
 using System;
 
-
-// 在构建主机之前，早期初始化NLog以允许启动和异常日志
-var logger = NLog.LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .CreateBootstrapLogger(); 
 try
 {
-    logger.Info("Starting web application");
+    Log.Information("Starting web application");
     var builder = WebApplication.CreateBuilder(args);
     builder.ConfigureHxWebApp();
     builder.Services.AddAdminCoreService(builder.Configuration);
     builder.Logging.ClearProviders();
-    builder.Host.UseNLog();
+    builder.Host.UseSerilog((context, services, configuration) => configuration
+    .ReadFrom.Configuration(context.Configuration)
+    .ReadFrom.Services(services)
+    .Enrich.FromLogContext()
+    .WriteTo.Console());
     var app = builder.Build();
     app.UseAdminCoreApp(builder.Environment);
     app.Run();
 }
 catch (Exception ex)
 {
-    logger.Error(ex, "程序因异常而停止");
+    Log.Fatal(ex, "程序因异常而停止");
 }
 finally
 {
     // 确保在应用程序退出之前刷新和停止内部计时器/线程(避免Linux上的分段错误)
-    NLog.LogManager.Shutdown();
+    Log.CloseAndFlush();
 }
