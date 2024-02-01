@@ -15,25 +15,25 @@ using System.Threading.Tasks;
 namespace Hx.Admin.Serilog.Extensions;
 public static class LogBatchingSinkConfigurationExtension
 {
-    public static LoggerConfiguration WriteToLogBatching(this LoggerConfiguration loggerConfiguration)
-    {
-        if (!AppSettings.app("AppSettings", "LogToDb").ObjToBool())
-        {
-            return loggerConfiguration;
-        }
+    //public static LoggerConfiguration WriteToLogBatching(this LoggerConfiguration loggerConfiguration)
+    //{
+    //    //if (!AppSettings.app("AppSettings", "LogToDb").ObjToBool())
+    //    //{
+    //    //    return loggerConfiguration;
+    //    //}
 
-        var exampleSink = new LogBatchingSink();
+    //    //var exampleSink = new LogBatchingSink();
 
-        var batchingOptions = new PeriodicBatchingSinkOptions
-        {
-            BatchSizeLimit = 500,
-            Period = TimeSpan.FromSeconds(1),
-            EagerlyEmitFirstEvent = true,
-            QueueLimit = 10000
-        };
+    //    //var batchingOptions = new PeriodicBatchingSinkOptions
+    //    //{
+    //    //    BatchSizeLimit = 500,
+    //    //    Period = TimeSpan.FromSeconds(1),
+    //    //    EagerlyEmitFirstEvent = true,
+    //    //    QueueLimit = 10000
+    //    //};
 
-        var batchingSink = new PeriodicBatchingSink(exampleSink, batchingOptions);
+    //    //var batchingSink = new PeriodicBatchingSink(exampleSink, batchingOptions);
 
-        return loggerConfiguration.WriteTo.Sink(batchingSink);
-    }
+    //    return loggerConfiguration.WriteTo.Sink(batchingSink);
+    //}
 }

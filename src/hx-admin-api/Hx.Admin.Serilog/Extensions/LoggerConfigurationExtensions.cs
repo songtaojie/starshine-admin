@@ -20,7 +20,7 @@ public static class LoggerConfigurationExtensions
     public static LoggerConfiguration WriteToConsole(this LoggerConfiguration loggerConfiguration)
     {
         //输出普通日志
-        loggerConfiguration = loggerConfiguration.WriteTo.Logger(lg =>
+        loggerConfiguration = loggerConfiguration.WriteTo.Logger(lg => 
             lg.FilterRemoveSqlLog().WriteTo.Console());
 
         //输出SQL
@@ -71,6 +71,7 @@ public static class LoggerConfigurationExtensions
 
     public static LoggerConfiguration FilterRemoveSqlLog(this LoggerConfiguration lc)
     {
+        lc.Filter.With();
         lc = lc.Filter.ByIncludingOnly(WithProperty<string>(LogContextConst.LogSource, s => !LogContextConst.AopSql.Equals(s)));
         return lc;
     }

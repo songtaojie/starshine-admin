@@ -14,11 +14,7 @@ try
     builder.ConfigureHxWebApp();
     builder.Services.AddAdminCoreService(builder.Configuration);
     builder.Logging.ClearProviders();
-    builder.Host.UseSerilog((context, services, configuration) => configuration
-    .ReadFrom.Configuration(context.Configuration)
-    .ReadFrom.Services(services)
-    .Enrich.FromLogContext()
-    .WriteTo.Console());
+    builder.Host.UseSerilogSetup();
     var app = builder.Build();
     app.UseAdminCoreApp(builder.Environment);
     app.Run();
