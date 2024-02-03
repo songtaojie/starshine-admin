@@ -8,6 +8,7 @@ using Hx.Admin.Serilog;
 using Hx.Sdk.Core;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using Serilog.Context;
 using SqlSugar;
 using System;
 
@@ -16,7 +17,7 @@ public static class SqlSugarServiceCollectionExtensions
 {
     public static IServiceCollection AddSqlSugarSetup(this IServiceCollection services)
     {
-        services.AddSqlSugar(_ => { }, (db, provider) =>
+        services.AddSqlSugar((db, provider) =>
         {
             var userManager = provider.GetRequiredService<UserManager>();
             var logger = provider.GetRequiredService<ILogger<ISqlSugarClient>>();
@@ -68,28 +69,17 @@ public static class SqlSugarServiceCollectionExtensions
 
 
             };
-
             // 打印SQL语句
             db.Aop.OnLogExecuting = (sql, pars) =>
             {
-                using (var mutiLogContext = new MutiLogContext()
-                    .PushProperty(LogContextConst.LogSource, db.CurrentConnectionConfig.ConfigId)
-                    .PushProperty(LogContextConst.SugarActionType, db.SugarActionType))
-                {
-                    Log.Information($"【{DateTime.Now}——执行SQL】\r\n{UtilMethods.GetNativeSql(sql, pars)}\r\n");
-                    //logger.LogInformation($"【{DateTime.Now}——执行SQL】\r\n{UtilMethods.GetNativeSql(sql, pars)}\r\n");
-                }
-                    
+                using var mutiLogContext = MutiLogContext.Instance.PushSqlsugarProperty(db);
+                logger.LogInformation($"{UtilMethods.GetNativeSql(sql, pars)}");
             };
             db.Aop.OnError = ex =>
             {
                 if (ex.Parametres == null) return;
-                using (var mutiLogContext = new MutiLogContext()
-                    .PushProperty(LogContextConst.LogSource, db.CurrentConnectionConfig.ConfigId)
-                    .PushProperty(LogContextConst.SugarActionType, db.SugarActionType))
-                {
-                    logger.LogError($"【{DateTime.Now}——错误SQL】\r\n {UtilMethods.GetNativeSql(ex.Sql, ex.Parametres as SugarParameter[])} \r\n");
-                }
+                using var mutiLogContext = MutiLogContext.Instance.PushSqlsugarProperty(db);
+                logger.LogError($"{UtilMethods.GetNativeSql(ex.Sql, ex.Parametres as SugarParameter[])} ");
             };
         });
         services.AddHostedService<SqlSugarHostedService>();

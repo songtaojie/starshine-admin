@@ -24,7 +24,8 @@ public class SqlLogFilter : ILogEventFilter
 
     public bool IsEnabled(LogEvent logEvent)
     {
-        return logEvent.WithProperty<string>(LogContextConst.LogSource,
-            q => !LogContextConst.AopSql.Equals(q));
+        return true;
+        //return logEvent.WithProperty<string>(LogContextConst.LogSource,
+        //    q => !LogContextConst.AopSql.Equals(q));
     }
 }

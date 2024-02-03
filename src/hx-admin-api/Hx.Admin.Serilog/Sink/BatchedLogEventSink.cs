@@ -27,8 +27,8 @@ public class BatchedLogEventSink : IBatchedLogEventSink
     }
     public async Task EmitBatchAsync(IEnumerable<LogEvent> batch)
     {
-        await WriteSqlLog(_sqlSugarClient, batch.FilterSqlLog());
-        await WriteLogs(_sqlSugarClient, batch.FilterRemoveOtherLog());
+        //await WriteSqlLog(_sqlSugarClient, batch.FilterSqlLog());
+        //await WriteLogs(_sqlSugarClient, batch.FilterRemoveOtherLog());
     }
 
     public Task OnEmptyBatchAsync()

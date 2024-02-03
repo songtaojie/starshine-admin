@@ -16,42 +16,124 @@
         "Quartz": "Information"
       }
     },
-    "WriteTo:Sublogger": {
-      "Name": "Logger",
-      "Args": {
-        "configureLogger": {
-          "MinimumLevel": "Verbose",
-          "WriteTo": [
+    //"WriteTo:Sublogger": {
+    //  "Name": "Logger",
+    //  "Args": {
+    //    "configureLogger": {
+    //      "MinimumLevel": "Verbose",
+    //      "WriteTo": [
+    //        {
+    //          "Name": "Console",
+    //          "Args": {
+    //            "outputTemplate": "[{Timestamp:HH:mm:ss} {SourceContext} [{Level}] {Message}{NewLine}{Exception}",
+    //            "theme": "Serilog.Sinks.SystemConsole.Themes.SystemConsoleTheme::Grayscale, Serilog.Sinks.Console"
+    //          }
+    //        }
+    //      ],
+    //      //"Filter": [
+    //      //  //{
+    //      //  //  "Name": "ControlledBy",
+    //      //  //  "Args": {
+    //      //  //    "switch": "$filterSwitch"
+    //      //  //  }
+    //      //  //},
+    //      //  {
+    //      //    "Name": "With",
+    //      //    "Args": {
+    //      //      "filter": {
+    //      //        "type": "Hx.Admin.Serilog.Filters.SqlLogFilter, Hx.Admin.Serilog"
+    //      //        //"levelFilter": "Verbose"
+    //      //      }
+    //      //    }
+    //      //  }
+    //      //]
+    //    }
+    //    //"restrictedToMinimumLevel": "Verbose",
+    //    //"levelSwitch": "$controlSwitch"
+    //  }
+    //},
+    "WriteTo": [
+      //{
+      //  "Name": "Conditional",
+      //  "Args": {
+      //    "expression": "@p['SugarActionType'] in ['UnKnown','Query']", // 输出查询语句
+      //    "configureSink": [
+      //      {
+      //        "Name": "Console", // 输出控制台
+      //        "Args": {
+      //          "outputTemplate": "[{Timestamp:HH:mm:ss} {Level:u3}] {SourceContext}[{LogSource}{SugarActionType}] {Message}{NewLine}{Exception}{NewLine}",
+      //          "theme": "Serilog.Sinks.SystemConsole.Themes.SystemConsoleTheme::Grayscale, Serilog.Sinks.Console"
+      //        }
+      //      },
+      //      {
+      //        "Name": "File", //输出文件
+      //        "Args": {
+      //          "path": "logs\\sql\\log.txt",
+      //          "outputTemplate": "{NewLine}Date:{Timestamp:yyyy-MM-dd HH:mm:ss.fff} {Level} Class:{SourceContext}{NewLine}Message:{Message}{NewLine}{Exception}",
+      //          "rollingInterval": "Day" //日志文件生成精度：1：年  2：月 3：日 4：小时
+      //        }
+      //      }
+      //    ]
+      //  }
+      //},
+      {
+        "Name": "Conditional",
+        "Args": {
+          "expression": "@p['SugarActionType'] in ['Insert','Update','Delete']", // 输出增删改语句
+          "configureSink": [
             {
               "Name": "Console",
               "Args": {
-                "outputTemplate": "[{Timestamp:HH:mm:ss} {SourceContext} [{Level}] {Message}{NewLine}{Exception}",
+                "outputTemplate": "[{Timestamp:yyyy-MM-d HH:mm:ss.fff} {Level:u3}] {SourceContext}{Message}{NewLine}{Exception}{NewLine}",
                 "theme": "Serilog.Sinks.SystemConsole.Themes.SystemConsoleTheme::Grayscale, Serilog.Sinks.Console"
               }
-            }
-          ],
-          "Filter": [
-            //{
-            //  "Name": "ControlledBy",
-            //  "Args": {
-            //    "switch": "$filterSwitch"
-            //  }
-            //},
+            },
             {
-              "Name": "With",
+              "Name": "File", //输出文件
               "Args": {
-                "filter": {
-                  "type": "Hx.Admin.Serilog.Filters.SqlLogFilter, Hx.Admin.Serilog"
-                  //"levelFilter": "Verbose"
-                }
+                "path": "logs\\sql\\log.txt",
+                "outputTemplate": "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff} {Level:u3}] {SourceContext}{Message}{NewLine}{Exception}{NewLine}",
+                "rollingInterval": "Day" //日志文件生成精度：1：年  2：月 3：日 4：小时
               }
             }
           ]
-        },
-        //"restrictedToMinimumLevel": "Verbose",
-        //"levelSwitch": "$controlSwitch"
+        }
       }
-    }
+    ],
+    //"WriteTo:ConditionalSink": {
+    //  "Name": "Conditional",
+    //  "Args": {
+    //    "expression": "@p['SugarActionType'] in ['Query']",
+    //    "configureSink": [
+    //      {
+    //        "Name": "Console",
+    //        "Args": {
+    //          "outputTemplate": "[{Timestamp:HH:mm:ss} {Level:u3}] {SourceContext}[{LogSource}{SugarActionType}] {Message}{NewLine}{Exception}{NewLine}",
+    //          "theme": "Serilog.Sinks.SystemConsole.Themes.SystemConsoleTheme::Grayscale, Serilog.Sinks.Console"
+    //        }
+    //      }
+    //      //{
+    //      //  "Name": "Console"
+    //      //}
+    //    ]
+    //  }
+    //},
+    //"Filter": [
+    //  {
+    //    "Name": "With",
+    //    "Args": {
+    //      "filter": {
+    //        "type": "Hx.Admin.Serilog.Filters.SqlLogFilter, Hx.Admin.Serilog"
+    //      }
+    //    }
+    //  }
+    //],
+    "Properties": {
+      "Application": "Sample"
+    },
+    "Enrich": [
+      "FromLogContext"
+    ]
     //"WriteTo": [
     //  {
     //    "Name": "Logger",

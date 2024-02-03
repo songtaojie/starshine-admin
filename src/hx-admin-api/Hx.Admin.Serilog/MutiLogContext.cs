@@ -17,6 +17,8 @@ public class MutiLogContext : IDisposable
 {
     private readonly Stack<IDisposable> _disposableStack = new Stack<IDisposable>();
 
+    public static MutiLogContext Instance => new MutiLogContext();
+
     public MutiLogContext AddStock(IDisposable disposable)
     {
         _disposableStack.Push(disposable);
@@ -29,6 +31,13 @@ public class MutiLogContext : IDisposable
         return this;
     }
 
+
+    public MutiLogContext PushSqlsugarProperty(ISqlSugarClient db)
+    {
+        PushProperty(LogContextConst.LogSource, db.CurrentConnectionConfig.ConfigId);
+        PushProperty(LogContextConst.SugarActionType, db.SugarActionType);
+        return this;
+    }
     public void Dispose()
     {
         while (_disposableStack.Count > 0)

@@ -1,14 +1,18 @@
+using Hx.Admin.Serilog.Filters;
 using Serilog;
+using Serilog.Context;
 using Serilog.Events;
+using Serilog.Templates;
 using System;
 
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Error)
     .Enrich.FromLogContext()
     .WriteTo.Console()
     .CreateBootstrapLogger(); 
 try
 {
+   
     Log.Information("Starting web application");
     var builder = WebApplication.CreateBuilder(args);
     builder.ConfigureHxWebApp();
