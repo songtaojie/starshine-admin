@@ -34,7 +34,7 @@ public class MutiLogContext : IDisposable
 
     public MutiLogContext PushSqlsugarProperty(ISqlSugarClient db)
     {
-        PushProperty(LogContextConst.LogSource, db.CurrentConnectionConfig.ConfigId);
+        PushProperty(LogContextConst.AopSqlLogSource, db.CurrentConnectionConfig.ConfigId);
         PushProperty(LogContextConst.SugarActionType, db.SugarActionType);
         return this;
     }

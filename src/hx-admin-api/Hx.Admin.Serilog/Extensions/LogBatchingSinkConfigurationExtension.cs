@@ -11,29 +11,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Hx.Admin.Serilog.Sink;
+using Serilog.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 
 namespace Hx.Admin.Serilog.Extensions;
 public static class LogBatchingSinkConfigurationExtension
 {
-    //public static LoggerConfiguration WriteToLogBatching(this LoggerConfiguration loggerConfiguration)
-    //{
-    //    //if (!AppSettings.app("AppSettings", "LogToDb").ObjToBool())
-    //    //{
-    //    //    return loggerConfiguration;
-    //    //}
+    public static LoggerConfiguration WriteToLogBatching(this LoggerConfiguration loggerConfiguration, IServiceProvider provider)
+    {
+        var configuration = provider.GetRequiredService<IConfiguration>();
+        if (!configuration.GetValue<bool>("Serilog:WriteToDb", false)) return loggerConfiguration;
+        var exampleSink = new BatchedLogEventSink(provider);
 
-    //    //var exampleSink = new LogBatchingSink();
+        var batchingOptions = new PeriodicBatchingSinkOptions
+        {
+            BatchSizeLimit = 500,
+            Period = TimeSpan.FromSeconds(1),
+            EagerlyEmitFirstEvent = true,
+            QueueLimit = 10000
+        };
 
-    //    //var batchingOptions = new PeriodicBatchingSinkOptions
-    //    //{
-    //    //    BatchSizeLimit = 500,
-    //    //    Period = TimeSpan.FromSeconds(1),
-    //    //    EagerlyEmitFirstEvent = true,
-    //    //    QueueLimit = 10000
-    //    //};
+        var batchingSink = new PeriodicBatchingSink(exampleSink, batchingOptions);
 
-    //    //var batchingSink = new PeriodicBatchingSink(exampleSink, batchingOptions);
-
-    //    return loggerConfiguration.WriteTo.Sink(batchingSink);
-    //}
+        return loggerConfiguration.WriteTo.Sink(batchingSink);
+    }
 }

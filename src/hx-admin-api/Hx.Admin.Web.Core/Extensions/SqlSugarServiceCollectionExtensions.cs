@@ -28,7 +28,8 @@ public static class SqlSugarServiceCollectionExtensions
                     switch (entityInfo.PropertyName)
                     {
                         case "Id":
-                            entityInfo.SetValue(Yitter.IdGenerator.YitIdHelper.NextId());
+                            var id = Yitter.IdGenerator.YitIdHelper.NextId();
+                            entityInfo.SetValue(id);
                             break;
                         case "CreateTime":
                             entityInfo.SetValue(DateTime.Now);

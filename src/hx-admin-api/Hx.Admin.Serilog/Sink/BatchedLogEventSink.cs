@@ -5,7 +5,9 @@
 // 电话/微信：song977601042
 
 using Hx.Admin.Models;
+using Hx.Sqlsugar;
 using Mapster;
+using Microsoft.Extensions.DependencyInjection;
 using Serilog.Core;
 using Serilog.Events;
 using Serilog.Sinks.PeriodicBatching;
@@ -20,15 +22,15 @@ using System.Threading.Tasks;
 namespace Hx.Admin.Serilog.Sink;
 public class BatchedLogEventSink : IBatchedLogEventSink
 {
-    private readonly ISqlSugarClient _sqlSugarClient;
-    public BatchedLogEventSink(ISqlSugarClient sqlSugarClient)
+    private readonly IServiceProvider _serviceProvider;
+    public BatchedLogEventSink(IServiceProvider serviceProvider)
     {
-        _sqlSugarClient = sqlSugarClient;
+        _serviceProvider = serviceProvider;
     }
     public async Task EmitBatchAsync(IEnumerable<LogEvent> batch)
     {
-        //await WriteSqlLog(_sqlSugarClient, batch.FilterSqlLog());
-        //await WriteLogs(_sqlSugarClient, batch.FilterRemoveOtherLog());
+        await WriteSqlLog(batch.FilterSqlLog());
+        await WriteLogs(batch.FilterRemoveOtherLog());
     }
 
     public Task OnEmptyBatchAsync()
@@ -38,7 +40,7 @@ public class BatchedLogEventSink : IBatchedLogEventSink
 
     #region Write Log
 
-    private async Task WriteLogs(ISqlSugarClient db, IEnumerable<LogEvent> batch)
+    private async Task WriteLogs(IEnumerable<LogEvent> batch)
     {
         if (!batch.Any())
         {
@@ -51,35 +53,33 @@ public class BatchedLogEventSink : IBatchedLogEventSink
             switch (v.Key)
             {
                 case LogEventLevel.Information:
-                    await WriteInformationLog(db, v);
+                    await WriteInformationLog(v);
                     break;
-                case LogEventLevel.Warning:
-                    await WriteWarningLog(db, v);
-                    break;
-                case LogEventLevel.Error:
-                case LogEventLevel.Fatal:
-                    await WriteErrorLog(db, v);
-                    break;
+                //case LogEventLevel.Warning:
+                //    await WriteWarningLog(db, v);
+                //    break;
+                //case LogEventLevel.Error:
+                //case LogEventLevel.Fatal:
+                //    await WriteErrorLog(db, v);
+                //    break;
             }
         }
     }
 
-    private async Task WriteInformationLog(ISqlSugarClient db, IEnumerable<LogEvent> batch)
+    private async Task WriteInformationLog(IEnumerable<LogEvent> batch)
     {
         if (!batch.Any())
         {
             return;
         }
 
-        //var logs = new List<GlobalInformationLog>();
-        //foreach (var logEvent in batch)
-        //{
-        //    var log = logEvent.Adapt<GlobalInformationLog>();
-        //    log.Message = logEvent.RenderMessage();
-        //    log.Properties = logEvent.Properties.ToJson();
-        //    log.DateTime = logEvent.Timestamp.DateTime;
-        //    logs.Add(log);
-        //}
+        foreach (var logEvent in batch)
+        {
+            var Message = logEvent.RenderMessage();
+            //log.Properties = logEvent.Properties.ToJson();
+            //log.DateTime = logEvent.Timestamp.DateTime;
+            //logs.Add(log);
+        }
 
         //await db.AsTenant().InsertableWithAttr(logs).SplitTable().ExecuteReturnSnowflakeIdAsync();
         await Task.CompletedTask;
@@ -131,7 +131,7 @@ public class BatchedLogEventSink : IBatchedLogEventSink
         await Task.CompletedTask;
     }
 
-    private async Task WriteSqlLog(ISqlSugarClient db, IEnumerable<LogEvent> batch)
+    private async Task WriteSqlLog(IEnumerable<LogEvent> batch)
     {
         if (!batch.Any())
         {
@@ -139,14 +139,14 @@ public class BatchedLogEventSink : IBatchedLogEventSink
         }
 
         //var logs = new List<AuditSqlLog>();
-        //foreach (var logEvent in batch)
-        //{
-        //    var log = logEvent.Adapt<AuditSqlLog>();
-        //    log.Message = logEvent.RenderMessage();
-        //    log.Properties = logEvent.Properties.ToJson();
-        //    log.DateTime = logEvent.Timestamp.DateTime;
-        //    logs.Add(log);
-        //}
+        foreach (var logEvent in batch)
+        {
+            //var log = logEvent.Adapt<AuditSqlLog>();
+            var Message = logEvent.RenderMessage();
+            //log.Properties = logEvent.Properties.ToJson();
+            var DateTime = logEvent.Timestamp.DateTime;
+            //logs.Add(log);
+        }
 
         //await db.AsTenant().InsertableWithAttr(logs).SplitTable().ExecuteReturnSnowflakeIdAsync();
         await Task.CompletedTask;

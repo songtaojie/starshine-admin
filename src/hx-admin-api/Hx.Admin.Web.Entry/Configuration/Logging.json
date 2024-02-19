@@ -16,42 +16,7 @@
         "Quartz": "Information"
       }
     },
-    //"WriteTo:Sublogger": {
-    //  "Name": "Logger",
-    //  "Args": {
-    //    "configureLogger": {
-    //      "MinimumLevel": "Verbose",
-    //      "WriteTo": [
-    //        {
-    //          "Name": "Console",
-    //          "Args": {
-    //            "outputTemplate": "[{Timestamp:HH:mm:ss} {SourceContext} [{Level}] {Message}{NewLine}{Exception}",
-    //            "theme": "Serilog.Sinks.SystemConsole.Themes.SystemConsoleTheme::Grayscale, Serilog.Sinks.Console"
-    //          }
-    //        }
-    //      ],
-    //      //"Filter": [
-    //      //  //{
-    //      //  //  "Name": "ControlledBy",
-    //      //  //  "Args": {
-    //      //  //    "switch": "$filterSwitch"
-    //      //  //  }
-    //      //  //},
-    //      //  {
-    //      //    "Name": "With",
-    //      //    "Args": {
-    //      //      "filter": {
-    //      //        "type": "Hx.Admin.Serilog.Filters.SqlLogFilter, Hx.Admin.Serilog"
-    //      //        //"levelFilter": "Verbose"
-    //      //      }
-    //      //    }
-    //      //  }
-    //      //]
-    //    }
-    //    //"restrictedToMinimumLevel": "Verbose",
-    //    //"levelSwitch": "$controlSwitch"
-    //  }
-    //},
+    "WriteToDb": true,
     "WriteTo": [
       //{
       //  "Name": "Conditional",
@@ -77,60 +42,59 @@
       //  }
       //},
       {
-        "Name": "Conditional",
+        "Name": "Async", //异步写入日志
         "Args": {
-          "expression": "@p['SugarActionType'] in ['Insert','Update','Delete']", // 输出增删改语句
-          "configureSink": [
+          "configure": [
             {
-              "Name": "Console",
+              "Name": "Conditional",
               "Args": {
-                "outputTemplate": "[{Timestamp:yyyy-MM-d HH:mm:ss.fff} {Level:u3}] {SourceContext}{Message}{NewLine}{Exception}{NewLine}",
-                "theme": "Serilog.Sinks.SystemConsole.Themes.SystemConsoleTheme::Grayscale, Serilog.Sinks.Console"
+                "expression": "@p['SqlLogSource'] is null", // 输出普通日志
+                "configureSink": [
+                  {
+                    "Name": "Console",
+                    "Args": {
+                      "outputTemplate": "[{Timestamp:yyyy-MM-d HH:mm:ss.fff} {Level:u3}] {SourceContext}{Message}{NewLine}{Exception}{NewLine}"
+                    }
+                  },
+                  {
+                    "Name": "File", //输出文件
+                    "Args": {
+                      "path": "logs\\log.log",
+                      "outputTemplate": "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff} {Level:u3}] {SourceContext}{Message}{NewLine}{Exception}{NewLine}",
+                      "rollingInterval": "Day" //日志文件生成精度：1：年  2：月 3：日 4：小时
+                    }
+                  }
+                ]
               }
             },
             {
-              "Name": "File", //输出文件
+              "Name": "Conditional",
               "Args": {
-                "path": "logs\\sql\\log.txt",
-                "outputTemplate": "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff} {Level:u3}] {SourceContext}{Message}{NewLine}{Exception}{NewLine}",
-                "rollingInterval": "Day" //日志文件生成精度：1：年  2：月 3：日 4：小时
+                //"expression": "@p['SugarActionType'] in ['Insert','Update','Delete']", // 输出增删改语句
+                "expression": "@p['SqlLogSource'] is not null", // 输出sql语句日志
+                "configureSink": [
+                  //{
+                  //  "Name": "Console",
+                  //  "Args": {
+                  //    "outputTemplate": "[{Timestamp:yyyy-MM-d HH:mm:ss.fff} {Level:u3}] {SourceContext}{Message}{NewLine}{Exception}{NewLine}",
+                  //    "theme": "Serilog.Sinks.SystemConsole.Themes.SystemConsoleTheme::Grayscale, Serilog.Sinks.Console"
+                  //  }
+                  //},
+                  {
+                    "Name": "File", //输出文件
+                    "Args": {
+                      "path": "logs\\sql\\aopsql.log",
+                      "outputTemplate": "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff} {Level:u3}] {SourceContext}{Message}{NewLine}{Exception}{NewLine}",
+                      "rollingInterval": "Day" //日志文件生成精度：1：年  2：月 3：日 4：小时
+                    }
+                  }
+                ]
               }
             }
           ]
         }
       }
     ],
-    //"WriteTo:ConditionalSink": {
-    //  "Name": "Conditional",
-    //  "Args": {
-    //    "expression": "@p['SugarActionType'] in ['Query']",
-    //    "configureSink": [
-    //      {
-    //        "Name": "Console",
-    //        "Args": {
-    //          "outputTemplate": "[{Timestamp:HH:mm:ss} {Level:u3}] {SourceContext}[{LogSource}{SugarActionType}] {Message}{NewLine}{Exception}{NewLine}",
-    //          "theme": "Serilog.Sinks.SystemConsole.Themes.SystemConsoleTheme::Grayscale, Serilog.Sinks.Console"
-    //        }
-    //      }
-    //      //{
-    //      //  "Name": "Console"
-    //      //}
-    //    ]
-    //  }
-    //},
-    //"Filter": [
-    //  {
-    //    "Name": "With",
-    //    "Args": {
-    //      "filter": {
-    //        "type": "Hx.Admin.Serilog.Filters.SqlLogFilter, Hx.Admin.Serilog"
-    //      }
-    //    }
-    //  }
-    //],
-    "Properties": {
-      "Application": "Sample"
-    },
     "Enrich": [
       "FromLogContext"
     ]
@@ -198,7 +162,6 @@
   }
 
 }
-
 
 
 

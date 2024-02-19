@@ -16,7 +16,7 @@ public class LogContextConst
 
     public static readonly string BaseLogs = "Logs";
 
-    public const string LogSource = "LogSource";
+    public const string AopSqlLogSource = "SqlLogSource";
     public const string AopSql = "AopSql";
     public const string SqlOutToConsole = "OutToConsole";
     public const string SqlOutToFile = "SqlOutToFile";

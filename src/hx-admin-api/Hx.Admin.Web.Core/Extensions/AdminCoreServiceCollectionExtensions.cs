@@ -29,6 +29,7 @@ public static class AdminCoreServiceCollectionExtensions
 {
     public static void AddAdminCoreService(this IServiceCollection services, IConfiguration configuration)
     {
+
         services.AddAdminOptions();
         services.AddMapsterSettings();
         services.AddControllersWithViews()
@@ -41,6 +42,8 @@ public static class AdminCoreServiceCollectionExtensions
                 options.JsonSerializerOptions.Converters.Add(new DateTimeNullJsonConverter());
                 options.JsonSerializerOptions.Converters.Add(new LongJsonConverter());
             });
+        // 雪花Id
+        services.AddYitterIdGenerater();
         services.AddJwtAuthentication();
         services.AddAuthoriationSetup();
         services.AddCache();
@@ -68,8 +71,7 @@ public static class AdminCoreServiceCollectionExtensions
 
         // 电子邮件
         services.AddFluentEmail(configuration);
-        // 雪花Id
-        services.AddYitterIdGenerater();
+       
         //services.AddQuartzService(configuration);
     }
 
