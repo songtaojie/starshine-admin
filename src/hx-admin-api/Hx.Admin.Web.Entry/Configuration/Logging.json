@@ -96,7 +96,15 @@
       }
     ],
     "Enrich": [
-      "FromLogContext"
+      "FromLogContext",
+      "WithThreadId",
+      {
+        "Name": "AtLevel",
+        "Args": {
+          "enrichFromLevel": "Error",
+          "configureEnricher": [ "WithThreadName" ]
+        }
+      },
     ]
     //"WriteTo": [
     //  {

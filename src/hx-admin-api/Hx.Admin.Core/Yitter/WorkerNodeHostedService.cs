@@ -4,6 +4,7 @@
 //
 // 电话/微信：song977601042
 
+using log4net.Repository.Hierarchy;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -41,8 +42,14 @@ internal sealed class WorkerNodeHostedService : BackgroundService
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
         await base.StopAsync(cancellationToken);
-
-        _logger.LogInformation("stopping service {0}", _serviceName);
+        using (_logger.BeginScope(new Dictionary<string, object>
+        {
+            ["UserId"] = "svrooij",
+            ["OperationType"] = "update",
+        }))
+        {
+            _logger.LogInformation("stopping service {0}", _serviceName);
+        }
 
         var subtractionMilliseconds = 0 - (_millisecondsDelay * 1.5);
         var score = DateTimeOffset.Now.AddMilliseconds(subtractionMilliseconds).ToUnixTimeMilliseconds();

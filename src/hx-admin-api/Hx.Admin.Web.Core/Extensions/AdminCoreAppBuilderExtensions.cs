@@ -6,8 +6,10 @@
 
 using AspNetCoreRateLimit;
 using Hx.Admin.Core;
+using Hx.Admin.Serilog.Enricher;
 using Hx.Sdk.Core;
 using Microsoft.Extensions.Hosting;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,7 +38,6 @@ public static class AdminCoreAppBuilderExtensions
             //app.UseForwardedHeaders();
             app.UseHsts();
         }
-
         //// 添加状态码拦截中间件
         //app.UseUnifyResultStatusCodes();
 
@@ -49,7 +50,16 @@ public static class AdminCoreAppBuilderExtensions
         {
             ContentTypeProvider = FileContentTypeUtil.GetFileExtensionContentTypeProvider()
         });
-
+        app.UseSerilogRequestLogging(options =>
+        {
+            // Attach additional properties to the request completion event
+            options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+            {
+                diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value);
+                diagnosticContext.Set("RequestScheme", httpContext.Request.Scheme);
+            };
+        });
+        app.UseMiddleware<HttpContextLogMiddleware>();
         app.UseRouting();
 
         app.UseCorsAccessor();
