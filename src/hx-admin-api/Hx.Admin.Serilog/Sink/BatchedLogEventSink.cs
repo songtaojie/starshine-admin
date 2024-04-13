@@ -29,8 +29,10 @@ public class BatchedLogEventSink : IBatchedLogEventSink
     }
     public async Task EmitBatchAsync(IEnumerable<LogEvent> batch)
     {
-        await WriteSqlLog(batch.FilterSqlLog());
-        await WriteLogs(batch.FilterRemoveOtherLog());
+        Console.WriteLine(batch.Count());
+        await Task.CompletedTask;
+        //await WriteSqlLog(batch.FilterSqlLog());
+        //await WriteLogs(batch.FilterRemoveOtherLog());
     }
 
     public Task OnEmptyBatchAsync()
