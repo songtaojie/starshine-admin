@@ -29,10 +29,7 @@ public class BatchedLogEventSink : IBatchedLogEventSink
     }
     public async Task EmitBatchAsync(IEnumerable<LogEvent> batch)
     {
-        Console.WriteLine(batch.Count());
-        await Task.CompletedTask;
-        //await WriteSqlLog(batch.FilterSqlLog());
-        //await WriteLogs(batch.FilterRemoveOtherLog());
+        await WriteLogs(batch.FilterWriteToDbLog());
     }
 
     public Task OnEmptyBatchAsync()
@@ -78,6 +75,7 @@ public class BatchedLogEventSink : IBatchedLogEventSink
         foreach (var logEvent in batch)
         {
             var Message = logEvent.RenderMessage();
+            Console.WriteLine($"数据库日志：{Message}");
             //log.Properties = logEvent.Properties.ToJson();
             //log.DateTime = logEvent.Timestamp.DateTime;
             //logs.Add(log);
@@ -144,7 +142,8 @@ public class BatchedLogEventSink : IBatchedLogEventSink
         foreach (var logEvent in batch)
         {
             //var log = logEvent.Adapt<AuditSqlLog>();
-            var Message = logEvent.RenderMessage();
+            var Message = logEvent.RenderMessage(null);
+            Console.WriteLine(Message);
             //log.Properties = logEvent.Properties.ToJson();
             var DateTime = logEvent.Timestamp.DateTime;
             //logs.Add(log);
