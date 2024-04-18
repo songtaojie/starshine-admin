@@ -23,15 +23,9 @@ public static class LogBatchingSinkConfigurationExtension
     {
         var configuration = provider.GetRequiredService<IConfiguration>();
         if (!configuration.GetValue<bool>("Serilog:WriteToDb", false)) return loggerConfiguration;
-        var exampleSink = new BatchedLogEventSink(provider);
+        var exampleSink = new DataBaseBatchedLogEventSink(provider);
 
-        var batchingOptions = new PeriodicBatchingSinkOptions
-        {
-            BatchSizeLimit = 500,
-            Period = TimeSpan.FromSeconds(1),
-            EagerlyEmitFirstEvent = true,
-            QueueLimit = 10000
-        };
+        var batchingOptions = new PeriodicBatchingSinkOptions();
 
         var batchingSink = new PeriodicBatchingSink(exampleSink, batchingOptions);
 

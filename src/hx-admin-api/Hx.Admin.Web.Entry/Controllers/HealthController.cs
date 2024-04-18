@@ -12,13 +12,16 @@ namespace Hx.Admin.Web.Entry.Controllers;
 [AllowAnonymous]
 public class HealthController: AdminControllerBase
 {
-    public HealthController()
-    { 
+    private readonly ILogger _logger;
+    public HealthController(ILogger<HealthController> logger)
+    {
+        _logger = logger;
     }
 
     [HttpGet]
     public string Get()
     {
+        _logger.LogInformation("测试接口");
         return "ok";
     }
 }

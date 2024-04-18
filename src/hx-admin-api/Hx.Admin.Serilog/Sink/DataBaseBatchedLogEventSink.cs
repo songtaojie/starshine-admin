@@ -17,19 +17,22 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Hx.Admin.Serilog.Sink;
-public class BatchedLogEventSink : IBatchedLogEventSink
+public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
 {
     private readonly IServiceProvider _serviceProvider;
-    public BatchedLogEventSink(IServiceProvider serviceProvider)
+    public DataBaseBatchedLogEventSink(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
     }
     public async Task EmitBatchAsync(IEnumerable<LogEvent> batch)
     {
-        await WriteLogs(batch.FilterWriteToDbLog());
+        batch = batch.FilterWriteToDbLog();
+        //await WriteLogs(batch.FilterNotSqlLog());
+        await WriteLogs(batch.FilterSqlLog());
     }
 
     public Task OnEmptyBatchAsync()
@@ -74,6 +77,7 @@ public class BatchedLogEventSink : IBatchedLogEventSink
 
         foreach (var logEvent in batch)
         {
+            Console.WriteLine("数据库日志前缀：" + JsonSerializer.Serialize(logEvent));
             var Message = logEvent.RenderMessage();
             Console.WriteLine($"数据库日志：{Message}");
             //log.Properties = logEvent.Properties.ToJson();

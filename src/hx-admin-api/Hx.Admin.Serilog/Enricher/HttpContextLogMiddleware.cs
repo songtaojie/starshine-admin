@@ -38,13 +38,11 @@ public class HttpContextLogMiddleware
         // LogContext功能很强大，可以动态添加属性，具体使用介绍，参见官方wiki文档
         using (LogContext.Push(new HttpContextEnricher(serviceProvider)))
         {
-
             // 计算接口执行时间
             var timeOperation = Stopwatch.StartNew();
             await _next(context);
             timeOperation.Stop();
             LogContext.PushProperty("timeOperationElapsedMilliseconds", timeOperation.ElapsedMilliseconds);
-            _logger.LogInformation("请求接口");
         }
     }
 }

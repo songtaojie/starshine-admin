@@ -44,7 +44,7 @@ public static class LoggerConfigurationExtensions
         return logEvent.Properties.ContainsKey(LogContextConst.AopSqlLogSource);
     }
 
-    public static IEnumerable<LogEvent> FilterRemoveOtherLog(this IEnumerable<LogEvent> batch)
+    public static IEnumerable<LogEvent> FilterNotSqlLog(this IEnumerable<LogEvent> batch)
     {
         return  batch.Where(s => !FilterSqlLog(s));
     }
