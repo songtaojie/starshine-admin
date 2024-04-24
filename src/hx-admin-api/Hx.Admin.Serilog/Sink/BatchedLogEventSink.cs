@@ -29,10 +29,9 @@ public class BatchedLogEventSink : IBatchedLogEventSink
     }
     public async Task EmitBatchAsync(IEnumerable<LogEvent> batch)
     {
-        Console.WriteLine(batch.Count());
-        await Task.CompletedTask;
         //await WriteSqlLog(batch.FilterSqlLog());
-        //await WriteLogs(batch.FilterRemoveOtherLog());
+        await WriteLogs(batch.FilterRemoveOtherLog());
+        await Task.CompletedTask;
     }
 
     public Task OnEmptyBatchAsync()
@@ -44,6 +43,7 @@ public class BatchedLogEventSink : IBatchedLogEventSink
 
     private async Task WriteLogs(IEnumerable<LogEvent> batch)
     {
+        Console.WriteLine($"普通日志：{batch.Count()}");
         if (!batch.Any())
         {
             return;
@@ -144,7 +144,7 @@ public class BatchedLogEventSink : IBatchedLogEventSink
         foreach (var logEvent in batch)
         {
             //var log = logEvent.Adapt<AuditSqlLog>();
-            var Message = logEvent.RenderMessage();
+            //var Message = logEvent.RenderMessage();
             //log.Properties = logEvent.Properties.ToJson();
             var DateTime = logEvent.Timestamp.DateTime;
             //logs.Add(log);

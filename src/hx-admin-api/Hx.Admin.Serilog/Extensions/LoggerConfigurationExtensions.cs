@@ -32,12 +32,6 @@ public static class LoggerConfigurationExtensions
 
     public static bool FilterSqlLog(this LogEvent logEvent)
     {
-        ////只记录 Insert、Update、Delete语句
-        //if (logEvent.Properties.ContainsKey(LogContextConst.AopSqlLogSource))
-        //{
-        //    return logEvent.WithProperty<SugarActionType>(LogContextConst.SugarActionType,
-        //        q => !new[] { SugarActionType.UnKnown, SugarActionType.Query }.Contains(q));
-        //}
         return logEvent.Properties.ContainsKey(LogContextConst.AopSqlLogSource);
     }
 
