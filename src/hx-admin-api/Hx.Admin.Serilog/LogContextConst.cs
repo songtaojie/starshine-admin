@@ -13,6 +13,8 @@ using System.Threading.Tasks;
 namespace Hx.Admin.Serilog;
 public class LogContextConst
 {
+    public const string WriteToDb = "WriteToDb";
+
 
     public static readonly string BaseLogs = "Logs";
 

@@ -21,6 +21,7 @@ public static class SqlSugarServiceCollectionExtensions
         {
             var userManager = provider.GetRequiredService<UserManager>();
             var logger = provider.GetRequiredService<ILogger<ISqlSugarClient>>();
+            var config = db.CurrentConnectionConfig;
             db.Aop.DataExecuting = (oldValue, entityInfo) =>
             {
                 if (entityInfo.OperationType == DataFilterType.InsertByObject)
@@ -74,13 +75,15 @@ public static class SqlSugarServiceCollectionExtensions
             db.Aop.OnLogExecuting = (sql, pars) =>
             {
                 using var mutiLogContext = MutiLogContext.Instance.PushSqlsugarProperty(db);
-                logger.LogInformation($"{UtilMethods.GetNativeSql(sql, pars)}");
+                logger.LogInformation($"【{DateTime.Now}——执行SQL】\r\n{UtilMethods.GetSqlString(config.DbType, sql, pars)}\r\n");
+                //logger.LogInformation($"{UtilMethods.GetNativeSql(sql, pars)}");
             };
             db.Aop.OnError = ex =>
             {
                 if (ex.Parametres == null) return;
                 using var mutiLogContext = MutiLogContext.Instance.PushSqlsugarProperty(db);
-                logger.LogError($"{UtilMethods.GetNativeSql(ex.Sql, ex.Parametres as SugarParameter[])} ");
+                logger.LogError($"【{DateTime.Now}——错误SQL】\r\n {UtilMethods.GetSqlString(config.DbType, ex.Sql, (SugarParameter[])ex.Parametres)} \r\n");
+                //logger.LogError($"{UtilMethods.GetNativeSql(ex.Sql, ex.Parametres as SugarParameter[])} ");
             };
         });
         services.AddHostedService<SqlSugarHostedService>();

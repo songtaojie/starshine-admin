@@ -17,21 +17,22 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Hx.Admin.Serilog.Sink;
-public class BatchedLogEventSink : IBatchedLogEventSink
+public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
 {
     private readonly IServiceProvider _serviceProvider;
-    public BatchedLogEventSink(IServiceProvider serviceProvider)
+    public DataBaseBatchedLogEventSink(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
     }
     public async Task EmitBatchAsync(IEnumerable<LogEvent> batch)
     {
-        //await WriteSqlLog(batch.FilterSqlLog());
-        await WriteLogs(batch.FilterRemoveOtherLog());
-        await Task.CompletedTask;
+        batch = batch.FilterWriteToDbLog();
+        //await WriteLogs(batch.FilterNotSqlLog());
+        await WriteLogs(batch.FilterSqlLog());
     }
 
     public Task OnEmptyBatchAsync()
@@ -43,7 +44,6 @@ public class BatchedLogEventSink : IBatchedLogEventSink
 
     private async Task WriteLogs(IEnumerable<LogEvent> batch)
     {
-        Console.WriteLine($"普通日志：{batch.Count()}");
         if (!batch.Any())
         {
             return;
@@ -77,7 +77,9 @@ public class BatchedLogEventSink : IBatchedLogEventSink
 
         foreach (var logEvent in batch)
         {
+            Console.WriteLine("数据库日志前缀：" + JsonSerializer.Serialize(logEvent));
             var Message = logEvent.RenderMessage();
+            Console.WriteLine($"数据库日志：{Message}");
             //log.Properties = logEvent.Properties.ToJson();
             //log.DateTime = logEvent.Timestamp.DateTime;
             //logs.Add(log);
@@ -144,7 +146,8 @@ public class BatchedLogEventSink : IBatchedLogEventSink
         foreach (var logEvent in batch)
         {
             //var log = logEvent.Adapt<AuditSqlLog>();
-            //var Message = logEvent.RenderMessage();
+            var Message = logEvent.RenderMessage(null);
+            Console.WriteLine(Message);
             //log.Properties = logEvent.Properties.ToJson();
             var DateTime = logEvent.Timestamp.DateTime;
             //logs.Add(log);

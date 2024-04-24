@@ -23,7 +23,9 @@ public class HttpContextLogMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger _logger;
-    public HttpContextLogMiddleware(RequestDelegate next,Logger<HttpContextLogMiddleware> logger)
+
+    public HttpContextLogMiddleware(RequestDelegate next,
+        ILogger<HttpContextLogMiddleware> logger)
     {
         _next = next;
         _logger = logger;
@@ -36,14 +38,20 @@ public class HttpContextLogMiddleware
         // LogContext功能很强大，可以动态添加属性，具体使用介绍，参见官方wiki文档
         using (LogContext.Push(new HttpContextEnricher(serviceProvider)))
         {
+            // 计算接口执行时间
             var timeOperation = Stopwatch.StartNew();
             await _next(context);
             timeOperation.Stop();
-            LogContext.PushProperty("ElapsedMilliseconds", timeOperation.ElapsedMilliseconds);
-            _logger.LogInformation("请求接口");
+            LogContext.PushProperty("timeOperationElapsedMilliseconds", timeOperation.ElapsedMilliseconds);
         }
     }
 }
 
+//// 使用扩展方法形式注入中间件
+//public static IApplicationBuilder UseHttpContextLog(
+//    this IApplicationBuilder builder)
+//{
+//    return builder.UseMiddleware<HttpContextLogMiddleware>();
+//}
 
 
