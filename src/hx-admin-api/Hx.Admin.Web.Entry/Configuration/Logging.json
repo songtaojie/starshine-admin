@@ -73,13 +73,13 @@
                 //"expression": "@p['SugarActionType'] in ['Insert','Update','Delete']", // 输出增删改语句
                 "expression": "@p['SqlLogSource'] is not null", // 输出sql语句日志
                 "configureSink": [
-                  //{
-                  //  "Name": "Console",
-                  //  "Args": {
-                  //    "outputTemplate": "[{Timestamp:yyyy-MM-d HH:mm:ss.fff} {Level:u3}] {SourceContext}{Message}{NewLine}{Exception}{NewLine}",
-                  //    "theme": "Serilog.Sinks.SystemConsole.Themes.SystemConsoleTheme::Grayscale, Serilog.Sinks.Console"
-                  //  }
-                  //},
+                  {
+                    "Name": "Console",
+                    "Args": {
+                      "outputTemplate": "[{Timestamp:yyyy-MM-d HH:mm:ss.fff} {Level:u3}] {SourceContext}{Message}{NewLine}{Exception}{NewLine}",
+                      "theme": "Serilog.Sinks.SystemConsole.Themes.SystemConsoleTheme::Grayscale, Serilog.Sinks.Console"
+                    }
+                  },
                   {
                     "Name": "File", //输出文件
                     "Args": {

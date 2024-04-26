@@ -156,6 +156,13 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
         //await db.AsTenant().InsertableWithAttr(logs).SplitTable().ExecuteReturnSnowflakeIdAsync();
         await Task.CompletedTask;
     }
-
+    private string GetMessage(LogEvent logEvent)
+    {
+        if (logEvent.MessageTemplate.Tokens.Any() && logEvent.MessageTemplate.Tokens.ElementAt(0).Length <= 20000)
+        {
+            return logEvent.RenderMessage(null);
+        }
+        return logEvent.MessageTemplate.Text;
+    }
     #endregion
 }

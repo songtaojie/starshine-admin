@@ -29,6 +29,6 @@ public static class LogBatchingSinkConfigurationExtension
 
         var batchingSink = new PeriodicBatchingSink(exampleSink, batchingOptions);
 
-        return loggerConfiguration.WriteTo.Sink(batchingSink);
+        return loggerConfiguration.WriteTo.Async(loggerConfig=> loggerConfig.Sink(batchingSink));
     }
 }
