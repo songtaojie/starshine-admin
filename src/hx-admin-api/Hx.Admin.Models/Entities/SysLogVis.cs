@@ -22,7 +22,7 @@ public class SysLogVis : CreationEntityBase
     /// 显示名称
     ///</summary>
     [SugarColumn(ColumnDescription = "显示名称", IsNullable = true, Length = 256)]
-    public string? DisplayTitle { get; set; }
+    public string? DisplayName { get; set; }
 
     /// <summary>
     /// 执行状态

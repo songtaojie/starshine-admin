@@ -42,16 +42,10 @@ public class HttpContextLogMiddleware
             var timeOperation = Stopwatch.StartNew();
             await _next(context);
             timeOperation.Stop();
-            LogContext.PushProperty("timeOperationElapsedMilliseconds", timeOperation.ElapsedMilliseconds);
+            LogContext.PushProperty(LogContextConst.Request_ElapsedMilliseconds, timeOperation.ElapsedMilliseconds);
         }
     }
 }
 
-//// 使用扩展方法形式注入中间件
-//public static IApplicationBuilder UseHttpContextLog(
-//    this IApplicationBuilder builder)
-//{
-//    return builder.UseMiddleware<HttpContextLogMiddleware>();
-//}
 
 

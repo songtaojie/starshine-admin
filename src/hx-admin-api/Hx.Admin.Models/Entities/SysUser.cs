@@ -4,7 +4,7 @@ namespace Hx.Admin.Models;
 /// 系统用户表
 /// </summary>
 [SugarTable(null, "系统用户表")]
-public class SysUser : AuditedEntityBase
+public class SysUser : AuditedEntityBase, IOrgIdFilter
 {
     /// <summary>
     /// 账号

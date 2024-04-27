@@ -14,28 +14,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Nest;
+using Hx.Sqlsugar;
 
 namespace Hx.Admin.Serilog;
 public static class LoggerConfigurationExtensions
 {
 
-    public static LoggerConfiguration FilterSqlLog(this LoggerConfiguration lc)
-    {
-        lc = lc.Filter.ByIncludingOnly(Matching.WithProperty<string>(LogContextConst.AopSqlLogSource, s => LogContextConst.AopSql.Equals(s)));
-        return lc;
-    }
     public static IEnumerable<LogEvent> FilterSqlLog(this IEnumerable<LogEvent> batch)
     {
         return batch.Where(s => s.FilterSqlLog());
     }
-    public static IEnumerable<LogEvent> FilterWriteToDbLog(this IEnumerable<LogEvent> batch)
-    {
-        return batch.Where(logEvent => logEvent.WithProperty<bool>(LogContextConst.WriteToDb,r=>r));
-    }
 
     public static bool FilterSqlLog(this LogEvent logEvent)
     {
-        return logEvent.Properties.ContainsKey(LogContextConst.AopSqlLogSource);
+        return logEvent.Properties.ContainsKey(SugarLogScope.Source);
     }
 
     public static IEnumerable<LogEvent> FilterNotSqlLog(this IEnumerable<LogEvent> batch)
@@ -62,4 +54,17 @@ public static class LoggerConfigurationExtensions
 
         return propertyValue is ScalarValue { Value: T value } && predicate(value);
     }
+
+    #region LogContextConst扩展 
+    public static T? GetPropertyValue<T>(this LogEvent e,string propertyName)
+    {
+        if (!e.Properties.ContainsKey(propertyName)) return default;
+        if (!e.Properties.TryGetValue(propertyName, out var propertyValue)) return default;
+        if (propertyValue is ScalarValue { Value: T value })
+        {
+            return value;
+        }
+        return default;
+    }
+    #endregion
 }

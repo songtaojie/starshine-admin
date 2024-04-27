@@ -4,6 +4,7 @@
 //
 // 电话/微信：song977601042
 
+using Hx.Admin.Models;
 using Hx.Admin.Serilog;
 using Hx.Sdk.Core;
 using Microsoft.Extensions.Logging;
@@ -28,23 +29,23 @@ public static class SqlSugarServiceCollectionExtensions
                 {
                     switch (entityInfo.PropertyName)
                     {
-                        case "Id":
+                        case nameof(FullAuditedEntityBase.Id):
                             var id = Yitter.IdGenerator.YitIdHelper.NextId();
                             entityInfo.SetValue(id);
                             break;
-                        case "CreateTime":
+                        case nameof(FullAuditedEntityBase.CreateTime):
                             entityInfo.SetValue(DateTime.Now);
                             break;
-                        case "UpdateTime":
+                        case nameof(FullAuditedEntityBase.UpdateTime):
                             entityInfo.SetValue(DateTime.Now);
                             break;
                     }
                     var userId = userManager.GetUserId<long>();
                     if (userId > 0)
                     {
-                        if (entityInfo.PropertyName == "CreatorId")
+                        if (entityInfo.PropertyName == nameof(FullAuditedEntityBase.CreatorId))
                             entityInfo.SetValue(userId);
-                        if (entityInfo.PropertyName == "UpdaterId")
+                        if (entityInfo.PropertyName == nameof(FullAuditedEntityBase.UpdaterId))
                             entityInfo.SetValue(userId);
                     }
                     var orgId = userManager.GetOrgId<long>();
@@ -52,38 +53,24 @@ public static class SqlSugarServiceCollectionExtensions
                     {
                         if (entityInfo.OperationType == DataFilterType.InsertByObject)
                         {
-                            if (entityInfo.PropertyName == "OrgId")
+                            if (entityInfo.PropertyName == nameof(IOrgIdFilter.OrgId))
                                 entityInfo.SetValue(orgId);
                         }
                     }
                 }
                 else if (entityInfo.OperationType == DataFilterType.UpdateByObject)
                 {
-                    if (entityInfo.PropertyName == "UpdateTime")
+                    if (entityInfo.PropertyName == nameof(FullAuditedEntityBase.UpdateTime))
                         entityInfo.SetValue(DateTime.Now);
                     var userId = userManager.GetUserId<long>();
                     if (userId > 0)
                     {
-                        if (entityInfo.PropertyName == "UpdaterId")
+                        if (entityInfo.PropertyName == nameof(FullAuditedEntityBase.UpdaterId))
                             entityInfo.SetValue(userId);
                     }
                 }
 
 
-            };
-            // 打印SQL语句
-            db.Aop.OnLogExecuting = (sql, pars) =>
-            {
-                using var mutiLogContext = MutiLogContext.Instance.PushSqlsugarProperty(db);
-                logger.LogInformation($"【{DateTime.Now}——执行SQL】\r\n{UtilMethods.GetSqlString(config.DbType, sql, pars)}\r\n");
-                //logger.LogInformation($"{UtilMethods.GetNativeSql(sql, pars)}");
-            };
-            db.Aop.OnError = ex =>
-            {
-                if (ex.Parametres == null) return;
-                using var mutiLogContext = MutiLogContext.Instance.PushSqlsugarProperty(db);
-                logger.LogError($"【{DateTime.Now}——错误SQL】\r\n {UtilMethods.GetSqlString(config.DbType, ex.Sql, (SugarParameter[])ex.Parametres)} \r\n");
-                //logger.LogError($"{UtilMethods.GetNativeSql(ex.Sql, ex.Parametres as SugarParameter[])} ");
             };
         });
         services.AddHostedService<SqlSugarHostedService>();

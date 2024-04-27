@@ -14,7 +14,7 @@ internal interface IDeletedFilter
 /// <summary>
 /// 机构Id接口过滤器
 /// </summary>
-internal interface IOrgIdFilter
+public interface IOrgIdFilter
 {
     /// <summary>
     /// 创建者部门Id
