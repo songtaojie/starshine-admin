@@ -152,4 +152,9 @@ public class LogContextConst
     /// HTTP响应代码
     /// </summary>
     public const string Response_StatusCode = "Response_StatusCode";
+
+    /// <summary>
+    /// HTTP响应代码
+    /// </summary>
+    public const string FinalMessage = "Response_FinalMessage";
 }

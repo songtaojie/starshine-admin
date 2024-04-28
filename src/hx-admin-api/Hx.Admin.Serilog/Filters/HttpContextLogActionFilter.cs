@@ -15,6 +15,17 @@ using Serilog.Context;
 using System.Diagnostics;
 using System;
 using System.Text.Json;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
+using System.Text;
+using Nest;
+using static SKIT.FlurlHttpClient.Wechat.Api.Models.ComponentTCBDescribeCloudBaseRunEnvironmentsResponse.Types;
+using static SKIT.FlurlHttpClient.Wechat.Api.Models.ProductSPUUpdateRequest.Types;
+using static SKIT.FlurlHttpClient.Wechat.Api.Models.ShopCouponGetResponse.Types.Result.Types.Coupon.Types.CouponDetail.Types.Discount.Types.DiscountCondidtion.Types;
+using System.ComponentModel;
+using System.Runtime.InteropServices;
+using System.Threading;
+using UAParser;
+using Microsoft.AspNetCore.Http;
 
 namespace Hx.Admin.Serilog.Filters;
 /// <summary>
@@ -31,24 +42,22 @@ public class HttpContextLogActionFilter : IAsyncActionFilter
         var timeOperation = Stopwatch.StartNew();
         var resultContext = await next();
         timeOperation.Stop();
-        var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<HttpContextLogActionFilter>>();
+        context.HttpContext.Items.Add(LogContextConst.Request_ElapsedMilliseconds, timeOperation.ElapsedMilliseconds);
+        if (resultContext != null && resultContext.Result != null)
+        {
+            context.HttpContext.Items.Add(LogContextConst.Route_ActionResult, GenerateReturnInfomation(resultContext));
+        }
         var serviceProvider = context.HttpContext.RequestServices;
+        var logger = serviceProvider.GetRequiredService<ILogger<HttpContextLogActionFilter>>();
         using (LogContext.Push(new HttpContextEnricher(serviceProvider)))
         {
-            if (context.Items.TryGetValue(LogContextConst.Route_ActionResult, out object? value))
+            if (context.HttpContext.Items.TryGetValue(LogContextConst.FinalMessage, out object? value) && value !=null)
             {
-                LogContext.PushProperty(LogContextConst.Route_ActionResult, value);
+                logger.LogInformation(value.ToString());
             }
-            LogContext.PushProperty(LogContextConst.Request_ElapsedMilliseconds, timeOperation.ElapsedMilliseconds);
-            logger.LogInformation();
-        }
-
-        if (resultContext != null && resultContext.Result != null) 
-        {
-            context.HttpContext.Items[LogContextConst.Route_ActionResult] = GenerateReturnInfomation(resultContext);
         }
     }
-
+    
 
     /// <summary>
     /// 生成返回值信息
