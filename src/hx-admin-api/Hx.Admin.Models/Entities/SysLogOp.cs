@@ -46,8 +46,8 @@ public class SysLogOp : SysLogVis
     /// <summary>
     /// 请求跟踪Id
     /// </summary>
-    [SugarColumn(ColumnDescription = "请求跟踪Id", Length = 128)]
-    public string TraceId { get; set; }
+    [SugarColumn(ColumnDescription = "请求跟踪Id",IsNullable =true, Length = 128)]
+    public string? TraceId { get; set; }
 
     /// <summary>
     /// 异常信息

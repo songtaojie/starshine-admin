@@ -42,6 +42,10 @@ public class HttpContextLogMiddleware
             var timeOperation = Stopwatch.StartNew();
             await _next(context);
             timeOperation.Stop();
+            if (context.Items.TryGetValue(LogContextConst.Route_ActionResult, out object? value))
+            {
+                LogContext.PushProperty(LogContextConst.Route_ActionResult, value);
+            }
             LogContext.PushProperty(LogContextConst.Request_ElapsedMilliseconds, timeOperation.ElapsedMilliseconds);
         }
     }

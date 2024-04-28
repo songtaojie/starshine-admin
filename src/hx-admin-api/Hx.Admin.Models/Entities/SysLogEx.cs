@@ -4,6 +4,7 @@
 //
 // 电话/微信：song977601042
 
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,21 +40,15 @@ public class SysLogEx: SysLogVis
     public string? ReturnResult { get; set; }
 
     /// <summary>
-    /// 事件Id
-    /// </summary>
-    [SugarColumn(ColumnDescription = "事件Id")]
-    public int? EventId { get; set; }
-
-    /// <summary>
     /// 线程Id
     /// </summary>
     [SugarColumn(ColumnDescription = "线程Id")]
-    public int? ThreadId { get; set; }
+    public int ThreadId { get; set; }
 
     /// <summary>
     /// 请求跟踪Id
     /// </summary>
-    [SugarColumn(ColumnDescription = "请求跟踪Id", Length = 128)]
+    [SugarColumn(ColumnDescription = "请求跟踪Id",IsNullable =true, Length = 128)]
     public string? TraceId { get; set; }
 
     /// <summary>
@@ -67,4 +62,10 @@ public class SysLogEx: SysLogVis
     /// </summary>
     [SugarColumn(ColumnDescription = "日志消息Json", ColumnDataType = StaticConfig.CodeFirst_BigString)]
     public string? Message { get; set; }
+
+    /// <summary>
+    /// 日志级别
+    /// </summary>
+    [SugarColumn(ColumnDescription = "日志级别")]
+    public LogLevel? LogLevel { get; set; }
 }

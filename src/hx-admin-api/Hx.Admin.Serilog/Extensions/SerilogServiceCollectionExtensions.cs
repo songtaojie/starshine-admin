@@ -16,6 +16,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Hx.Admin.Serilog.Extensions;
+using Hx.Admin.Serilog.Filters;
 
 namespace Microsoft.Extensions.DependencyInjection;
 public static class SerilogServiceCollectionExtensions
@@ -29,6 +30,10 @@ public static class SerilogServiceCollectionExtensions
              .ReadFrom.Configuration(context.Configuration)
              .ReadFrom.Services(serviceProvider)
              .WriteToLogBatching(serviceProvider);
+        });
+        builder.ConfigureServices(services => 
+        { 
+            services.AddMvcFilter<HttpContextLogActionFilter>(); 
         });
         //var loggerConfiguration = new LoggerConfiguration()
         //    .ReadFrom.Configuration(builder.Configuration);

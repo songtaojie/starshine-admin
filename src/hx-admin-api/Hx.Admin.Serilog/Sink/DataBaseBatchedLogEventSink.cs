@@ -6,27 +6,17 @@
 
 using Hx.Admin.Core;
 using Hx.Admin.Models;
-using Hx.Common.Extensions.LinqBuilder;
 using Hx.Sqlsugar;
-using log4net.Util;
-using Mapster;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
-using Serilog.Core;
+using Microsoft.Extensions.Logging;
 using Serilog.Events;
 using Serilog.Sinks.PeriodicBatching;
 using SqlSugar;
-using StackExchange.Profiling.Internal;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using UAParser;
 using Yitter.IdGenerator;
-using static SKIT.FlurlHttpClient.Wechat.Api.Models.CgibinExpressBusinessAccountGetAllResponse.Types;
 
 namespace Hx.Admin.Serilog.Sink;
 public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
@@ -40,7 +30,7 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
     {
         using var scope = _serviceProvider.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ISqlSugarClient>();
-        await WriteLogs(batch.FilterNotSqlLog());
+        await WriteLogs(batch.FilterNotSqlLog(), db);
         await WriteSqlLog(batch.FilterSqlLog(), db);
     }
 
@@ -53,101 +43,155 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
 
     private async Task WriteLogs(IEnumerable<LogEvent> batch, ISqlSugarClient db)
     {
-        if (!batch.Any())  return;
+        if (!batch.Any()) return;
         var sysLogExList = new List<SysLogEx>();
+        var sysLogOpList = new List<SysLogOp>();
+        var sysLogVisList = new List<SysLogVis>();
         foreach (var logEvent in batch)
         {
             switch (logEvent.Level)
             {
                 case LogEventLevel.Error:
                 case LogEventLevel.Fatal:
-                    sysLogExList.Add(await WriteErrorLog(logEvent));
+                    sysLogExList.Add(WriteErrorLog(logEvent));
                     break;
-                case LogEventLevel.Warning:
-                    await WriteWarningLog(db, v);
-                    break;
-                case LogEventLevel.Error:
-                
-                    await WriteErrorLog(db, v);
+                default:
+                    var sysLogVis = WriteSysLogVis(logEvent);
+                    if (sysLogVis != null)
+                    {
+                        sysLogVisList.Add(sysLogVis);
+                    }
+                    
+                    sysLogOpList.Add(WriteSysLogOp(logEvent));
                     break;
             }
-
-            Console.WriteLine("数据库日志前缀：" + JsonSerializer.Serialize(logEvent));
-            var Message = logEvent.RenderMessage();
-            Console.WriteLine($"数据库日志：{Message}");
-            //log.Properties = logEvent.Properties.ToJson();
-            //log.DateTime = logEvent.Timestamp.DateTime;
-            //logs.Add(log);
         }
-        var group = batch.GroupBy(s => s.Level);
-        foreach (var v in group)
+        if (sysLogExList.Any())
+            await db.Insertable(sysLogExList).ExecuteCommandAsync();
+        if (sysLogOpList.Any())
+            await db.Insertable(sysLogOpList).ExecuteCommandAsync();
+        if (sysLogVisList.Any())
+            await db.Insertable(sysLogVisList).ExecuteCommandAsync();
+    }
+
+    private SysLogVis? WriteSysLogVis(LogEvent logEvent)
+    {
+        var actionName = logEvent.GetPropertyValue<string>(LogContextConst.Route_Action);
+        if (!string.IsNullOrEmpty(actionName) && (actionName.Equals("Login")))
         {
-            switch (v.Key)
+            var remoteIPv4 = logEvent.GetPropertyValue<string>(LogContextConst.Request_RemoteIPv4);
+            var elapsedMilliseconds = logEvent.GetPropertyValue<long?>(LogContextConst.Request_ElapsedMilliseconds);
+            // 获取当前操作者
+            var authorizationClaims = logEvent.GetPropertyValue<IEnumerable<Claim>>(LogContextConst.Request_Claims);
+            string account = "", realName = "", userId = "";
+            if (authorizationClaims != null)
             {
-                case LogEventLevel.Information:
-                    await WriteInformationLog(v);
-                    break;
-                //case LogEventLevel.Warning:
-                //    await WriteWarningLog(db, v);
-                //    break;
-                //case LogEventLevel.Error:
-                //case LogEventLevel.Fatal:
-                //    await WriteErrorLog(db, v);
-                //    break;
+                foreach (var item in authorizationClaims)
+                {
+                    if (item.Type == ClaimConst.Account)
+                        account = item.Value;
+                    if (item.Type == ClaimConst.RealName)
+                        realName = item.Value;
+                    if (item.Type == ClaimConst.UserId)
+                        userId = item.Value;
+                }
             }
+            var sysLogVis = new SysLogVis
+            {
+                ControllerName = logEvent.GetPropertyValue<string>(LogContextConst.Route_Controller),
+                ActionName = logEvent.GetPropertyValue<string>(LogContextConst.Route_Action),
+                DisplayName = logEvent.GetPropertyValue<string>(LogContextConst.Route_DisplayName),
+                Status = logEvent.GetPropertyValue<string>(LogContextConst.Response_StatusCode),
+                RemoteIp = remoteIPv4,
+                Elapsed = elapsedMilliseconds ?? 0,
+                Account = account,
+                RealName = realName,
+                CreatorId = string.IsNullOrWhiteSpace(userId) ? 0 : long.Parse(userId),
+                CreateTime = logEvent.Timestamp.DateTime,
+            };
+            if (!string.IsNullOrEmpty(sysLogVis.RemoteIp))
+            {
+                (string ipLocation, double? longitude, double? latitude) = CommonUtil.GetIpAddress(remoteIPv4);
+                sysLogVis.Location = ipLocation;
+                sysLogVis.Longitude = longitude ?? 0;
+                sysLogVis.Latitude = latitude ?? 0;
+            }
+            var userAgent = logEvent.GetPropertyValue<string>(LogContextConst.Request_UserAgent);
+            if (!string.IsNullOrEmpty(userAgent))
+            {
+                var client = Parser.GetDefault().Parse(userAgent);
+                sysLogVis.Browser = $"{client.UA.Family} {client.UA.Major}.{client.UA.Minor} / {client.Device.Family}";
+                sysLogVis.Os = $"{client.OS.Family} {client.OS.Major} {client.OS.Minor}";
+
+            }
+            return sysLogVis;
         }
+        return null;
     }
 
-    private async Task WriteInformationLog(IEnumerable<LogEvent> batch)
+    private SysLogOp WriteSysLogOp(LogEvent logEvent)
     {
-        if (!batch.Any())
-        {
-            return;
-        }
-
-        foreach (var logEvent in batch)
-        {
-            Console.WriteLine("数据库日志前缀：" + JsonSerializer.Serialize(logEvent));
-            var Message = logEvent.RenderMessage();
-            Console.WriteLine($"数据库日志：{Message}");
-            //log.Properties = logEvent.Properties.ToJson();
-            //log.DateTime = logEvent.Timestamp.DateTime;
-            //logs.Add(log);
-        }
-
-        //await db.AsTenant().InsertableWithAttr(logs).SplitTable().ExecuteReturnSnowflakeIdAsync();
-        await Task.CompletedTask;
-    }
-
-    private async Task WriteWarningLog(ISqlSugarClient db, IEnumerable<LogEvent> batch)
-    {
-        if (!batch.Any())
-        {
-            return;
-        }
-
-        //var logs = new List<GlobalWarningLog>();
-        //foreach (var logEvent in batch)
-        //{
-        //    var log = logEvent.Adapt<GlobalWarningLog>();
-        //    log.Message = logEvent.RenderMessage();
-        //    log.Properties = logEvent.Properties.ToJson();
-        //    log.DateTime = logEvent.Timestamp.DateTime;
-        //    logs.Add(log);
-        //}
-
-        //await db.AsTenant().InsertableWithAttr(logs).SplitTable().ExecuteReturnSnowflakeIdAsync();
-        await Task.CompletedTask;
-    }
-
-    private async Task<SysLogEx> WriteErrorLog(LogEvent logEvent)
-    {
-
         var remoteIPv4 = logEvent.GetPropertyValue<string>(LogContextConst.Request_RemoteIPv4);
         var elapsedMilliseconds = logEvent.GetPropertyValue<long?>(LogContextConst.Request_ElapsedMilliseconds);
         // 获取当前操作者
         var authorizationClaims = logEvent.GetPropertyValue<IEnumerable<Claim>>(LogContextConst.Request_Claims);
-        string account = "", realName = "", userId = "", tenantId = "";
+        string account = "", realName = "", userId = "";
+        if (authorizationClaims != null)
+        {
+            foreach (var item in authorizationClaims)
+            {
+                if (item.Type == ClaimConst.Account)
+                    account = item.Value;
+                if (item.Type == ClaimConst.RealName)
+                    realName = item.Value;
+                if (item.Type == ClaimConst.UserId)
+                    userId = item.Value;
+            }
+        }
+        var sysLogOp = new SysLogOp
+        {
+            ControllerName = logEvent.GetPropertyValue<string>(LogContextConst.Route_Controller),
+            ActionName = logEvent.GetPropertyValue<string>(LogContextConst.Route_Action),
+            DisplayName = logEvent.GetPropertyValue<string>(LogContextConst.Route_DisplayName),
+            Status = logEvent.GetPropertyValue<string>(LogContextConst.Response_StatusCode),
+            RemoteIp = remoteIPv4,
+            Elapsed = elapsedMilliseconds ?? 0,
+            Account = account,
+            RealName = realName,
+            HttpMethod = logEvent.GetPropertyValue<string>(LogContextConst.Request_Method),
+            RequestUrl = logEvent.GetPropertyValue<string>(LogContextConst.Request_FullUrl),
+            ReturnResult = logEvent.GetPropertyValue<string>(LogContextConst.Route_ActionResult),
+            ThreadId = logEvent.GetPropertyValue<int>(LogContextConst.Request_ThreadId),
+            TraceId = logEvent.GetPropertyValue<string>(LogContextConst.Request_TraceIdentifier),
+            Exception = logEvent.Exception == null ? string.Empty : JsonSerializer.Serialize(logEvent.Exception),
+            Message = GetMessage(logEvent),
+            CreatorId = string.IsNullOrWhiteSpace(userId) ? 0 : long.Parse(userId),
+            CreateTime = logEvent.Timestamp.DateTime,
+        };
+        if (!string.IsNullOrEmpty(sysLogOp.RemoteIp))
+        {
+            (string ipLocation, double? longitude, double? latitude) = CommonUtil.GetIpAddress(remoteIPv4);
+            sysLogOp.Location = ipLocation;
+            sysLogOp.Longitude = longitude ?? 0;
+            sysLogOp.Latitude = latitude ?? 0;
+        }
+        var userAgent = logEvent.GetPropertyValue<string>(LogContextConst.Request_UserAgent);
+        if (!string.IsNullOrEmpty(userAgent))
+        {
+            var client = Parser.GetDefault().Parse(userAgent);
+            sysLogOp.Browser = $"{client.UA.Family} {client.UA.Major}.{client.UA.Minor} / {client.Device.Family}";
+            sysLogOp.Os = $"{client.OS.Family} {client.OS.Major} {client.OS.Minor}";
+        }
+        return sysLogOp;
+    }
+
+    private SysLogEx WriteErrorLog(LogEvent logEvent)
+    {
+        var remoteIPv4 = logEvent.GetPropertyValue<string>(LogContextConst.Request_RemoteIPv4);
+        var elapsedMilliseconds = logEvent.GetPropertyValue<long?>(LogContextConst.Request_ElapsedMilliseconds);
+        // 获取当前操作者
+        var authorizationClaims = logEvent.GetPropertyValue<IEnumerable<Claim>>(LogContextConst.Request_Claims);
+        string account = "", realName = "", userId = "";
         if (authorizationClaims != null)
         {
             foreach (var item in authorizationClaims)
@@ -172,15 +216,14 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
             RealName = realName,
             HttpMethod = logEvent.GetPropertyValue<string>(LogContextConst.Request_Method),
             RequestUrl = logEvent.GetPropertyValue<string>(LogContextConst.Request_FullUrl),
-            ReturnResult = loggingMonitor.returnInformation == null ? null : JSON.Serialize(loggingMonitor.returnInformation),
-            EventId = logMsg.EventId.Id,
-            ThreadId = logMsg.ThreadId,
-            TraceId = logMsg.TraceId,
-            Exception = JSON.Serialize(loggingMonitor.exception),
-            Message = logMsg.Message,
-            CreateUserId = string.IsNullOrWhiteSpace(userId) ? 0 : long.Parse(userId),
-            TenantId = string.IsNullOrWhiteSpace(tenantId) ? 0 : long.Parse(tenantId),
-            LogLevel = logMsg.LogLevel
+            ReturnResult = logEvent.GetPropertyValue<string>(LogContextConst.Route_ActionResult),
+            ThreadId = logEvent.GetPropertyValue<int>(LogContextConst.Request_ThreadId),
+            TraceId = logEvent.GetPropertyValue<string?>(LogContextConst.Request_TraceIdentifier),
+            Exception = logEvent.Exception == null ? string.Empty : JsonSerializer.Serialize(logEvent.Exception),
+            Message = GetMessage(logEvent),
+            CreatorId = string.IsNullOrWhiteSpace(userId) ? 0 : long.Parse(userId),
+            LogLevel = GetLogLevel(logEvent.Level),
+            CreateTime = logEvent.Timestamp.DateTime,
         };
         if (!string.IsNullOrEmpty(sysLogEx.RemoteIp))
         {
@@ -195,7 +238,7 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
             var client = Parser.GetDefault().Parse(userAgent);
             sysLogEx.Browser = $"{client.UA.Family} {client.UA.Major}.{client.UA.Minor} / {client.Device.Family}";
             sysLogEx.Os = $"{client.OS.Family} {client.OS.Major} {client.OS.Minor}";
-            
+
         }
         var actionParameters = logEvent.GetPropertyValue<IEnumerable<ParameterDescriptor>>(LogContextConst.Route_ActionParameters);
         if (actionParameters != null)
@@ -203,34 +246,17 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
             sysLogEx.RequestParam = JsonSerializer.Serialize(actionParameters);
         }
 
-        //var logs = new List<SysLogEx>();
-        //batch.Select(logEvent => new SysLogEx
-        //{
-        //});
-        //foreach (var logEvent in batch)
-        //{
-
-        //    var log = logEvent.Adapt<GlobalErrorLog>();
-        //    log.Message = logEvent.RenderMessage();
-        //    log.Properties = logEvent.Properties.ToJson();
-        //    log.DateTime = logEvent.Timestamp.DateTime;
-        //    logs.Add(log);
-        //}
-
-        //await db.AsTenant().InsertableWithAttr(logs).SplitTable().ExecuteReturnSnowflakeIdAsync();
-        await Task.CompletedTask;
+        return sysLogEx;
     }
 
     private async Task WriteSqlLog(IEnumerable<LogEvent> batch, ISqlSugarClient db)
     {
-        if (!batch.Any())return;
-        var sysLogAuditList = new List<SysLogAudit>(); 
+        if (!batch.Any()) return;
+        var sysLogAuditList = new List<SysLogAudit>();
         var sysLogDiffList = new List<SysLogDiff>();
         foreach (var logEvent in batch)
         {
-            if (!string.IsNullOrEmpty(logEvent.MessageTemplate.Text)
-                && logEvent.MessageTemplate.Text.Contains("Sys_Log_Audit", StringComparison.CurrentCultureIgnoreCase)
-                && logEvent.MessageTemplate.Text.Contains("Sys_Log_Diff", StringComparison.CurrentCultureIgnoreCase))
+            if (!string.IsNullOrEmpty(logEvent.MessageTemplate.Text) && logEvent.MessageTemplate.Text.StartsWith("Sys_Log", StringComparison.CurrentCultureIgnoreCase))
             {
                 continue;
             }
@@ -245,7 +271,7 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
                 var sql = logEvent.Properties.ContainsKey(SugarLogScope.Sql)
                     ? logEvent.Properties[SugarLogScope.Sql].ToString()
                     : string.Empty;
-                
+
                 switch (logType)
                 {
                     case 1:
@@ -286,7 +312,7 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
                 }
             }
         }
-        if(sysLogAuditList.Any())
+        if (sysLogAuditList.Any())
             await db.Insertable(sysLogAuditList).ExecuteCommandAsync();
         if (sysLogAuditList.Any())
             await db.Insertable(sysLogDiffList).ExecuteCommandAsync();
@@ -301,15 +327,29 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
         return logEvent.MessageTemplate.Text;
     }
 
-    private Core.SqlAuditTypeEnum GetSqlAuditType(int logType) 
+    private Core.SqlAuditTypeEnum GetSqlAuditType(int logType)
     {
         return logType switch
         {
-            1=> Core.SqlAuditTypeEnum.Normal,
-            2=> Core.SqlAuditTypeEnum.Error,
+            1 => Core.SqlAuditTypeEnum.Normal,
+            2 => Core.SqlAuditTypeEnum.Error,
             _ => Core.SqlAuditTypeEnum.Normal
         };
     }
 
+
+    private LogLevel GetLogLevel(LogEventLevel logEventLevel)
+    {
+        return logEventLevel switch
+        {
+            LogEventLevel.Error => LogLevel.Error,
+            LogEventLevel.Warning => LogLevel.Warning,
+            LogEventLevel.Information => LogLevel.Information,
+            LogEventLevel.Debug => LogLevel.Debug,
+            LogEventLevel.Fatal => LogLevel.Critical,
+            LogEventLevel.Verbose => LogLevel.Trace,
+            _ => LogLevel.Information
+        };
+    }
     #endregion
 }

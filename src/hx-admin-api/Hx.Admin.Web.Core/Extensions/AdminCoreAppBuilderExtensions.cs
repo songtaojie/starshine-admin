@@ -50,15 +50,15 @@ public static class AdminCoreAppBuilderExtensions
         {
             ContentTypeProvider = FileContentTypeUtil.GetFileExtensionContentTypeProvider()
         });
-        app.UseSerilogRequestLogging(options =>
-        {
-            // Attach additional properties to the request completion event
-            options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
-            {
-                diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value);
-                diagnosticContext.Set("RequestScheme", httpContext.Request.Scheme);
-            };
-        });
+        //app.UseSerilogRequestLogging(options =>
+        //{
+        //    // Attach additional properties to the request completion event
+        //    options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+        //    {
+        //        diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value);
+        //        diagnosticContext.Set("RequestScheme", httpContext.Request.Scheme);
+        //    };
+        //});
         app.UseMiddleware<HttpContextLogMiddleware>();
         app.UseRouting();
 

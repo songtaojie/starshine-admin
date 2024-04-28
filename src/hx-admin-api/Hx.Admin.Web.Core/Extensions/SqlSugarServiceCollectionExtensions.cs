@@ -30,7 +30,7 @@ public static class SqlSugarServiceCollectionExtensions
                     switch (entityInfo.PropertyName)
                     {
                         case nameof(FullAuditedEntityBase.Id):
-                            var id = Yitter.IdGenerator.YitIdHelper.NextId();
+                            var id = IdGenerater.GetNextId();
                             entityInfo.SetValue(id);
                             break;
                         case nameof(FullAuditedEntityBase.CreateTime):

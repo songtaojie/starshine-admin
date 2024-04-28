@@ -4,16 +4,17 @@
 //
 // 电话/微信：song977601042
 
+using Hx.Admin.Serilog.Enricher;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Serilog.Context;
+using System.Diagnostics;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace Hx.Admin.Serilog.Filters;
 /// <summary>
@@ -21,35 +22,49 @@ namespace Hx.Admin.Serilog.Filters;
 /// </summary>
 public class HttpContextLogActionFilter : IAsyncActionFilter
 {
+    public HttpContextLogActionFilter()
+    {
+    }
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
+        // 计算接口执行时间
+        var timeOperation = Stopwatch.StartNew();
         var resultContext = await next();
+        timeOperation.Stop();
+        var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<HttpContextLogActionFilter>>();
+        var serviceProvider = context.HttpContext.RequestServices;
+        using (LogContext.Push(new HttpContextEnricher(serviceProvider)))
+        {
+            if (context.Items.TryGetValue(LogContextConst.Route_ActionResult, out object? value))
+            {
+                LogContext.PushProperty(LogContextConst.Route_ActionResult, value);
+            }
+            LogContext.PushProperty(LogContextConst.Request_ElapsedMilliseconds, timeOperation.ElapsedMilliseconds);
+            logger.LogInformation();
+        }
+
         if (resultContext != null && resultContext.Result != null) 
         {
-            context.HttpContext.Items[LogContextConst.Route_ActionResult] = resultContext.Result;
+            context.HttpContext.Items[LogContextConst.Route_ActionResult] = GenerateReturnInfomation(resultContext);
         }
     }
 
 
     /// <summary>
-    /// 生成返回值信息日志模板
+    /// 生成返回值信息
     /// </summary>
-    /// <param name="writer"></param>
     /// <param name="resultContext"></param>
     /// <param name="method"></param>
-    /// <param name="monitorMethod"></param>
     /// <returns></returns>
-    private List<string> GenerateReturnInfomationTemplate(ActionExecutedContext resultContext, MethodInfo method)
+    private string GenerateReturnInfomation(ActionExecutedContext resultContext)
     {
-        var templates = new List<string>();
-
         object? returnValue = null;
-        Type finalReturnType;
+        string returnTypeName = string.Empty;
         // 解析返回值
         if (CheckVaildResult(resultContext.Result, out var data))
         {
             returnValue = data;
-            finalReturnType = data!.GetType();
+            returnTypeName = HandleGenericType(data!.GetType());
         }
         // 处理文件类型
         else if (resultContext.Result is FileResult fileResult)
@@ -60,68 +75,27 @@ public class HttpContextLogActionFilter : IAsyncActionFilter
                 fileResult.ContentType,
                 Length = fileResult is FileContentResult cresult ? (object)cresult.FileContents.Length : null
             };
-            finalReturnType = fileResult!.GetType();
+            returnTypeName = HandleGenericType(fileResult!.GetType());
         }
         else if (resultContext.Result != null)
         {
-            finalReturnType = resultContext.Result.GetType();
+            returnTypeName = HandleGenericType(resultContext.Result.GetType());
         }
         else
         {
-            return;
+            return string.Empty;
         }
-
-        // 获取最终呈现值（字符串类型）
-        var displayValue = TrySerializeObject(returnValue, monitorMethod, out var succeed);
-        var originValue = displayValue;
-
-        // 获取返回值阈值
-        var threshold = GetReturnValueThreshold(monitorMethod);
-        if (threshold > 0)
+        var actionMethod = (resultContext.ActionDescriptor as ControllerActionDescriptor)?.MethodInfo;
+        if (string.IsNullOrEmpty(returnTypeName) && actionMethod != null)
         {
-            displayValue = displayValue.Length <= threshold ? displayValue : displayValue[..threshold];
+            returnTypeName = HandleGenericType(actionMethod.ReturnType);
         }
-
-        var returnTypeName = HandleGenericType(method.ReturnType);
-        var finalReturnTypeName = HandleGenericType(finalReturnType);
-
-        // 获取请求返回的响应状态码
-        var httpStatusCode = (resultContext as FilterContext).HttpContext.Response.StatusCode;
-
-        templates.AddRange(new[]
-        {
-            $"━━━━━━━━━━━━━━━  返回信息 ━━━━━━━━━━━━━━━"
-            , $"##HTTP响应状态码## {httpStatusCode}"
-            , $"##原始类型## {returnTypeName}"
-            , $"##最终类型## {finalReturnTypeName}"
-            , $"##最终返回值## {displayValue}"
-        });
-
-        writer.WritePropertyName("returnInformation");
-        writer.WriteStartObject();
-        writer.WriteString("type", finalReturnTypeName);
-        writer.WriteNumber(nameof(httpStatusCode), httpStatusCode);
-        writer.WriteString("actType", returnTypeName);
-        writer.WritePropertyName("value");
-        if (succeed && method.ReturnType != typeof(void) && returnValue != null)
-        {
-            // 解决返回值被截断后 json 验证失败异常问题
-            if (threshold > 0 && originValue != displayValue)
-            {
-                writer.WriteStringValue(displayValue);
-            }
-            else writer.WriteRawValue(displayValue);
-        }
-        else writer.WriteNullValue();
-
-        writer.WriteEndObject();
-
-        return templates;
+        return JsonSerializer.Serialize(new { ReturnType = returnTypeName, StatusCode = resultContext.HttpContext.Response.StatusCode, Result = returnValue });
     }
 
 
     /// <summary>
-    /// 检查是否是有效的结果（可进行规范化的结果）
+    /// 检查是否是有效的结果
     /// </summary>
     /// <param name="result"></param>
     /// <param name="data"></param>
@@ -165,5 +139,29 @@ public class HttpContextLogActionFilter : IAsyncActionFilter
         };
 
         return isDataResult;
+    }
+
+    /// <summary>
+    /// 处理泛型类型转字符串打印问题
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns></returns>
+    private static string HandleGenericType(Type type)
+    {
+        if (type == null) return string.Empty;
+
+        var typeName = type.FullName ?? (!string.IsNullOrEmpty(type.Namespace) ? type.Namespace + "." : string.Empty) + type.Name;
+
+        // 处理泛型类型问题
+        if (type.IsConstructedGenericType)
+        {
+            var prefix = type.GetGenericArguments()
+                .Select(genericArg => HandleGenericType(genericArg))
+                .Aggregate((previous, current) => previous + ", " + current);
+
+            typeName = typeName.Split('`').First() + "<" + prefix + ">";
+        }
+
+        return typeName;
     }
 }
