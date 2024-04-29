@@ -24,6 +24,11 @@ public class LogContextConst
     public const string Request_Claims = "Request_Claims";
 
     /// <summary>
+    /// 授权信息
+    /// </summary>
+    public const string Request_Authorization = "Request_Authorization";
+    
+    /// <summary>
     /// 请求时间
     /// </summary>
     public const string Request_ElapsedMilliseconds = "RequestElapsedMilliseconds";
@@ -152,6 +157,11 @@ public class LogContextConst
     /// HTTP响应代码
     /// </summary>
     public const string Response_StatusCode = "Response_StatusCode";
+
+    /// <summary>
+    /// 请求日志
+    /// </summary>
+    public const string Request_LoggerItems = "Request_LoggerItems";
 
     /// <summary>
     /// HTTP响应代码

@@ -5,27 +5,28 @@
 // 电话/微信：song977601042
 
 using Hx.Admin.Serilog.Enricher;
+using Hx.Common.Extensions;
+using Magicodes.ExporterAndImporter.Excel.Utility.TemplateExport;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Serilog.Context;
-using System.Diagnostics;
-using System;
-using System.Text.Json;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
-using System.Text;
+using Microsoft.Extensions.Primitives;
 using Nest;
-using static SKIT.FlurlHttpClient.Wechat.Api.Models.ComponentTCBDescribeCloudBaseRunEnvironmentsResponse.Types;
-using static SKIT.FlurlHttpClient.Wechat.Api.Models.ProductSPUUpdateRequest.Types;
-using static SKIT.FlurlHttpClient.Wechat.Api.Models.ShopCouponGetResponse.Types.Result.Types.Coupon.Types.CouponDetail.Types.Discount.Types.DiscountCondidtion.Types;
+using Serilog.Context;
+using Serilog.Events;
 using System.ComponentModel;
-using System.Runtime.InteropServices;
-using System.Threading;
-using UAParser;
-using Microsoft.AspNetCore.Http;
+using System.Diagnostics;
+using System.Net.Http;
+using System.Reflection;
+using System.Security.Claims;
+using System.Text;
+using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace Hx.Admin.Serilog.Filters;
 /// <summary>
@@ -33,6 +34,11 @@ namespace Hx.Admin.Serilog.Filters;
 /// </summary>
 public class HttpContextLogActionFilter : IAsyncActionFilter
 {
+    /// <summary>
+    /// 模板正则表达式对象
+    /// </summary>
+    private static readonly Lazy<Regex> _lazyRegex = new(() => new(@"^##(?<prop>.*)?##[:：]?\s*(?<content>[\s\S]*)"));
+
     public HttpContextLogActionFilter()
     {
     }
@@ -40,26 +46,294 @@ public class HttpContextLogActionFilter : IAsyncActionFilter
     {
         // 计算接口执行时间
         var timeOperation = Stopwatch.StartNew();
-        var resultContext = await next();
-        timeOperation.Stop();
         context.HttpContext.Items.Add(LogContextConst.Request_ElapsedMilliseconds, timeOperation.ElapsedMilliseconds);
-        if (resultContext != null && resultContext.Result != null)
-        {
-            context.HttpContext.Items.Add(LogContextConst.Route_ActionResult, GenerateReturnInfomation(resultContext));
-        }
         var serviceProvider = context.HttpContext.RequestServices;
         var logger = serviceProvider.GetRequiredService<ILogger<HttpContextLogActionFilter>>();
         using (LogContext.Push(new HttpContextEnricher(serviceProvider)))
         {
-            if (context.HttpContext.Items.TryGetValue(LogContextConst.FinalMessage, out object? value) && value !=null)
+            var resultContext = await next();
+            timeOperation.Stop();
+            if (context.HttpContext.Items.TryGetValue(LogContextConst.Request_LoggerItems, out object? value) && value !=null)
             {
-                logger.LogInformation(value.ToString());
+                var loggerItems = value as List<string>;
+                if (loggerItems != null)
+                {
+                    // 生成请求头日志模板
+                    loggerItems.AddRange(GenerateRequestHeadersTemplate(context.HttpContext.Request.Headers));
+                    if (context.HttpContext.User != null && context.HttpContext.User.Identity != null && context.HttpContext.User.Identity.IsAuthenticated)
+                    {
+                        var accessToken = context.HttpContext.Response.Headers["access-token"].ToString();
+                        var authorization = string.IsNullOrWhiteSpace(accessToken)
+                            ? context.HttpContext.Request.Headers["Authorization"].ToString()
+                            : "Bearer " + accessToken;
+                        loggerItems.AddRange(GenerateAuthorizationTemplate(context.HttpContext.User, authorization));
+                    }
+                    // 获取动作方法描述器
+                    var actionDescriptor = context.ActionDescriptor as ControllerActionDescriptor;
+                    string? displayName = string.Empty;
+                    if (actionDescriptor != null)
+                    {
+                        var actionMethod = actionDescriptor.MethodInfo;
+                        loggerItems.AddRange(GenerateParameterTemplate(context.ActionArguments, actionMethod, context.HttpContext.Request.Headers["Content-Type"]));
+                        // 添加返回值信息日志模板
+                        loggerItems.AddRange(GenerateReturnInfomationTemplate(resultContext, actionMethod));
+                        // [DisplayName] 特性
+                        var displayNameAttribute = actionMethod.IsDefined(typeof(DisplayNameAttribute), true)
+                            ? actionMethod.GetCustomAttribute<DisplayNameAttribute>(true)
+                            : default;
+                        displayName = displayNameAttribute?.DisplayName;
+                    }
+                   
+                    var finalMessage = Wrapper("请求日志", displayName, loggerItems.ToArray());
+                    logger.LogInformation(finalMessage);
+                }
             }
         }
     }
-    
+    /// <summary>
+    /// 生成请求头日志模板
+    /// </summary>
+    /// <param name="writer"></param>
+    /// <param name="headers"></param>
+    /// <returns></returns>
+    private List<string> GenerateRequestHeadersTemplate(IHeaderDictionary headers)
+    {
+        var templates = new List<string>();
+
+        if (!headers.Any()) return templates;
+
+        templates.AddRange(new[]
+        {
+            $"━━━━━━━━━━━━━━━  请求头信息 ━━━━━━━━━━━━━━━"
+            , $""
+        });
+
+        // 遍历请求头列表
+        foreach (var (key, value) in headers)
+        {
+            templates.Add($"##{key}## {value}");
+        }
+        return templates;
+    }
+
 
     /// <summary>
+    /// 生成 JWT 授权信息日志模板
+    /// </summary>
+    /// <param name="writer"></param>
+    /// <param name="claimsPrincipal"></param>
+    /// <param name="authorization"></param>
+    /// <returns></returns>
+    private List<string> GenerateAuthorizationTemplate(ClaimsPrincipal claimsPrincipal, StringValues authorization)
+    {
+        var templates = new List<string>();
+
+        if (!claimsPrincipal.Claims.Any()) return templates;
+
+        templates.AddRange(new[]
+        {
+            $"━━━━━━━━━━━━━━━  授权信息 ━━━━━━━━━━━━━━━"
+            , $"##JWT Token## {authorization}"
+            , $""
+        });
+
+        // 遍历身份信息
+        foreach (var claim in claimsPrincipal.Claims)
+        {
+            var valueType = claim.ValueType.Replace("http://www.w3.org/2001/XMLSchema#", "");
+            var value = claim.Value;
+
+            // 解析时间戳并转换
+            if (!string.IsNullOrEmpty(value) && (claim.Type == "iat" || claim.Type == "nbf" || claim.Type == "exp"))
+            {
+                var succeed = long.TryParse(value, out var seconds);
+                if (succeed)
+                {
+                    value = $"{value} ({DateTimeOffset.FromUnixTimeSeconds(seconds).ToLocalTime():yyyy-MM-dd HH:mm:ss:ffff(zzz) dddd} L)";
+                }
+            }
+
+            templates.Add($"##{claim.Type} ({valueType})## {value}");
+        }
+        return templates;
+    }
+
+
+
+    /// <summary>
+    /// 生成请求参数信息日志模板
+    /// </summary>
+    /// <param name="parameterValues"></param>
+    /// <param name="method"></param>
+    /// <param name="contentType"></param>
+    /// <returns></returns>
+    private List<string> GenerateParameterTemplate(IDictionary<string, object?> parameterValues, MethodInfo method, StringValues contentType)
+    {
+        var templates = new List<string>();
+
+        if (parameterValues == null || parameterValues.Count == 0)
+        {
+            return templates;
+        }
+
+        templates.AddRange(new[]
+        {
+            $"━━━━━━━━━━━━━━━  参数列表 ━━━━━━━━━━━━━━━"
+            , $"##Content-Type## {contentType}"
+            , $""
+        });
+
+        var parameters = method.GetParameters();
+
+        foreach (var parameter in parameters)
+        {
+            // 排除标记 [FromServices] 的解析
+            if (parameter.IsDefined(typeof(FromServicesAttribute), false)) continue;
+
+            var name = parameter.Name!;
+            var parameterType = parameter.ParameterType;
+
+            _ = parameterValues.TryGetValue(name, out var value);
+
+            object? rawValue = default;
+
+            // 文件类型参数
+            if (value is IFormFile || value is List<IFormFile>)
+            {
+                // 单文件
+                if (value is IFormFile formFile)
+                {
+                    var fileSize = Math.Round(formFile.Length / 1024D);
+                    templates.Add($"##{name} ({parameterType.Name})## [name]: {formFile.FileName}; [size]: {fileSize}KB; [content-type]: {formFile.ContentType}");
+                }
+                // 多文件
+                else if (value is List<IFormFile> formFiles)
+                {
+                    for (var i = 0; i < formFiles.Count; i++)
+                    {
+                        var file = formFiles[i];
+                        var size = Math.Round(file.Length / 1024D);
+                        templates.Add($"##{name}[{i}] ({nameof(IFormFile)})## [name]: {file.FileName}; [size]: {size}KB; [content-type]: {file.ContentType}");
+                    }
+                }
+            }
+            // 处理 byte[] 参数类型
+            else if (value is byte[] byteArray)
+            {
+                templates.Add($"##{name} ({parameterType.Name})## [Length]: {byteArray.Length}");
+            }
+            // 处理基元类型，字符串类型和空值
+            else if (parameterType.IsPrimitive || value is string || value == null)
+            {
+                rawValue = value;
+            }
+            // 其他类型统一进行序列化
+            else
+            {
+                rawValue = TrySerializeObject(value, out var succeed);
+            }
+
+            templates.Add($"##{name} ({parameterType.Name})## {rawValue}");
+
+        }
+
+        return templates;
+    }
+
+    /// <summary>
+    /// 生成返回值信息日志模板
+    /// </summary>
+    /// <param name="writer"></param>
+    /// <param name="resultContext"></param>
+    /// <param name="method"></param>
+    /// <param name="monitorMethod"></param>
+    /// <returns></returns>
+    private List<string> GenerateReturnInfomationTemplate(ActionExecutedContext resultContext, MethodInfo method)
+    {
+        var templates = new List<string>();
+
+        object? returnValue = null;
+        Type? finalReturnType;
+        var result = resultContext.Result;
+
+        // 解析返回值
+        if (CheckVaildResult(result, out var data))
+        {
+            returnValue = data;
+            finalReturnType = data?.GetType();
+        }
+        // 处理文件类型
+        else if (result is FileResult fresult)
+        {
+            returnValue = new
+            {
+                FileName = fresult.FileDownloadName,
+                fresult.ContentType,
+                Length = fresult is FileContentResult cresult ? (object)cresult.FileContents.Length : null
+            };
+            finalReturnType = fresult?.GetType();
+        }
+        else finalReturnType = result?.GetType();
+
+        // 获取最终呈现值（字符串类型）
+        var displayValue = TrySerializeObject(returnValue,out var succeed);
+        var originValue = displayValue;
+
+        var returnTypeName = HandleGenericType(method.ReturnType);
+        var finalReturnTypeName = finalReturnType!=null?HandleGenericType(finalReturnType):string.Empty;
+
+        // 获取请求返回的响应状态码
+        var httpStatusCode = (resultContext as FilterContext).HttpContext.Response.StatusCode;
+
+        templates.AddRange(new[]
+        {
+            $"━━━━━━━━━━━━━━━  返回信息 ━━━━━━━━━━━━━━━"
+            , $"##HTTP响应状态码## {httpStatusCode}"
+            , $"##原始类型## {returnTypeName}"
+            , $"##最终类型## {finalReturnTypeName}"
+            , $"##最终返回值## {displayValue}"
+        });
+
+        return templates;
+    }
+
+
+    /// <summary>
+    /// 序列化对象
+    /// </summary>
+    /// <param name="obj"></param>
+    /// <param name="monitorMethod"></param>
+    /// <param name="succeed"></param>
+    /// <returns></returns>
+    private string TrySerializeObject(object? obj, out bool succeed)
+    {
+        if(obj == null)
+        {
+            succeed = true;
+            return "{}";
+        }
+        // 排除 IQueryable<> 泛型
+        if (obj != null && obj.GetType().HasImplementedRawGeneric(typeof(IQueryable<>)))
+        {
+            succeed = true;
+            return "{}";
+        }
+
+        try
+        {
+            var result = System.Text.Json.JsonSerializer.Serialize(obj);
+            succeed = true;
+            return result;
+        }
+        catch
+        {
+            succeed = true;
+            return "{}";
+        }
+    }
+
+
+    /// <   summary>
     /// 生成返回值信息
     /// </summary>
     /// <param name="resultContext"></param>
@@ -101,7 +375,6 @@ public class HttpContextLogActionFilter : IAsyncActionFilter
         }
         return JsonSerializer.Serialize(new { ReturnType = returnTypeName, StatusCode = resultContext.HttpContext.Response.StatusCode, Result = returnValue });
     }
-
 
     /// <summary>
     /// 检查是否是有效的结果
@@ -172,5 +445,80 @@ public class HttpContextLogActionFilter : IAsyncActionFilter
         }
 
         return typeName;
+    }
+
+
+
+
+    private string Wrapper(string title, string? description, params string[] items)
+    {
+        // 处理不同编码问题
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append($"┏━━━━━━━━━━━  {title} ━━━━━━━━━━━").AppendLine();
+
+        // 添加描述
+        if (!string.IsNullOrWhiteSpace(description))
+        {
+            stringBuilder.Append($"┣ {description}").AppendLine().Append("┣ ").AppendLine();
+        }
+
+        // 添加项
+        if (items != null && items.Length > 0)
+        {
+            var propMaxLength = items.Where(u => _lazyRegex.Value.IsMatch(u))
+                .DefaultIfEmpty(string.Empty)
+                .Max(u => _lazyRegex.Value.Match(u).Groups["prop"].Value.Length);
+
+            // 控制项名称对齐空白占位数
+            propMaxLength += (propMaxLength >= 5 ? 10 : 5);
+
+            // 遍历每一项并进行正则表达式匹配
+            for (var i = 0; i < items.Length; i++)
+            {
+                var item = items[i];
+
+                // 判断是否匹配 ##xxx##
+                if (_lazyRegex.Value.IsMatch(item))
+                {
+                    var match = _lazyRegex.Value.Match(item);
+                    var prop = match.Groups["prop"].Value;
+                    var content = match.Groups["content"].Value;
+
+                    var propTitle = $"{prop}：";
+                    stringBuilder.Append($"┣ {PadRight(propTitle, propMaxLength)}{content}").AppendLine();
+                }
+                else
+                {
+                    stringBuilder.Append($"┣ {item}").AppendLine();
+                }
+            }
+        }
+
+        stringBuilder.Append($"┗━━━━━━━━━━━  {title} ━━━━━━━━━━━");
+        return stringBuilder.ToString();
+    }
+
+
+    /// <summary>
+    /// 等宽文字对齐
+    /// </summary>
+    /// <param name="str"></param>
+    /// <param name="totalByteCount"></param>
+    /// <returns></returns>
+    private string PadRight(string str, int totalByteCount)
+    {
+        var coding = Encoding.GetEncoding("gbk");
+        var dcount = 0;
+
+        foreach (var character in str.ToCharArray())
+        {
+            if (coding.GetByteCount(character.ToString()) == 2)
+                dcount++;
+        }
+
+        var w = str.PadRight(totalByteCount - dcount);
+        return w;
     }
 }

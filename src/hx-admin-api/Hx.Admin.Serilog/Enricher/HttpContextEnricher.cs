@@ -4,18 +4,24 @@
 //
 // 电话/微信：song977601042
 
+using Hx.Common.Extensions;
 using Hx.Sdk.Core;
 using Magicodes.ExporterAndImporter.Excel.Utility.TemplateExport;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
 using Nest;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Qiniu.Storage;
+using Qiniu.Util;
 using Serilog.Context;
 using Serilog.Core;
 using Serilog.Events;
@@ -26,7 +32,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -35,10 +43,7 @@ public class HttpContextEnricher : ILogEventEnricher
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly Action<LogEvent, ILogEventPropertyFactory, HttpContext> _enrichAction;
-    /// <summary>
-    /// 模板正则表达式对象
-    /// </summary>
-    private static readonly Lazy<Regex> _lazyRegex = new(() => new(@"^##(?<prop>.*)?##[:：]?\s*(?<content>[\s\S]*)"));
+    
 
     public HttpContextEnricher(IServiceProvider serviceProvider) : this(serviceProvider, null)
     { }
@@ -148,23 +153,15 @@ public class HttpContextEnricher : ILogEventEnricher
                 requestFrom = string.IsNullOrWhiteSpace(requestFrom) ? "client" : requestFrom;
                 logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Request_RequestFrom, requestFrom));
 
-                if (httpContext.User != null && httpContext.User.Identity != null && httpContext.User.Identity.IsAuthenticated)
-                {
-                    logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Request_Claims, httpContext.User.Claims));
-                }
+               
                 // 获取请求 cookies 信息
                 var requestHeaderCookies = Uri.UnescapeDataString(httpRequest.Headers["cookie"].ToString());
                 logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Request_HeaderCookies, requestHeaderCookies));
-
-                //请求时间
-                if (httpContext.Items.TryGetValue(LogContextConst.Request_ElapsedMilliseconds, out object? elapsedMilliseconds))
+                
+                //获取授权信息
+                if (httpContext.User != null && httpContext.User.Identity != null && httpContext.User.Identity.IsAuthenticated)
                 {
-                    logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Request_ElapsedMilliseconds, elapsedMilliseconds));
-                }
-                //请求结果
-                if (httpContext.Items.TryGetValue(LogContextConst.Route_ActionResult, out object? actionResult))
-                {
-                    logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Route_ActionResult, actionResult));
+                    logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Request_Claims, httpContext.User.Claims));
                 }
                 // 获取响应 cookies 信息
                 var responseHeaderCookies = Uri.UnescapeDataString(httpContext.Response.Headers["Set-Cookie"].ToString());
@@ -180,7 +177,7 @@ public class HttpContextEnricher : ILogEventEnricher
                 var process = Process.GetCurrentProcess();
                 var processName = process.ProcessName;
 
-                var monitorItems = new List<string>()
+                var loggerItems = new List<string>()
                 {
                     $"##控制器名称## {controllerTypeName}"
                     , $"##操作名称## {actionTypeName}"
@@ -191,12 +188,11 @@ public class HttpContextEnricher : ILogEventEnricher
                     , $"##来源地址## {refererUrl}"
                     , $"##请求端源## {requestFrom}"
                     , $"##浏览器标识## {userAgent}"
-                        , $"##客户端区域语言## {acceptLanguage}"
+                    , $"##客户端区域语言## {acceptLanguage}"
                     , $"##客户端 IP 地址## {remoteIPv4}"
                     , $"##服务端 IP 地址## {localIPv4}"
                     , $"##客户端连接 ID## {traceId}"
                     , $"##服务线程 ID## #{threadId}"
-                    , $"##执行耗时## {elapsedMilliseconds}ms"
                     ,"━━━━━━━━━━━━━━━  Cookies ━━━━━━━━━━━━━━━"
                     , $"##请求端## {requestHeaderCookies}"
                     , $"##响应端## {responseHeaderCookies}"
@@ -210,10 +206,8 @@ public class HttpContextEnricher : ILogEventEnricher
                     , $"##启动程序集## {entryAssemblyName}"
                     , $"##进程名称## {processName}"
                 };
-
-                var finalMessage = Wrapper("请求日志", displayName, monitorItems.ToArray());
-
-                httpContext.Items.Add(LogContextConst.FinalMessage, finalMessage);
+                
+                httpContext.Items.TryAdd(LogContextConst.Request_LoggerItems, loggerItems);
             };
         }
         else
@@ -232,77 +226,31 @@ public class HttpContextEnricher : ILogEventEnricher
         }
     }
 
-    private string Wrapper(string title, string? description, params string[] items)
-    {
-        // 处理不同编码问题
-        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-
-        var stringBuilder = new StringBuilder();
-        stringBuilder.Append($"┏━━━━━━━━━━━  {title} ━━━━━━━━━━━").AppendLine();
-
-        // 添加描述
-        if (!string.IsNullOrWhiteSpace(description))
-        {
-            stringBuilder.Append($"┣ {description}").AppendLine().Append("┣ ").AppendLine();
-        }
-
-        // 添加项
-        if (items != null && items.Length > 0)
-        {
-            var propMaxLength = items.Where(u => _lazyRegex.Value.IsMatch(u))
-                .DefaultIfEmpty(string.Empty)
-                .Max(u => _lazyRegex.Value.Match(u).Groups["prop"].Value.Length);
-
-            // 控制项名称对齐空白占位数
-            propMaxLength += (propMaxLength >= 5 ? 10 : 5);
-
-            // 遍历每一项并进行正则表达式匹配
-            for (var i = 0; i < items.Length; i++)
-            {
-                var item = items[i];
-
-                // 判断是否匹配 ##xxx##
-                if (_lazyRegex.Value.IsMatch(item))
-                {
-                    var match = _lazyRegex.Value.Match(item);
-                    var prop = match.Groups["prop"].Value;
-                    var content = match.Groups["content"].Value;
-
-                    var propTitle = $"{prop}：";
-                    stringBuilder.Append($"┣ {PadRight(propTitle, propMaxLength)}{content}").AppendLine();
-                }
-                else
-                {
-                    stringBuilder.Append($"┣ {item}").AppendLine();
-                }
-            }
-        }
-
-        stringBuilder.Append($"┗━━━━━━━━━━━  {title} ━━━━━━━━━━━");
-        return stringBuilder.ToString();
-    }
-
 
     /// <summary>
-    /// 等宽文字对齐
+    /// 处理泛型类型转字符串打印问题
     /// </summary>
-    /// <param name="str"></param>
-    /// <param name="totalByteCount"></param>
+    /// <param name="type"></param>
     /// <returns></returns>
-    private string PadRight(string str, int totalByteCount)
+    private static string HandleGenericType(Type type)
     {
-        var coding = Encoding.GetEncoding("gbk");
-        var dcount = 0;
+        if (type == null) return string.Empty;
 
-        foreach (var character in str.ToCharArray())
+        var typeName = type.FullName ?? (!string.IsNullOrEmpty(type.Namespace) ? type.Namespace + "." : string.Empty) + type.Name;
+
+        // 处理泛型类型问题
+        if (type.IsConstructedGenericType)
         {
-            if (coding.GetByteCount(character.ToString()) == 2)
-                dcount++;
+            var prefix = type.GetGenericArguments()
+                .Select(genericArg => HandleGenericType(genericArg))
+                .Aggregate((previous, current) => previous + ", " + current);
+
+            typeName = typeName.Split('`').First() + "<" + prefix + ">";
         }
 
-        var w = str.PadRight(totalByteCount - dcount);
-        return w;
+        return typeName;
     }
+
 }
 
 

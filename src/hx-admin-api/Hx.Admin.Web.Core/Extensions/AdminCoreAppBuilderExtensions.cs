@@ -59,7 +59,6 @@ public static class AdminCoreAppBuilderExtensions
         //        diagnosticContext.Set("RequestScheme", httpContext.Request.Scheme);
         //    };
         //});
-        app.UseMiddleware<HttpContextLogMiddleware>();
         app.UseRouting();
 
         app.UseCorsAccessor();
