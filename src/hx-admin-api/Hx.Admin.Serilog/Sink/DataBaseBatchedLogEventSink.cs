@@ -101,7 +101,7 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
                 ControllerName = logEvent.GetPropertyValue<string>(LogContextConst.Route_Controller),
                 ActionName = logEvent.GetPropertyValue<string>(LogContextConst.Route_Action),
                 DisplayName = logEvent.GetPropertyValue<string>(LogContextConst.Route_DisplayName),
-                Status = logEvent.GetPropertyValue<string>(LogContextConst.Response_StatusCode),
+                Status = logEvent.GetPropertyValue<int>(LogContextConst.Response_StatusCode).ToString(),
                 RemoteIp = remoteIPv4,
                 Elapsed = elapsedMilliseconds ?? 0,
                 Account = account,
@@ -153,7 +153,7 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
             ControllerName = logEvent.GetPropertyValue<string>(LogContextConst.Route_Controller),
             ActionName = logEvent.GetPropertyValue<string>(LogContextConst.Route_Action),
             DisplayName = logEvent.GetPropertyValue<string>(LogContextConst.Route_DisplayName),
-            Status = logEvent.GetPropertyValue<string>(LogContextConst.Response_StatusCode),
+            Status = logEvent.GetPropertyValue<int>(LogContextConst.Response_StatusCode).ToString(),
             RemoteIp = remoteIPv4,
             Elapsed = elapsedMilliseconds ?? 0,
             Account = account,
@@ -182,6 +182,11 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
             sysLogOp.Browser = $"{client.UA.Family} {client.UA.Major}.{client.UA.Minor} / {client.Device.Family}";
             sysLogOp.Os = $"{client.OS.Family} {client.OS.Major} {client.OS.Minor}";
         }
+        var actionParameters = logEvent.GetPropertyValue<IEnumerable<ParameterDescriptor>>(LogContextConst.Route_ActionParameters);
+        if (actionParameters != null)
+        {
+            sysLogOp.RequestParam = JsonSerializer.Serialize(actionParameters);
+        }
         return sysLogOp;
     }
 
@@ -209,7 +214,7 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
             ControllerName = logEvent.GetPropertyValue<string>(LogContextConst.Route_Controller),
             ActionName = logEvent.GetPropertyValue<string>(LogContextConst.Route_Action),
             DisplayName = logEvent.GetPropertyValue<string>(LogContextConst.Route_DisplayName),
-            Status = logEvent.GetPropertyValue<string>(LogContextConst.Response_StatusCode),
+            Status = logEvent.GetPropertyValue<int>(LogContextConst.Response_StatusCode).ToString(),
             RemoteIp = remoteIPv4,
             Elapsed = elapsedMilliseconds ?? 0,
             Account = account,

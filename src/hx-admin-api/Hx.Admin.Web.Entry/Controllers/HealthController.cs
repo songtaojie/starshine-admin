@@ -19,9 +19,9 @@ public class HealthController: AdminControllerBase
     }
 
     [HttpGet]
-    public string Get()
+    public string Get(int i)
     {
-        _logger.LogInformation("测试接口");
+        _logger.LogInformation("测试接口"+i);
         return "ok";
     }
 }

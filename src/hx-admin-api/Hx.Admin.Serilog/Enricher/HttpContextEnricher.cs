@@ -4,39 +4,18 @@
 //
 // 电话/微信：song977601042
 
-using Hx.Common.Extensions;
-using Hx.Sdk.Core;
-using Magicodes.ExporterAndImporter.Excel.Utility.TemplateExport;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
-using Nest;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Qiniu.Storage;
-using Qiniu.Util;
-using Serilog.Context;
 using Serilog.Core;
 using Serilog.Events;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Security.Claims;
-using System.Text;
-using System.Text.Json;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+
 
 namespace Hx.Admin.Serilog.Enricher;
 public class HttpContextEnricher : ILogEventEnricher
@@ -63,10 +42,7 @@ public class HttpContextEnricher : ILogEventEnricher
                 logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Client_Ip, JsonConvert.SerializeObject(x_forwarded_for)));
                 logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Request_Path, httpContext.Request.Path));
                 logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Request_Method, httpContext.Request.Method));
-                if (httpContext.Response.HasStarted)
-                {
-                    logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Response_StatusCode, httpContext.Response.StatusCode));
-                }
+                
                 var actionDescriptor = httpContext.RequestServices.GetService<ControllerActionDescriptor>();
                 // 获取正在处理的路由数据
                 var routeData = httpContext.GetRouteData();
@@ -101,7 +77,6 @@ public class HttpContextEnricher : ILogEventEnricher
                     if (actionDescriptor.Parameters != null)
                     {
                         logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Route_ActionParameters, actionDescriptor.Parameters));
-                        
                     }
                 }
 
@@ -141,11 +116,11 @@ public class HttpContextEnricher : ILogEventEnricher
                 logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Request_RefererUrl, refererUrl));
 
                 // 客户端浏览器信息
-                var userAgent = httpRequest.Headers["User-Agent"];
+                var userAgent = httpRequest.Headers["User-Agent"].ToString();
                 logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Request_UserAgent, userAgent));
 
                 // 客户端请求区域语言
-                var acceptLanguage = httpRequest.Headers["accept-language"];
+                var acceptLanguage = httpRequest.Headers["accept-language"].ToString();
                 logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Request_AcceptLanguage, acceptLanguage));
 
                 // 请求来源（swagger还是其他）
@@ -153,7 +128,6 @@ public class HttpContextEnricher : ILogEventEnricher
                 requestFrom = string.IsNullOrWhiteSpace(requestFrom) ? "client" : requestFrom;
                 logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Request_RequestFrom, requestFrom));
 
-               
                 // 获取请求 cookies 信息
                 var requestHeaderCookies = Uri.UnescapeDataString(httpRequest.Headers["cookie"].ToString());
                 logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Request_HeaderCookies, requestHeaderCookies));
@@ -163,19 +137,6 @@ public class HttpContextEnricher : ILogEventEnricher
                 {
                     logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Request_Claims, httpContext.User.Claims));
                 }
-                // 获取响应 cookies 信息
-                var responseHeaderCookies = Uri.UnescapeDataString(httpContext.Response.Headers["Set-Cookie"].ToString());
-                var osDescription = RuntimeInformation.OSDescription;
-                var osArchitecture = RuntimeInformation.OSArchitecture.ToString();
-                var frameworkDescription = RuntimeInformation.FrameworkDescription;
-                var basicFrameworkDescription = typeof(App).Assembly.GetName();
-                var basicFramework = basicFrameworkDescription.Name;
-                var basicFrameworkVersion = basicFrameworkDescription.Version?.ToString();
-                var environment = httpContext.RequestServices.GetRequiredService<IWebHostEnvironment>().EnvironmentName;
-                var entryAssemblyName = Assembly.GetEntryAssembly()?.GetName().Name;
-                // 获取进程信息
-                var process = Process.GetCurrentProcess();
-                var processName = process.ProcessName;
 
                 var loggerItems = new List<string>()
                 {
@@ -193,21 +154,10 @@ public class HttpContextEnricher : ILogEventEnricher
                     , $"##服务端 IP 地址## {localIPv4}"
                     , $"##客户端连接 ID## {traceId}"
                     , $"##服务线程 ID## #{threadId}"
-                    ,"━━━━━━━━━━━━━━━  Cookies ━━━━━━━━━━━━━━━"
-                    , $"##请求端## {requestHeaderCookies}"
-                    , $"##响应端## {responseHeaderCookies}"
-                    ,"━━━━━━━━━━━━━━━  系统信息 ━━━━━━━━━━━━━━━"
-                    , $"##系统名称## {osDescription}"
-                    , $"##系统架构## {osArchitecture}"
-                    , $"##基础框架## {basicFramework} v{basicFrameworkVersion}"
-                    , $"##.NET 架构## {frameworkDescription}"
-                    ,"━━━━━━━━━━━━━━━  启动信息 ━━━━━━━━━━━━━━━"
-                    , $"##运行环境## {environment}"
-                    , $"##启动程序集## {entryAssemblyName}"
-                    , $"##进程名称## {processName}"
                 };
-                
+
                 httpContext.Items.TryAdd(LogContextConst.Request_LoggerItems, loggerItems);
+
             };
         }
         else

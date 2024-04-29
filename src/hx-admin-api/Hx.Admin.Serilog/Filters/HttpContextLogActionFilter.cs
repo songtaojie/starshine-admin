@@ -6,10 +6,9 @@
 
 using Hx.Admin.Serilog.Enricher;
 using Hx.Common.Extensions;
-using Magicodes.ExporterAndImporter.Excel.Utility.TemplateExport;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -18,15 +17,23 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Nest;
 using Serilog.Context;
-using Serilog.Events;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using static SKIT.FlurlHttpClient.Wechat.Api.Models.ShopCouponGetResponse.Types.Result.Types.Coupon.Types.CouponDetail.Types.Discount.Types.DiscountCondidtion.Types;
+using System.Threading;
+using UAParser;
+using Hx.Sdk.Core;
+using static SKIT.FlurlHttpClient.Wechat.Api.Models.ProductSPUUpdateRequest.Types;
+using FluentEmail.Core;
+using System;
+using Serilog.Events;
 
 namespace Hx.Admin.Serilog.Filters;
 /// <summary>
@@ -53,43 +60,117 @@ public class HttpContextLogActionFilter : IAsyncActionFilter
         {
             var resultContext = await next();
             timeOperation.Stop();
-            if (context.HttpContext.Items.TryGetValue(LogContextConst.Request_LoggerItems, out object? value) && value !=null)
+
+            if (context.HttpContext.Items.TryGetValue(LogContextConst.Request_LoggerItems, out object? value) && value != null)
             {
                 var loggerItems = value as List<string>;
                 if (loggerItems != null)
                 {
+                    loggerItems.AddRange(GenerateCookiesTemplate(context.HttpContext));
+                    loggerItems.AddRange(GenerateSystemTemplate());
+                    loggerItems.AddRange(GenerateProcessTemplate(context.HttpContext));
+
+                    string? displayName = string.Empty;
+                    string? returnValue = null;
+                    string? authorization = null;
                     // 生成请求头日志模板
                     loggerItems.AddRange(GenerateRequestHeadersTemplate(context.HttpContext.Request.Headers));
                     if (context.HttpContext.User != null && context.HttpContext.User.Identity != null && context.HttpContext.User.Identity.IsAuthenticated)
                     {
                         var accessToken = context.HttpContext.Response.Headers["access-token"].ToString();
-                        var authorization = string.IsNullOrWhiteSpace(accessToken)
+                        authorization = string.IsNullOrWhiteSpace(accessToken)
                             ? context.HttpContext.Request.Headers["Authorization"].ToString()
                             : "Bearer " + accessToken;
                         loggerItems.AddRange(GenerateAuthorizationTemplate(context.HttpContext.User, authorization));
                     }
                     // 获取动作方法描述器
                     var actionDescriptor = context.ActionDescriptor as ControllerActionDescriptor;
-                    string? displayName = string.Empty;
+                   
                     if (actionDescriptor != null)
                     {
                         var actionMethod = actionDescriptor.MethodInfo;
                         loggerItems.AddRange(GenerateParameterTemplate(context.ActionArguments, actionMethod, context.HttpContext.Request.Headers["Content-Type"]));
                         // 添加返回值信息日志模板
-                        loggerItems.AddRange(GenerateReturnInfomationTemplate(resultContext, actionMethod));
+                        loggerItems.AddRange(GenerateReturnInfomationTemplate(resultContext, actionMethod, out returnValue));
                         // [DisplayName] 特性
                         var displayNameAttribute = actionMethod.IsDefined(typeof(DisplayNameAttribute), true)
                             ? actionMethod.GetCustomAttribute<DisplayNameAttribute>(true)
                             : default;
                         displayName = displayNameAttribute?.DisplayName;
                     }
-                   
                     var finalMessage = Wrapper("请求日志", displayName, loggerItems.ToArray());
-                    logger.LogInformation(finalMessage);
+                    using (LogContext.PushProperty(LogContextConst.Request_ElapsedMilliseconds, timeOperation.ElapsedMilliseconds))
+                    using (LogContext.PushProperty(LogContextConst.Route_ActionResult, returnValue))
+                    using (LogContext.PushProperty(LogContextConst.Request_Authorization, authorization))
+                    using (LogContext.PushProperty(LogContextConst.Response_StatusCode, context.HttpContext.Response.StatusCode))
+                    {
+                        logger.LogInformation(finalMessage);
+                    }
                 }
             }
         }
     }
+    /// <summary>
+    /// 生成Cookies日志模板
+    /// </summary>
+    /// <param name="headers"></param>
+    /// <returns></returns>
+    private List<string> GenerateCookiesTemplate(HttpContext httpContext)
+    {
+        // 获取请求 cookies 信息
+        var requestHeaderCookies = Uri.UnescapeDataString(httpContext.Request.Headers["cookie"].ToString());
+        // 获取响应 cookies 信息
+        var responseHeaderCookies = Uri.UnescapeDataString(httpContext.Response.Headers["Set-Cookie"].ToString());
+        return new List<string>()
+        {
+            "━━━━━━━━━━━━━━━  Cookies ━━━━━━━━━━━━━━━"
+            , $"##请求端## {requestHeaderCookies}"
+            , $"##响应端## {responseHeaderCookies}"
+        };
+    }
+
+    /// <summary>
+    /// 生成系统信息日志模板
+    /// </summary>
+    /// <returns></returns>
+    private List<string> GenerateSystemTemplate()
+    {
+        var osDescription = RuntimeInformation.OSDescription;
+        var osArchitecture = RuntimeInformation.OSArchitecture.ToString();
+        var frameworkDescription = RuntimeInformation.FrameworkDescription;
+        var basicFrameworkDescription = typeof(App).Assembly.GetName();
+        var basicFramework = basicFrameworkDescription.Name;
+        var basicFrameworkVersion = basicFrameworkDescription.Version?.ToString();
+        return new List<string>()
+        {
+             "━━━━━━━━━━━━━━━  系统信息 ━━━━━━━━━━━━━━━"
+            , $"##系统名称## {osDescription}"
+            , $"##系统架构## {osArchitecture}"
+            , $"##基础框架## {basicFramework} v{basicFrameworkVersion}"
+            , $"##.NET 架构## {frameworkDescription}"
+        };
+    }
+    /// <summary>
+    /// 生成启动信息日志模板
+    /// </summary>
+    /// <returns></returns>
+    private List<string> GenerateProcessTemplate(HttpContext httpContext)
+    {
+        var environment = httpContext.RequestServices.GetRequiredService<IWebHostEnvironment>().EnvironmentName;
+        var entryAssemblyName = Assembly.GetEntryAssembly()?.GetName().Name;
+        // 获取进程信息
+        var process = Process.GetCurrentProcess();
+        var processName = process.ProcessName;
+        return new List<string>()
+        {
+            "━━━━━━━━━━━━━━━  启动信息 ━━━━━━━━━━━━━━━"
+            , $"##运行环境## {environment}"
+            , $"##启动程序集## {entryAssemblyName}"
+            , $"##进程名称## {processName}"
+        };
+    }
+    
+
     /// <summary>
     /// 生成请求头日志模板
     /// </summary>
@@ -248,7 +329,7 @@ public class HttpContextLogActionFilter : IAsyncActionFilter
     /// <param name="method"></param>
     /// <param name="monitorMethod"></param>
     /// <returns></returns>
-    private List<string> GenerateReturnInfomationTemplate(ActionExecutedContext resultContext, MethodInfo method)
+    private List<string> GenerateReturnInfomationTemplate(ActionExecutedContext resultContext, MethodInfo method, out string? finalReturnValue)
     {
         var templates = new List<string>();
 
@@ -276,11 +357,10 @@ public class HttpContextLogActionFilter : IAsyncActionFilter
         else finalReturnType = result?.GetType();
 
         // 获取最终呈现值（字符串类型）
-        var displayValue = TrySerializeObject(returnValue,out var succeed);
-        var originValue = displayValue;
-
+        var displayValue = TrySerializeObject(returnValue, out var succeed);
+        finalReturnValue = displayValue;
         var returnTypeName = HandleGenericType(method.ReturnType);
-        var finalReturnTypeName = finalReturnType!=null?HandleGenericType(finalReturnType):string.Empty;
+        var finalReturnTypeName = finalReturnType != null ? HandleGenericType(finalReturnType) : string.Empty;
 
         // 获取请求返回的响应状态码
         var httpStatusCode = (resultContext as FilterContext).HttpContext.Response.StatusCode;
@@ -305,9 +385,9 @@ public class HttpContextLogActionFilter : IAsyncActionFilter
     /// <param name="monitorMethod"></param>
     /// <param name="succeed"></param>
     /// <returns></returns>
-    private string TrySerializeObject(object? obj, out bool succeed)
+    private string? TrySerializeObject(object? obj, out bool succeed)
     {
-        if(obj == null)
+        if (obj == null)
         {
             succeed = true;
             return "{}";
@@ -316,7 +396,7 @@ public class HttpContextLogActionFilter : IAsyncActionFilter
         if (obj != null && obj.GetType().HasImplementedRawGeneric(typeof(IQueryable<>)))
         {
             succeed = true;
-            return "{}";
+            return obj!.ToString();
         }
 
         try
@@ -328,7 +408,7 @@ public class HttpContextLogActionFilter : IAsyncActionFilter
         catch
         {
             succeed = true;
-            return "{}";
+            return obj!.ToString();
         }
     }
 
