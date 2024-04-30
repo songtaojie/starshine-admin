@@ -15,25 +15,17 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
-using Nest;
 using Serilog.Context;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Net.Http;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using static SKIT.FlurlHttpClient.Wechat.Api.Models.ShopCouponGetResponse.Types.Result.Types.Coupon.Types.CouponDetail.Types.Discount.Types.DiscountCondidtion.Types;
-using System.Threading;
-using UAParser;
 using Hx.Sdk.Core;
-using static SKIT.FlurlHttpClient.Wechat.Api.Models.ProductSPUUpdateRequest.Types;
-using FluentEmail.Core;
 using System;
-using Serilog.Events;
 
 namespace Hx.Admin.Serilog.Filters;
 /// <summary>
@@ -73,6 +65,7 @@ public class HttpContextLogActionFilter : IAsyncActionFilter
                     string? displayName = string.Empty;
                     string? returnValue = null;
                     string? authorization = null;
+                    List<object> paramsList = new List<object>();
                     // 生成请求头日志模板
                     loggerItems.AddRange(GenerateRequestHeadersTemplate(context.HttpContext.Request.Headers));
                     if (context.HttpContext.User != null && context.HttpContext.User.Identity != null && context.HttpContext.User.Identity.IsAuthenticated)
@@ -89,7 +82,7 @@ public class HttpContextLogActionFilter : IAsyncActionFilter
                     if (actionDescriptor != null)
                     {
                         var actionMethod = actionDescriptor.MethodInfo;
-                        loggerItems.AddRange(GenerateParameterTemplate(context.ActionArguments, actionMethod, context.HttpContext.Request.Headers["Content-Type"]));
+                        loggerItems.AddRange(GenerateParameterTemplate(context.ActionArguments, actionMethod, context.HttpContext.Request.Headers["Content-Type"],out paramsList));
                         // 添加返回值信息日志模板
                         loggerItems.AddRange(GenerateReturnInfomationTemplate(resultContext, actionMethod, out returnValue));
                         // [DisplayName] 特性
@@ -103,9 +96,20 @@ public class HttpContextLogActionFilter : IAsyncActionFilter
                     using (LogContext.PushProperty(LogContextConst.Route_ActionResult, returnValue))
                     using (LogContext.PushProperty(LogContextConst.Request_Authorization, authorization))
                     using (LogContext.PushProperty(LogContextConst.Response_StatusCode, context.HttpContext.Response.StatusCode))
+                    using (LogContext.PushProperty(LogContextConst.Route_ActionParameters, JsonSerializer.Serialize(paramsList)))
                     {
-                        logger.LogInformation(finalMessage);
+                        // 写入日志，如果没有异常默认使用 LogInformation，否则使用 LogError
+                        if (resultContext.Exception == null)
+                        {
+                            logger.LogInformation(finalMessage);
+                        }
+                        else
+                        {
+                            // 如果不是验证异常，写入 Error
+                            logger.LogError(resultContext.Exception, finalMessage);
+                        }
                     }
+                    
                 }
             }
         }
@@ -248,10 +252,10 @@ public class HttpContextLogActionFilter : IAsyncActionFilter
     /// <param name="method"></param>
     /// <param name="contentType"></param>
     /// <returns></returns>
-    private List<string> GenerateParameterTemplate(IDictionary<string, object?> parameterValues, MethodInfo method, StringValues contentType)
+    private List<string> GenerateParameterTemplate(IDictionary<string, object?> parameterValues, MethodInfo method, StringValues contentType,out List<object> paramsList)
     {
         var templates = new List<string>();
-
+        paramsList = new List<object>();
         if (parameterValues == null || parameterValues.Count == 0)
         {
             return templates;
@@ -286,32 +290,79 @@ public class HttpContextLogActionFilter : IAsyncActionFilter
                 {
                     var fileSize = Math.Round(formFile.Length / 1024D);
                     templates.Add($"##{name} ({parameterType.Name})## [name]: {formFile.FileName}; [size]: {fileSize}KB; [content-type]: {formFile.ContentType}");
+                    paramsList.Add(new
+                    {
+                        name,
+                        type = HandleGenericType(parameterType),
+                        value = new 
+                        {
+                            formFile.Name,
+                            formFile.FileName,
+                            formFile.Length,
+                            formFile.ContentType
+                        }
+                    });
                 }
                 // 多文件
                 else if (value is List<IFormFile> formFiles)
                 {
+                    var valueArr = new List<object>();
                     for (var i = 0; i < formFiles.Count; i++)
                     {
                         var file = formFiles[i];
                         var size = Math.Round(file.Length / 1024D);
                         templates.Add($"##{name}[{i}] ({nameof(IFormFile)})## [name]: {file.FileName}; [size]: {size}KB; [content-type]: {file.ContentType}");
+                        valueArr.Add(new
+                        {
+                            file.Name,
+                            file.FileName,
+                            file.Length,
+                            file.ContentType
+                        });
                     }
+                    paramsList.Add(new
+                    {
+                        name,
+                        type = HandleGenericType(parameterType),
+                        value = valueArr
+                    });
                 }
             }
             // 处理 byte[] 参数类型
             else if (value is byte[] byteArray)
             {
                 templates.Add($"##{name} ({parameterType.Name})## [Length]: {byteArray.Length}");
+                paramsList.Add(new
+                {
+                    name,
+                    type = HandleGenericType(parameterType),
+                    value = new
+                    {
+                        byteArray.Length
+                    }
+                });
             }
             // 处理基元类型，字符串类型和空值
             else if (parameterType.IsPrimitive || value is string || value == null)
             {
                 rawValue = value;
+                paramsList.Add(new
+                {
+                    name,
+                    type = HandleGenericType(parameterType),
+                    value
+                });
             }
             // 其他类型统一进行序列化
             else
             {
                 rawValue = TrySerializeObject(value, out var succeed);
+                paramsList.Add(new
+                {
+                    name,
+                    type = HandleGenericType(parameterType),
+                    value
+                });
             }
 
             templates.Add($"##{name} ({parameterType.Name})## {rawValue}");

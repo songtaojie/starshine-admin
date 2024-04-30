@@ -160,6 +160,7 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
             RealName = realName,
             HttpMethod = logEvent.GetPropertyValue<string>(LogContextConst.Request_Method),
             RequestUrl = logEvent.GetPropertyValue<string>(LogContextConst.Request_FullUrl),
+            RequestParam = logEvent.GetPropertyValue<string>(LogContextConst.Route_ActionParameters),
             ReturnResult = logEvent.GetPropertyValue<string>(LogContextConst.Route_ActionResult),
             ThreadId = logEvent.GetPropertyValue<int>(LogContextConst.Request_ThreadId),
             TraceId = logEvent.GetPropertyValue<string>(LogContextConst.Request_TraceIdentifier),
@@ -181,11 +182,6 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
             var client = Parser.GetDefault().Parse(userAgent);
             sysLogOp.Browser = $"{client.UA.Family} {client.UA.Major}.{client.UA.Minor} / {client.Device.Family}";
             sysLogOp.Os = $"{client.OS.Family} {client.OS.Major} {client.OS.Minor}";
-        }
-        var actionParameters = logEvent.GetPropertyValue<IEnumerable<ParameterDescriptor>>(LogContextConst.Route_ActionParameters);
-        if (actionParameters != null)
-        {
-            sysLogOp.RequestParam = JsonSerializer.Serialize(actionParameters);
         }
         return sysLogOp;
     }
@@ -221,6 +217,7 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
             RealName = realName,
             HttpMethod = logEvent.GetPropertyValue<string>(LogContextConst.Request_Method),
             RequestUrl = logEvent.GetPropertyValue<string>(LogContextConst.Request_FullUrl),
+            RequestParam = logEvent.GetPropertyValue<string>(LogContextConst.Route_ActionParameters),
             ReturnResult = logEvent.GetPropertyValue<string>(LogContextConst.Route_ActionResult),
             ThreadId = logEvent.GetPropertyValue<int>(LogContextConst.Request_ThreadId),
             TraceId = logEvent.GetPropertyValue<string?>(LogContextConst.Request_TraceIdentifier),
@@ -245,12 +242,6 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
             sysLogEx.Os = $"{client.OS.Family} {client.OS.Major} {client.OS.Minor}";
 
         }
-        var actionParameters = logEvent.GetPropertyValue<IEnumerable<ParameterDescriptor>>(LogContextConst.Route_ActionParameters);
-        if (actionParameters != null)
-        {
-            sysLogEx.RequestParam = JsonSerializer.Serialize(actionParameters);
-        }
-
         return sysLogEx;
     }
 
