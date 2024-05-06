@@ -12,7 +12,7 @@ namespace Hx.Admin.Core;
 
 internal sealed class WorkerNodeHostedService : BackgroundService
 {
-    private readonly ILogger<WorkerNodeHostedService> _logger;
+    private readonly ILogger _logger;
     private readonly string _serviceName;
     private readonly WorkerNode _workerNode;
     private readonly int _millisecondsDelay = 1000 * 60;
@@ -42,14 +42,7 @@ internal sealed class WorkerNodeHostedService : BackgroundService
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
         await base.StopAsync(cancellationToken);
-        using (_logger.BeginScope(new Dictionary<string, object>
-        {
-            ["UserId"] = "svrooij",
-            ["OperationType"] = "update",
-        }))
-        {
-            _logger.LogInformation("stopping service {0}", _serviceName);
-        }
+        _logger.LogInformation("stopping service {0}", _serviceName);
 
         var subtractionMilliseconds = 0 - (_millisecondsDelay * 1.5);
         var score = DateTimeOffset.Now.AddMilliseconds(subtractionMilliseconds).ToUnixTimeMilliseconds();

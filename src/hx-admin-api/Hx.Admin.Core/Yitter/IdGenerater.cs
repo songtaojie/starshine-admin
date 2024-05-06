@@ -69,6 +69,12 @@ public static class IdGenerater
     /// <returns>Id</returns>
     public static long GetNextId()
     {
+        int retryCount = 0;
+        while (!_isSet && retryCount <= 3)
+        {
+            Thread.Sleep(100);
+            retryCount++;
+        }
         if (!_isSet)
             throw new InvalidOperationException("please call SetIdGenerator first");
 

@@ -73,7 +73,7 @@ public static class SqlSugarServiceCollectionExtensions
 
             };
         });
-        services.AddHostedService<SqlSugarHostedService>();
+        //services.AddHostedService<SqlSugarHostedService>();
         return services;
     }
 }

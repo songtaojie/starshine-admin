@@ -47,7 +47,7 @@ public static class AdminCoreServiceCollectionExtensions
         services.AddJwtAuthentication();
         services.AddAuthoriationSetup();
         services.AddCache();
-        services.AddSqlSugarSetup();
+        
         // 配置Nginx转发获取客户端真实IP
         // 注1：如果负载均衡不是在本机通过 Loopback 地址转发请求的，一定要加上options.KnownNetworks.Clear()和options.KnownProxies.Clear()
         // 注2：如果设置环境变量 ASPNETCORE_FORWARDEDHEADERS_ENABLED 为 True，则不需要下面的配置代码
@@ -71,7 +71,7 @@ public static class AdminCoreServiceCollectionExtensions
 
         // 电子邮件
         services.AddFluentEmail(configuration);
-       
+        services.AddSqlSugarSetup();
         //services.AddQuartzService(configuration);
     }
 

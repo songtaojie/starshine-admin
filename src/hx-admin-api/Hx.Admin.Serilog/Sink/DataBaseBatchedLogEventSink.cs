@@ -15,6 +15,7 @@ using Serilog.Sinks.PeriodicBatching;
 using SqlSugar;
 using System.Security.Claims;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using UAParser;
 using Yitter.IdGenerator;
 
@@ -30,7 +31,7 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
     {
         using var scope = _serviceProvider.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ISqlSugarClient>();
-        await WriteLogs(batch.FilterNotSqlLog(), db);
+        //await WriteLogs(batch.FilterNotSqlLog(), db);
         await WriteSqlLog(batch.FilterSqlLog(), db);
     }
 
@@ -165,7 +166,7 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
             ThreadId = logEvent.GetPropertyValue<int>(LogContextConst.Request_ThreadId),
             TraceId = logEvent.GetPropertyValue<string>(LogContextConst.Request_TraceIdentifier),
             Exception = logEvent.Exception == null ? string.Empty : JsonSerializer.Serialize(logEvent.Exception),
-            Message = GetMessage(logEvent),
+            Message = logEvent.RenderMessage(null),
             CreatorId = string.IsNullOrWhiteSpace(userId) ? 0 : long.Parse(userId),
             CreateTime = logEvent.Timestamp.DateTime,
         };
@@ -222,7 +223,7 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
             ThreadId = logEvent.GetPropertyValue<int>(LogContextConst.Request_ThreadId),
             TraceId = logEvent.GetPropertyValue<string?>(LogContextConst.Request_TraceIdentifier),
             Exception = logEvent.Exception == null ? string.Empty : JsonSerializer.Serialize(logEvent.Exception),
-            Message = GetMessage(logEvent),
+            Message = logEvent.RenderMessage(null),
             CreatorId = string.IsNullOrWhiteSpace(userId) ? 0 : long.Parse(userId),
             LogLevel = GetLogLevel(logEvent.Level),
             CreateTime = logEvent.Timestamp.DateTime,
@@ -252,7 +253,7 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
         var sysLogDiffList = new List<SysLogDiff>();
         foreach (var logEvent in batch)
         {
-            if (!string.IsNullOrEmpty(logEvent.MessageTemplate.Text) && logEvent.MessageTemplate.Text.StartsWith("Sys_Log", StringComparison.CurrentCultureIgnoreCase))
+            if (IsIgnoreSql(logEvent.MessageTemplate.Text))
             {
                 continue;
             }
@@ -264,10 +265,11 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
                 var parameters = logEvent.Properties.ContainsKey(SugarLogScope.SqlPars)
                     ? logEvent.Properties[SugarLogScope.SqlPars].ToString()
                     : string.Empty;
+                var length = logEvent.MessageTemplate.Tokens.ElementAt(0).Length;
                 var sql = logEvent.Properties.ContainsKey(SugarLogScope.Sql)
                     ? logEvent.Properties[SugarLogScope.Sql].ToString()
                     : string.Empty;
-
+                Console.WriteLine($"渲染信息之前：{logEvent.MessageTemplate.Tokens.ElementAt(0).Length}");
                 switch (logType)
                 {
                     case 1:
@@ -306,6 +308,7 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
                         }
                         break;
                 }
+                Console.WriteLine($"渲染信息之后：{logEvent.MessageTemplate.Tokens.ElementAt(0).Length}");
             }
         }
         if (sysLogAuditList.Any())
@@ -316,7 +319,7 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
     }
     private string GetMessage(LogEvent logEvent)
     {
-        if (logEvent.MessageTemplate.Tokens.Any() && logEvent.MessageTemplate.Tokens.ElementAt(0).Length <= 20000)
+        if (logEvent.MessageTemplate.Tokens.Any() && logEvent.MessageTemplate.Tokens.ElementAt(0).Length <= 5000)
         {
             return logEvent.RenderMessage(null);
         }
@@ -346,6 +349,18 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
             LogEventLevel.Verbose => LogLevel.Trace,
             _ => LogLevel.Information
         };
+    }
+
+    private bool IsIgnoreSql(string sql)
+    {
+        var index = sql.IndexOf("INSERT INTO");
+        if (index >= 0)
+        {
+            var endIndex = sql.IndexOf("(", index);
+            var table = Regex.Replace(sql.Substring(index + 11, endIndex - index - 11), @"[^a-zA-Z]", "");
+            return table.StartsWith("SysLog",StringComparison.CurrentCultureIgnoreCase);
+        }
+        return false;
     }
     #endregion
 }
