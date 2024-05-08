@@ -12,10 +12,17 @@ using Hx.Admin.Models.ViewModels;
 
 namespace Hx.Admin.Web.Entry.Controllers;
 
-
+/// <summary>
+/// 机构管理
+/// </summary>
 public class SysOrgController : AdminControllerBase
 {
     private readonly ISysOrgService _service;
+
+    /// <summary>
+    /// <see cref="SysOrgController"/>
+    /// </summary>
+    /// <param name="service"></param>
     public SysOrgController(ISysOrgService service)
     {
         _service = service;

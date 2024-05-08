@@ -10,9 +10,17 @@ using Hx.Admin.Models;
 
 namespace Hx.Admin.Web.Entry.Controllers;
 
+/// <summary>
+/// 系统通知
+/// </summary>
 public class SysNoticeController : AdminControllerBase
 {
     private readonly ISysNoticeService _service;
+
+    /// <summary>
+    /// <see cref="SysNoticeController"/>
+    /// </summary>
+    /// <param name="service"></param>
     public SysNoticeController(ISysNoticeService service)
     {
         _service = service;

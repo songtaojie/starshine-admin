@@ -39,7 +39,7 @@ export interface SysLogVis {
 	 * @type {string}
 	 * @memberof SysLogVis
 	 */
-	displayTitle?: string | null;
+	displayName?: string | null;
 	/**
 	 * 执行状态
 	 * @type {string}
@@ -88,12 +88,6 @@ export interface SysLogVis {
 	 * @memberof SysLogVis
 	 */
 	elapsed?: number | null;
-	/**
-	 * 日志时间
-	 * @type {Date}
-	 * @memberof SysLogVis
-	 */
-	logDateTime?: Date | null;
 	/**
 	 * 账号
 	 * @type {string}

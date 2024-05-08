@@ -15,17 +15,24 @@ using System.Text.Json;
 
 namespace Hx.Admin.Web.Entry.Controllers;
 
-
+/// <summary>
+/// 授权控制器
+/// </summary>
 public class SysAuthController: AdminControllerBase
 {
     private readonly ISysAuthService _sysAuthService;
+
+    /// <summary>
+    /// <see cref="SysAuthController"/>
+    /// </summary>
+    /// <param name="sysAuthService">授权服务</param>
     public SysAuthController(ISysAuthService sysAuthService)
     {
         _sysAuthService = sysAuthService;
     }
 
     /// <summary>
-    /// <see cref="ISysAuthService.Login"/>
+    /// 系统登录
     /// </summary>
     /// <returns></returns>
     [HttpPost]
@@ -36,7 +43,7 @@ public class SysAuthController: AdminControllerBase
     }
 
     /// <summary>
-    /// <see cref="ISysAuthService.GetCaptcha"/>
+    /// 获取验证码
     /// </summary>
     /// <returns></returns>
     [HttpGet]
@@ -47,7 +54,7 @@ public class SysAuthController: AdminControllerBase
     }
 
     /// <summary>
-    /// <see cref="ISysAuthService.GetLoginConfig"/>
+    /// 获取登录配置
     /// </summary>
     /// <returns></returns>
     [HttpGet,ActionName("SystemConfig")]
@@ -58,7 +65,7 @@ public class SysAuthController: AdminControllerBase
     }
 
     /// <summary>
-    /// <see cref="ISysAuthService.Logout"/>
+    /// 系统退出
     /// </summary>
     /// <returns></returns>
     [HttpPost]
@@ -68,7 +75,7 @@ public class SysAuthController: AdminControllerBase
     }
 
     /// <summary>
-    /// <see cref="ISysAuthService.GetRefreshToken"/>
+    ///获取刷新token
     /// </summary>
     /// <returns></returns>
     [ActionName("RefreshToken"), HttpGet]
@@ -78,7 +85,7 @@ public class SysAuthController: AdminControllerBase
     }
 
     /// <summary>
-    /// <see cref="ISysAuthService.GetUserInfo"/>
+    /// 获取登录账号信息
     /// </summary>
     /// <returns></returns>
     [ActionName("UserInfo"), HttpGet]

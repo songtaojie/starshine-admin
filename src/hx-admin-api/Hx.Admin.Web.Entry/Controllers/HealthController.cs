@@ -9,15 +9,28 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Hx.Admin.Web.Entry.Controllers;
 
+/// <summary>
+/// 健康检查控制器
+/// </summary>
 [AllowAnonymous]
 public class HealthController: AdminControllerBase
 {
     private readonly ILogger _logger;
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="logger"></param>
     public HealthController(ILogger<HealthController> logger)
     {
         _logger = logger;
     }
 
+    /// <summary>
+    /// 测试接口
+    /// </summary>
+    /// <param name="i"></param>
+    /// <returns></returns>
     [HttpGet]
     public string Get(int i)
     {

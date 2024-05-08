@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Hx.Admin.Web.Entry.Controllers;
 
+/// <summary>
+/// 权限控制基类控制器
+/// </summary>
 [ApiController]
 [Route("[controller]/[action]")]
 [Authorize(Policy = CommonConst.PermissionPolicy)]

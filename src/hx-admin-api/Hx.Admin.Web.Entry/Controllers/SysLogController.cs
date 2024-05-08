@@ -13,10 +13,19 @@ using Hx.Admin.Models;
 
 namespace Hx.Admin.Web.Entry.Controllers;
 
+/// <summary>
+/// 系统日志控制器
+/// </summary>
 public class SysLogController : AdminControllerBase
 {
     private readonly ISysLogVisService _service;
     private readonly ISysLogOpService _sysLogOpService;
+
+    /// <summary>
+    /// <see cref="SysLogController"/>
+    /// </summary>
+    /// <param name="service"></param>
+    /// <param name="sysLogOpService"></param>
     public SysLogController(ISysLogVisService service, 
         ISysLogOpService sysLogOpService)
     {

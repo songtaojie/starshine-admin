@@ -18,6 +18,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using UAParser;
 using Yitter.IdGenerator;
+using static SKIT.FlurlHttpClient.Wechat.Api.Models.WeDataQueryBindListResponse.Types;
 
 namespace Hx.Admin.Serilog.Sink;
 public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
@@ -31,7 +32,7 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
     {
         using var scope = _serviceProvider.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ISqlSugarClient>();
-        //await WriteLogs(batch.FilterNotSqlLog(), db);
+        await WriteLogs(batch.FilterNotSqlLog(), db);
         await WriteSqlLog(batch.FilterSqlLog(), db);
     }
 
@@ -78,11 +79,17 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
     private SysLogVis? WriteSysLogVis(LogEvent logEvent)
     {
         var actionName = logEvent.GetPropertyValue<string>(LogContextConst.Route_Action);
-        if (!string.IsNullOrEmpty(actionName) && (actionName.Equals("Login")))
+        var visitAction = new string[] { "userinfo", "login" };
+        if (!string.IsNullOrEmpty(actionName) && visitAction.Any(r=>r.Equals(actionName,StringComparison.CurrentCultureIgnoreCase)))
         {
             var remoteIPv4 = logEvent.GetPropertyValue<string>(LogContextConst.Request_RemoteIPv4);
             var elapsedMilliseconds = logEvent.GetPropertyValue<long?>(LogContextConst.Request_ElapsedMilliseconds);
             // 获取当前操作者
+            var requestClaims = logEvent.GetPropertyValue<string>(LogContextConst.Request_Claims);
+            if (!string.IsNullOrEmpty(requestClaims))
+            { 
+                
+            }
             var authorizationClaims = logEvent.GetPropertyValue<IEnumerable<Claim>>(LogContextConst.Request_Claims);
             string account = "", realName = "", userId = "";
             if (authorizationClaims != null)
