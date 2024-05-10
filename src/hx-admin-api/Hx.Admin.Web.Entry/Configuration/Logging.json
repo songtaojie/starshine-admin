@@ -53,14 +53,14 @@
                   {
                     "Name": "Console",
                     "Args": {
-                      "outputTemplate": "[{Timestamp:yyyy-MM-d HH:mm:ss.fff} {Level:u3}] {SourceContext}{Message}{NewLine}{Exception}{NewLine}"
+                      "outputTemplate": "[{Timestamp:yyyy-MM-d HH:mm:ss.fff} {Level:u3}] {SourceContext}{NewLine}{Message}{NewLine}{Exception}{NewLine}"
                     }
                   },
                   {
                     "Name": "File", //输出文件
                     "Args": {
                       "path": "logs\\log.log",
-                      "outputTemplate": "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff} {Level:u3}] {SourceContext}{Message}{NewLine}{Exception}{NewLine}",
+                      "outputTemplate": "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff} {Level:u3}] {SourceContext}{NewLine}{Message}{NewLine}{Exception}{NewLine}",
                       "rollingInterval": "Day" //日志文件生成精度：1：年  2：月 3：日 4：小时
                     }
                   }
@@ -76,7 +76,7 @@
                   {
                     "Name": "Console",
                     "Args": {
-                      "outputTemplate": "[{Timestamp:yyyy-MM-d HH:mm:ss.fff} {Level:u3}] {SourceContext}{Message}{NewLine}{Exception}{NewLine}",
+                      "outputTemplate": "[{Timestamp:yyyy-MM-d HH:mm:ss.fff} {Level:u3}] {SourceContext}{NewLine}{Message}{NewLine}{Exception}{NewLine}",
                       "theme": "Serilog.Sinks.SystemConsole.Themes.SystemConsoleTheme::Grayscale, Serilog.Sinks.Console"
                     }
                   },
@@ -84,7 +84,7 @@
                     "Name": "File", //输出文件
                     "Args": {
                       "path": "logs\\sql\\aopsql.log",
-                      "outputTemplate": "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff} {Level:u3}] {SourceContext}{Message}{NewLine}{Exception}{NewLine}",
+                      "outputTemplate": "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff} {Level:u3}] {SourceContext}{NewLine}{Message}{NewLine}{Exception}{NewLine}",
                       "rollingInterval": "Day" //日志文件生成精度：1：年  2：月 3：日 4：小时
                     }
                   }

@@ -4,6 +4,9 @@
 //
 // 电话/微信：song977601042
 
+using Hx.Sdk.Core;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Routing;
@@ -12,9 +15,13 @@ using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using Serilog.Core;
 using Serilog.Events;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Security.Claims;
+using System.Xml.XPath;
 
 
 namespace Hx.Admin.Serilog.Enricher;
@@ -22,14 +29,15 @@ public class HttpContextEnricher : ILogEventEnricher
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly Action<LogEvent, ILogEventPropertyFactory, HttpContext> _enrichAction;
-    
+    private readonly List<string> _loggerItems;
 
-    public HttpContextEnricher(IServiceProvider serviceProvider) : this(serviceProvider, null)
+    public HttpContextEnricher(IServiceProvider serviceProvider, List<string> loggerItems) : this(serviceProvider, null, loggerItems)
     { }
 
-    public HttpContextEnricher(IServiceProvider serviceProvider, Action<LogEvent, ILogEventPropertyFactory, HttpContext>? enrichAction)
+    public HttpContextEnricher(IServiceProvider serviceProvider, Action<LogEvent, ILogEventPropertyFactory, HttpContext>? enrichAction, List<string> loggerItems)
     {
         _serviceProvider = serviceProvider;
+        _loggerItems = loggerItems;
         if (enrichAction == null)
         {
             _enrichAction = (logEvent, propertyFactory, httpContext) =>
@@ -42,7 +50,7 @@ public class HttpContextEnricher : ILogEventEnricher
                 logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Client_Ip, JsonConvert.SerializeObject(x_forwarded_for)));
                 logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Request_Path, httpContext.Request.Path));
                 logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Request_Method, httpContext.Request.Method));
-                
+
                 var actionDescriptor = httpContext.RequestServices.GetService<ControllerActionDescriptor>();
                 // 获取正在处理的路由数据
                 var routeData = httpContext.GetRouteData();
@@ -64,7 +72,7 @@ public class HttpContextEnricher : ILogEventEnricher
                     actionTypeName = actionMethod.Name;
                     logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Route_ControllerType, controllerTypeName));
                     logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Route_ActionType, actionMethod.Name));
-                   
+
                     // 获取方法完整名称
                     var methodFullName = actionMethod.DeclaringType?.FullName + "." + actionMethod.Name;
                     logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Route_FullAction, methodFullName));
@@ -100,7 +108,7 @@ public class HttpContextEnricher : ILogEventEnricher
                 logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Request_RemotePort, remotePort));
 
                 // 客户端连接 ID
-                var traceId = Activity.Current?.Id ?? httpContext.TraceIdentifier ;
+                var traceId = Activity.Current?.Id ?? httpContext.TraceIdentifier;
                 logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Request_TraceIdentifier, traceId));
 
                 // 线程 Id
@@ -149,7 +157,43 @@ public class HttpContextEnricher : ILogEventEnricher
                     , $"##客户端连接 ID## {traceId}"
                     , $"##服务线程 ID## #{threadId}"
                 };
+                httpContext.Response.OnCompleted(async (obj) =>
+                {
+                    var context = obj as HttpContext;
+                    if (context != null)
+                    {
+                        loggerItems.AddRange(GenerateCookiesTemplate(context));
+                        loggerItems.AddRange(GenerateSystemTemplate());
+                        loggerItems.AddRange(GenerateProcessTemplate(context));
 
+                        //// 生成请求头日志模板
+                        //loggerItems.AddRange(GenerateRequestHeadersTemplate(context.Request.Headers));
+                        //if (context.User != null && context.User.Identity != null && context.User.Identity.IsAuthenticated)
+                        //{
+                        //    var accessToken = context.Response.Headers["access-token"].ToString();
+                        //    authorization = string.IsNullOrWhiteSpace(accessToken)
+                        //        ? context.Request.Headers["Authorization"].ToString()
+                        //        : "Bearer " + accessToken;
+                        //    loggerItems.AddRange(GenerateAuthorizationTemplate(context.User, authorization, out authorizationClaims));
+                        //}
+
+
+                        //if (actionDescriptor != null)
+                        //{
+                        //    var actionMethod = actionDescriptor.MethodInfo;
+                        //    loggerItems.AddRange(GenerateParameterTemplate(context.ActionArguments, actionMethod, context.HttpContext.Request.Headers["Content-Type"], out paramsList));
+                        //    // 添加返回值信息日志模板
+                        //    loggerItems.AddRange(GenerateReturnInfomationTemplate(resultContext, actionMethod, out returnValue));
+                        //    // [DisplayName] 特性
+                        //    var displayNameAttribute = actionMethod.IsDefined(typeof(DisplayNameAttribute), true)
+                        //        ? actionMethod.GetCustomAttribute<DisplayNameAttribute>(true)
+                        //        : default;
+                        //    displayName = displayNameAttribute?.DisplayName;
+                        //}
+
+                        await Task.CompletedTask;
+                    }
+                }, httpContext);
                 httpContext.Items.TryAdd(LogContextConst.Request_LoggerItems, loggerItems);
 
             };
@@ -195,7 +239,7 @@ public class HttpContextEnricher : ILogEventEnricher
         return typeName;
     }
 
-    #region
+    #region 
     private static Dictionary<string, XPathNavigator> _xmlNavigatorDic = new Dictionary<string, XPathNavigator>();
     /// <summary>
     /// 获取action的信息
@@ -235,6 +279,145 @@ public class HttpContextEnricher : ILogEventEnricher
         }
         return string.Empty;
     }
+    #endregion
+
+    #region 日志消息模板
+    /// <summary>
+    /// 生成Cookies日志模板
+    /// </summary>
+    /// <param name="headers"></param>
+    /// <returns></returns>
+    private List<string> GenerateCookiesTemplate(HttpContext httpContext)
+    {
+        // 获取请求 cookies 信息
+        var requestHeaderCookies = Uri.UnescapeDataString(httpContext.Request.Headers["cookie"].ToString());
+        // 获取响应 cookies 信息
+        var responseHeaderCookies = Uri.UnescapeDataString(httpContext.Response.Headers["Set-Cookie"].ToString());
+        return new List<string>()
+        {
+            "━━━━━━━━━━━━━━━  Cookies ━━━━━━━━━━━━━━━"
+            , $"##请求端## {requestHeaderCookies}"
+            , $"##响应端## {responseHeaderCookies}"
+        };
+    }
+    /// <summary>
+    /// 生成系统信息日志模板
+    /// </summary>
+    /// <returns></returns>
+    private List<string> GenerateSystemTemplate()
+    {
+        var osDescription = RuntimeInformation.OSDescription;
+        var osArchitecture = RuntimeInformation.OSArchitecture.ToString();
+        var frameworkDescription = RuntimeInformation.FrameworkDescription;
+        var basicFrameworkDescription = typeof(App).Assembly.GetName();
+        var basicFramework = basicFrameworkDescription.Name;
+        var basicFrameworkVersion = basicFrameworkDescription.Version?.ToString();
+        return new List<string>()
+        {
+             "━━━━━━━━━━━━━━━  系统信息 ━━━━━━━━━━━━━━━"
+            , $"##系统名称## {osDescription}"
+            , $"##系统架构## {osArchitecture}"
+            , $"##基础框架## {basicFramework} v{basicFrameworkVersion}"
+            , $"##.NET 架构## {frameworkDescription}"
+        };
+    }
+
+    /// <summary>
+    /// 生成启动信息日志模板
+    /// </summary>
+    /// <returns></returns>
+    private List<string> GenerateProcessTemplate(HttpContext httpContext)
+    {
+        var environment = httpContext.RequestServices.GetRequiredService<IWebHostEnvironment>().EnvironmentName;
+        var entryAssemblyName = Assembly.GetEntryAssembly()?.GetName().Name;
+        // 获取进程信息
+        var process = Process.GetCurrentProcess();
+        var processName = process.ProcessName;
+        return new List<string>()
+        {
+            "━━━━━━━━━━━━━━━  启动信息 ━━━━━━━━━━━━━━━"
+            , $"##运行环境## {environment}"
+            , $"##启动程序集## {entryAssemblyName}"
+            , $"##进程名称## {processName}"
+        };
+    }
+
+    /// <summary>
+    /// 生成请求头日志模板
+    /// </summary>
+    /// <param name="writer"></param>
+    /// <param name="headers"></param>
+    /// <returns></returns>
+    private List<string> GenerateRequestHeadersTemplate(IHeaderDictionary headers)
+    {
+        var templates = new List<string>();
+
+        if (!headers.Any()) return templates;
+
+        templates.AddRange(new[]
+        {
+            $"━━━━━━━━━━━━━━━  请求头信息 ━━━━━━━━━━━━━━━"
+            , $""
+        });
+
+        // 遍历请求头列表
+        foreach (var (key, value) in headers)
+        {
+            templates.Add($"##{key}## {value}");
+        }
+        return templates;
+    }
+
+
+    /// <summary>
+    /// 生成 JWT 授权信息日志模板
+    /// </summary>
+    /// <param name="writer"></param>
+    /// <param name="claimsPrincipal"></param>
+    /// <param name="authorization"></param>
+    /// <returns></returns>
+    private List<string> GenerateAuthorizationTemplate(ClaimsPrincipal claimsPrincipal, StringValues authorization, out List<object> authorizationClaims)
+    {
+        var templates = new List<string>();
+        authorizationClaims = new List<object>();
+        if (!claimsPrincipal.Claims.Any()) return templates;
+
+        templates.AddRange(new[]
+        {
+            $"━━━━━━━━━━━━━━━  授权信息 ━━━━━━━━━━━━━━━"
+            , $"##JWT Token## {authorization}"
+            , $""
+        });
+
+        // 遍历身份信息
+        foreach (var claim in claimsPrincipal.Claims)
+        {
+            var valueType = claim.ValueType.Replace("http://www.w3.org/2001/XMLSchema#", "");
+            var value = claim.Value;
+
+            // 解析时间戳并转换
+            if (!string.IsNullOrEmpty(value) && (claim.Type == "iat" || claim.Type == "nbf" || claim.Type == "exp"))
+            {
+                var succeed = long.TryParse(value, out var seconds);
+                if (succeed)
+                {
+                    value = $"{value} ({DateTimeOffset.FromUnixTimeSeconds(seconds).ToLocalTime():yyyy-MM-dd HH:mm:ss:ffff(zzz) dddd} L)";
+                }
+            }
+
+            templates.Add($"##{claim.Type} ({valueType})## {value}");
+            authorizationClaims.Add(new
+            {
+                claim.Type,
+                ValueType = valueType,
+                Value = value
+            });
+        }
+        return templates;
+    }
+
+
+
     #endregion
 }
 

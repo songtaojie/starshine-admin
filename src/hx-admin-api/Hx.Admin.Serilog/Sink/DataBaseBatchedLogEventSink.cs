@@ -32,7 +32,7 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
     {
         using var scope = _serviceProvider.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ISqlSugarClient>();
-        //await WriteLogs(batch.FilterNotSqlLog(), db);
+        await WriteLogs(batch.FilterNotSqlLog(), db);
         await WriteSqlLog(batch.FilterSqlLog(), db);
     }
 
@@ -63,8 +63,11 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
                     {
                         sysLogVisList.Add(sysLogVis);
                     }
-                    
-                    sysLogOpList.Add(WriteSysLogOp(logEvent));
+                    var sysLogOp = WriteSysLogOp(logEvent);
+                    if (sysLogOp != null)
+                    {
+                        sysLogOpList.Add(sysLogOp);
+                    }
                     break;
             }
         }
@@ -79,7 +82,8 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
     private SysLogVis? WriteSysLogVis(LogEvent logEvent)
     {
         var actionName = logEvent.GetPropertyValue<string>(LogContextConst.Route_Action);
-        if (!string.IsNullOrEmpty(actionName) && (actionName.Equals("Login")))
+        var visitAction = new string[] { "login","userinfo" };
+        if (!string.IsNullOrEmpty(actionName) && visitAction.Any(r=>r.Equals(actionName,StringComparison.CurrentCultureIgnoreCase)))
         {
             var remoteIPv4 = logEvent.GetPropertyValue<string>(LogContextConst.Request_RemoteIPv4);
             var elapsedMilliseconds = logEvent.GetPropertyValue<long?>(LogContextConst.Request_ElapsedMilliseconds);
@@ -120,8 +124,10 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
         return null;
     }
 
-    private SysLogOp WriteSysLogOp(LogEvent logEvent)
+    private SysLogOp? WriteSysLogOp(LogEvent logEvent)
     {
+        var actionName = logEvent.GetPropertyValue<string>(LogContextConst.Route_Action);
+        if (string.IsNullOrEmpty(actionName)) return null;
         var remoteIPv4 = logEvent.GetPropertyValue<string>(LogContextConst.Request_RemoteIPv4);
         var elapsedMilliseconds = logEvent.GetPropertyValue<long?>(LogContextConst.Request_ElapsedMilliseconds);
         // 获取当前操作者
@@ -131,7 +137,7 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
         var sysLogOp = new SysLogOp
         {
             ControllerName = logEvent.GetPropertyValue<string>(LogContextConst.Route_Controller),
-            ActionName = logEvent.GetPropertyValue<string>(LogContextConst.Route_Action),
+            ActionName = actionName,
             DisplayName = logEvent.GetPropertyValue<string>(LogContextConst.Route_DisplayName),
             Status = logEvent.GetPropertyValue<int>(LogContextConst.Response_StatusCode).ToString(),
             RemoteIp = remoteIPv4,
@@ -232,11 +238,9 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
                 var parameters = logEvent.Properties.ContainsKey(SugarLogScope.SqlPars)
                     ? logEvent.Properties[SugarLogScope.SqlPars].ToString()
                     : string.Empty;
-                var length = logEvent.MessageTemplate.Tokens.ElementAt(0).Length;
                 var sql = logEvent.Properties.ContainsKey(SugarLogScope.Sql)
                     ? logEvent.Properties[SugarLogScope.Sql].ToString()
                     : string.Empty;
-                Console.WriteLine($"渲染信息之前：{logEvent.MessageTemplate.Tokens.ElementAt(0).Length}");
                 switch (logType)
                 {
                     case 1:
@@ -275,7 +279,6 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
                         }
                         break;
                 }
-                Console.WriteLine($"渲染信息之后：{logEvent.MessageTemplate.Tokens.ElementAt(0).Length}");
             }
         }
         if (sysLogAuditList.Any())

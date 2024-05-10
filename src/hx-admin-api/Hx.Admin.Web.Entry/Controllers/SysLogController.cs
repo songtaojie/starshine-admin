@@ -10,13 +10,23 @@ using Hx.Admin.Models.ViewModels.Pos;
 using Hx.Admin.Models.ViewModels;
 using Hx.Admin.Models.ViewModels.Logs;
 using Hx.Admin.Models;
+using Hx.Admin.Serilog.Attributes;
 
 namespace Hx.Admin.Web.Entry.Controllers;
 
+/// <summary>
+/// 系统日志
+/// </summary>
 public class SysLogController : AdminControllerBase
 {
     private readonly ISysLogVisService _service;
     private readonly ISysLogOpService _sysLogOpService;
+
+    /// <summary>
+    /// 系统日志
+    /// </summary>
+    /// <param name="service"></param>
+    /// <param name="sysLogOpService"></param>
     public SysLogController(ISysLogVisService service, 
         ISysLogOpService sysLogOpService)
     {
@@ -29,7 +39,7 @@ public class SysLogController : AdminControllerBase
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [HttpGet]
+    [HttpGet, SkipLogging]
     public async Task<PagedListResult<SysLogVisOutput>> GetVisLogPage([FromQuery] PageLogInput input)
     {
         return await _service.GetPage(input);
@@ -50,7 +60,7 @@ public class SysLogController : AdminControllerBase
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    [HttpGet]
+    [HttpGet, SkipLogging]
     public async Task<PagedListResult<SysLogOpOutput>> GetOpLogPage([FromQuery] PageLogInput input)
     {
         return await _sysLogOpService.GetPage(input);

@@ -2,30 +2,30 @@
   "$schema": "https://gitee.com/dotnetchina/Furion/raw/v4/schemas/v4/furion-schema.json",
 
   "SwaggerSettings": {
-    "DocumentTitle": "HxAdmin 后台管理系统接口文档",
+    "DocumentTitle": "海星后台管理系统接口文档",
     "GroupOpenApiInfos": [
       {
         "Group": "Default",
-        "Title": "Admin.NET",
-        "Description": "让 .NET 开发更简单、更通用、更流行。前后端分离架构(.NET6/Vue3)，开箱即用紧随前沿技术。<br/><a href='https://gitee.com/zuohuaijun/Admin.NET/'>https://gitee.com/zuohuaijun/Admin.NET</a>",
+        "Title": "海星后台管理系统",
+        "Description": ".NET通用权限开发框架。<br/><a href='https://github.com/songtaojie/hx-admin'>https://github.com/songtaojie/hx-admin</a>",
         "Version": "1.0.0",
-        "TermsOfService": "https://dotnetchina.gitee.io/furion/",
+        "TermsOfService": "https://github.com/songtaojie/hx-admin",
         "Contact": {
-          "Name": "zuohuaijun",
-          "Email": "515096995@qq.com",
-          "Url": "https://gitee.com/zuohuaijun/Admin.NET"
+          "Name": "songtaojie",
+          "Email": "977601042@qq.com",
+          "Url": "https://github.com/songtaojie/hx-admin"
         }
       },
       {
         "Group": "All Groups",
         "Title": "所有接口",
-        "Description": "让 .NET 开发更简单、更通用、更流行。前后端分离架构(.NET6/Vue3)，开箱即用紧随前沿技术。<br/><a href='https://gitee.com/zuohuaijun/Admin.NET/'>https://gitee.com/zuohuaijun/Admin.NET</a>",
+        "Description": ".NET通用权限开发框架。前后端分离架构(.NET6/Vue3)。<br/><a href='https://github.com/songtaojie/hx-admin'>https://github.com/songtaojie/hx-admin</a>",
         "Version": "1.0.0",
-        "TermsOfService": "https://dotnetchina.gitee.io/furion/",
+        "TermsOfService": "https://github.com/songtaojie/hx-admin",
         "Contact": {
-          "Name": "zuohuaijun",
-          "Email": "515096995@qq.com",
-          "Url": "https://gitee.com/zuohuaijun/Admin.NET"
+          "Name": "songtaojie",
+          "Email": "977601042@qq.com",
+          "Url": "https://github.com/songtaojie/hx-admin"
         }
       }
     ],

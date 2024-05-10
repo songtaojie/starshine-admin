@@ -30,31 +30,40 @@ public static class SqlSugarServiceCollectionExtensions
                     switch (entityInfo.PropertyName)
                     {
                         case nameof(FullAuditedEntityBase.Id):
-                            var id = IdGenerater.GetNextId();
-                            entityInfo.SetValue(id);
+                            var id = entityInfo.EntityColumnInfo.PropertyInfo.GetValue(entityInfo.EntityValue);
+                            if (id == null || (id is long longId && longId == 0))
+                                entityInfo.SetValue(IdGenerater.GetNextId());
                             break;
                         case nameof(FullAuditedEntityBase.CreateTime):
-                            entityInfo.SetValue(DateTime.Now);
+                            var createTime = entityInfo.EntityColumnInfo.PropertyInfo.GetValue(entityInfo.EntityValue) as DateTime?;
+                            if (!createTime.HasValue) entityInfo.SetValue(DateTime.Now);
                             break;
                         case nameof(FullAuditedEntityBase.UpdateTime):
-                            entityInfo.SetValue(DateTime.Now);
+                            var updateTime = entityInfo.EntityColumnInfo.PropertyInfo.GetValue(entityInfo.EntityValue) as DateTime?;
+                            if (!updateTime.HasValue) entityInfo.SetValue(DateTime.Now);
                             break;
                     }
                     var userId = userManager.GetUserId<long>();
                     if (userId > 0)
                     {
                         if (entityInfo.PropertyName == nameof(FullAuditedEntityBase.CreatorId))
-                            entityInfo.SetValue(userId);
+                        {
+                            var creatorId = entityInfo.EntityColumnInfo.PropertyInfo.GetValue(entityInfo.EntityValue) as long?;
+                            if (!creatorId.HasValue) entityInfo.SetValue(userId);
+                        }
                         if (entityInfo.PropertyName == nameof(FullAuditedEntityBase.UpdaterId))
-                            entityInfo.SetValue(userId);
+                        {
+                            var updaterId = entityInfo.EntityColumnInfo.PropertyInfo.GetValue(entityInfo.EntityValue) as long?;
+                            if (!updaterId.HasValue) entityInfo.SetValue(userId);
+                        }
                     }
                     var orgId = userManager.GetOrgId<long>();
                     if (orgId > 0)
                     {
-                        if (entityInfo.OperationType == DataFilterType.InsertByObject)
+                        if (entityInfo.OperationType == DataFilterType.InsertByObject && entityInfo.PropertyName == nameof(IOrgIdFilter.OrgId))
                         {
-                            if (entityInfo.PropertyName == nameof(IOrgIdFilter.OrgId))
-                                entityInfo.SetValue(orgId);
+                            var createOrgId = entityInfo.EntityColumnInfo.PropertyInfo.GetValue(entityInfo.EntityValue) as long?;
+                            if(!createOrgId.HasValue) entityInfo.SetValue(orgId);
                         }
                     }
                 }
@@ -73,7 +82,7 @@ public static class SqlSugarServiceCollectionExtensions
 
             };
         });
-        //services.AddHostedService<SqlSugarHostedService>();
+        services.AddHostedService<SqlSugarHostedService>();
         return services;
     }
 }

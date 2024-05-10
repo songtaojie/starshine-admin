@@ -27,6 +27,8 @@ using System.Text.RegularExpressions;
 using Hx.Sdk.Core;
 using System.Text.Json.Serialization;
 using Hx.Common;
+using Hx.Admin.Core;
+using Hx.Admin.Serilog.Attributes;
 
 namespace Hx.Admin.Serilog.Filters;
 /// <summary>
@@ -44,77 +46,104 @@ public class HttpContextLogActionFilter : IAsyncActionFilter
     }
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
+
+        // 获取动作方法描述器
+        var actionDescriptor = context.ActionDescriptor as ControllerActionDescriptor;
+        if (actionDescriptor != null)
+        {
+            var hasSkipLogging = actionDescriptor.ControllerTypeInfo.HasAttribute<SkipLoggingAttribute>();
+            if (hasSkipLogging)
+            {
+                await next();
+                return;
+            }
+            var actionSkipLoggingAttribute = actionDescriptor.MethodInfo.GetCustomAttribute<SkipLoggingAttribute>();
+            if (actionSkipLoggingAttribute != null)
+            {
+                await next();
+                return;
+            }
+        }
         // 计算接口执行时间
         var timeOperation = Stopwatch.StartNew();
-        context.HttpContext.Items.Add(LogContextConst.Request_ElapsedMilliseconds, timeOperation.ElapsedMilliseconds);
+        var resultContext = await next();
+        timeOperation.Stop();
         var serviceProvider = context.HttpContext.RequestServices;
         var logger = serviceProvider.GetRequiredService<ILogger<HttpContextLogActionFilter>>();
-        using (LogContext.Push(new HttpContextEnricher(serviceProvider)))
+        var loggerItems = new List<string>();
+        using (LogContext.Push(new HttpContextEnricher(serviceProvider, loggerItems)))
         {
-            var resultContext = await next();
-            timeOperation.Stop();
-
-            if (context.HttpContext.Items.TryGetValue(LogContextConst.Request_LoggerItems, out object? value) && value != null)
+            context.HttpContext.Items.TryAdd(LogContextConst.Request_ElapsedMilliseconds, timeOperation.ElapsedMilliseconds);
+            // 写入日志，如果没有异常默认使用 LogInformation，否则使用 LogError
+            if (resultContext.Exception == null)
             {
-                var loggerItems = value as List<string>;
-                if (loggerItems != null)
-                {
-                    loggerItems.AddRange(GenerateCookiesTemplate(context.HttpContext));
-                    loggerItems.AddRange(GenerateSystemTemplate());
-                    loggerItems.AddRange(GenerateProcessTemplate(context.HttpContext));
-
-                    string? displayName = string.Empty;
-                    string? returnValue = null;
-                    string? authorization = null;
-                    List<object> paramsList = new();
-                    List<object> authorizationClaims = new();
-                    // 生成请求头日志模板
-                    loggerItems.AddRange(GenerateRequestHeadersTemplate(context.HttpContext.Request.Headers));
-                    if (context.HttpContext.User != null && context.HttpContext.User.Identity != null && context.HttpContext.User.Identity.IsAuthenticated)
-                    {
-                        var accessToken = context.HttpContext.Response.Headers["access-token"].ToString();
-                        authorization = string.IsNullOrWhiteSpace(accessToken)
-                            ? context.HttpContext.Request.Headers["Authorization"].ToString()
-                            : "Bearer " + accessToken;
-                        loggerItems.AddRange(GenerateAuthorizationTemplate(context.HttpContext.User, authorization,out authorizationClaims));
-                    }
-                    // 获取动作方法描述器
-                    var actionDescriptor = context.ActionDescriptor as ControllerActionDescriptor;
-                   
-                    if (actionDescriptor != null)
-                    {
-                        var actionMethod = actionDescriptor.MethodInfo;
-                        loggerItems.AddRange(GenerateParameterTemplate(context.ActionArguments, actionMethod, context.HttpContext.Request.Headers["Content-Type"],out paramsList));
-                        // 添加返回值信息日志模板
-                        loggerItems.AddRange(GenerateReturnInfomationTemplate(resultContext, actionMethod, out returnValue));
-                        // [DisplayName] 特性
-                        var displayNameAttribute = actionMethod.IsDefined(typeof(DisplayNameAttribute), true)
-                            ? actionMethod.GetCustomAttribute<DisplayNameAttribute>(true)
-                            : default;
-                        displayName = displayNameAttribute?.DisplayName;
-                    }
-                    var finalMessage = Wrapper("请求日志", displayName, loggerItems.ToArray());
-                    using (LogContext.PushProperty(LogContextConst.Request_ElapsedMilliseconds, timeOperation.ElapsedMilliseconds))
-                    using (LogContext.PushProperty(LogContextConst.Route_ActionResult, returnValue))
-                    using (LogContext.PushProperty(LogContextConst.Request_Authorization, authorization))
-                    using (LogContext.PushProperty(LogContextConst.Response_StatusCode, context.HttpContext.Response.StatusCode))
-                    using (LogContext.PushProperty(LogContextConst.Route_ActionParameters, JsonSerializer.Serialize(paramsList)))
-                    using (LogContext.PushProperty(LogContextConst.Request_Claims, authorizationClaims.Any()? JsonSerializer.Serialize(authorizationClaims):string.Empty))
-                    {
-                        // 写入日志，如果没有异常默认使用 LogInformation，否则使用 LogError
-                        if (resultContext.Exception == null)
-                        {
-                            logger.LogInformation(finalMessage);
-                        }
-                        else
-                        {
-                            // 如果不是验证异常，写入 Error
-                            logger.LogError(resultContext.Exception, finalMessage);
-                        }
-                    }
-                    
-                }
+                logger.LogInformation(Wrapper("请求日志", "", loggerItems.ToArray()));
             }
+            else
+            {
+                // 如果不是验证异常，写入 Error
+                logger.LogError(resultContext.Exception, Wrapper("请求日志", "", loggerItems.ToArray()));
+            }
+            //if (context.HttpContext.Items.TryGetValue(LogContextConst.Request_LoggerItems, out object? value) && value != null)
+            //{
+            //    var loggerItems = value as List<string>;
+            //    if (loggerItems != null)
+            //    {
+            //        loggerItems.AddRange(GenerateCookiesTemplate(context.HttpContext));
+            //        loggerItems.AddRange(GenerateSystemTemplate());
+            //        loggerItems.AddRange(GenerateProcessTemplate(context.HttpContext));
+
+            //        string? displayName = string.Empty;
+            //        string? returnValue = null;
+            //        string? authorization = null;
+            //        List<object> paramsList = new();
+            //        List<object> authorizationClaims = new();
+            //        // 生成请求头日志模板
+            //        loggerItems.AddRange(GenerateRequestHeadersTemplate(context.HttpContext.Request.Headers));
+            //        if (context.HttpContext.User != null && context.HttpContext.User.Identity != null && context.HttpContext.User.Identity.IsAuthenticated)
+            //        {
+            //            var accessToken = context.HttpContext.Response.Headers["access-token"].ToString();
+            //            authorization = string.IsNullOrWhiteSpace(accessToken)
+            //                ? context.HttpContext.Request.Headers["Authorization"].ToString()
+            //                : "Bearer " + accessToken;
+            //            loggerItems.AddRange(GenerateAuthorizationTemplate(context.HttpContext.User, authorization,out authorizationClaims));
+            //        }
+
+
+            //        if (actionDescriptor != null)
+            //        {
+            //            var actionMethod = actionDescriptor.MethodInfo;
+            //            loggerItems.AddRange(GenerateParameterTemplate(context.ActionArguments, actionMethod, context.HttpContext.Request.Headers["Content-Type"],out paramsList));
+            //            // 添加返回值信息日志模板
+            //            loggerItems.AddRange(GenerateReturnInfomationTemplate(resultContext, actionMethod, out returnValue));
+            //            // [DisplayName] 特性
+            //            var displayNameAttribute = actionMethod.IsDefined(typeof(DisplayNameAttribute), true)
+            //                ? actionMethod.GetCustomAttribute<DisplayNameAttribute>(true)
+            //                : default;
+            //            displayName = displayNameAttribute?.DisplayName;
+            //        }
+            //        var finalMessage = Wrapper("请求日志", displayName, loggerItems.ToArray());
+            //        using (LogContext.PushProperty(LogContextConst.Request_ElapsedMilliseconds, timeOperation.ElapsedMilliseconds))
+            //        using (LogContext.PushProperty(LogContextConst.Route_ActionResult, returnValue))
+            //        using (LogContext.PushProperty(LogContextConst.Request_Authorization, authorization))
+            //        using (LogContext.PushProperty(LogContextConst.Response_StatusCode, context.HttpContext.Response.StatusCode))
+            //        using (LogContext.PushProperty(LogContextConst.Route_ActionParameters, JsonSerializer.Serialize(paramsList)))
+            //        using (LogContext.PushProperty(LogContextConst.Request_Claims, authorizationClaims.Any()? JsonSerializer.Serialize(authorizationClaims):string.Empty))
+            //        {
+            //            // 写入日志，如果没有异常默认使用 LogInformation，否则使用 LogError
+            //            if (resultContext.Exception == null)
+            //            {
+            //                logger.LogInformation(finalMessage);
+            //            }
+            //            else
+            //            {
+            //                // 如果不是验证异常，写入 Error
+            //                logger.LogError(resultContext.Exception, finalMessage);
+            //            }
+            //        }
+
+            //    }
+            //}
         }
     }
     /// <summary>
