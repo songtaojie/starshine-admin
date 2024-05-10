@@ -12,17 +12,10 @@ using Hx.Admin.Models.ViewModels.Role;
 
 namespace Hx.Admin.Web.Entry.Controllers;
 
-/// <summary>
-/// 角色管理
-/// </summary>
+
 public class SysRoleController : AdminControllerBase
 {
     private readonly ISysRoleService _service;
-
-    /// <summary>
-    /// <see cref="SysRoleController"/>
-    /// </summary>
-    /// <param name="service"></param>
     public SysRoleController(ISysRoleService service)
     {
         _service = service;

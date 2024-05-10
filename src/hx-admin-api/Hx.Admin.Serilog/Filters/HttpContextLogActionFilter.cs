@@ -25,7 +25,8 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Hx.Sdk.Core;
-using System;
+using System.Text.Json.Serialization;
+using Hx.Common;
 
 namespace Hx.Admin.Serilog.Filters;
 /// <summary>
@@ -65,7 +66,8 @@ public class HttpContextLogActionFilter : IAsyncActionFilter
                     string? displayName = string.Empty;
                     string? returnValue = null;
                     string? authorization = null;
-                    List<object> paramsList = new List<object>();
+                    List<object> paramsList = new();
+                    List<object> authorizationClaims = new();
                     // 生成请求头日志模板
                     loggerItems.AddRange(GenerateRequestHeadersTemplate(context.HttpContext.Request.Headers));
                     if (context.HttpContext.User != null && context.HttpContext.User.Identity != null && context.HttpContext.User.Identity.IsAuthenticated)
@@ -74,7 +76,7 @@ public class HttpContextLogActionFilter : IAsyncActionFilter
                         authorization = string.IsNullOrWhiteSpace(accessToken)
                             ? context.HttpContext.Request.Headers["Authorization"].ToString()
                             : "Bearer " + accessToken;
-                        loggerItems.AddRange(GenerateAuthorizationTemplate(context.HttpContext.User, authorization));
+                        loggerItems.AddRange(GenerateAuthorizationTemplate(context.HttpContext.User, authorization,out authorizationClaims));
                     }
                     // 获取动作方法描述器
                     var actionDescriptor = context.ActionDescriptor as ControllerActionDescriptor;
@@ -97,6 +99,7 @@ public class HttpContextLogActionFilter : IAsyncActionFilter
                     using (LogContext.PushProperty(LogContextConst.Request_Authorization, authorization))
                     using (LogContext.PushProperty(LogContextConst.Response_StatusCode, context.HttpContext.Response.StatusCode))
                     using (LogContext.PushProperty(LogContextConst.Route_ActionParameters, JsonSerializer.Serialize(paramsList)))
+                    using (LogContext.PushProperty(LogContextConst.Request_Claims, authorizationClaims.Any()? JsonSerializer.Serialize(authorizationClaims):string.Empty))
                     {
                         // 写入日志，如果没有异常默认使用 LogInformation，否则使用 LogError
                         if (resultContext.Exception == null)
@@ -209,10 +212,10 @@ public class HttpContextLogActionFilter : IAsyncActionFilter
     /// <param name="claimsPrincipal"></param>
     /// <param name="authorization"></param>
     /// <returns></returns>
-    private List<string> GenerateAuthorizationTemplate(ClaimsPrincipal claimsPrincipal, StringValues authorization)
+    private List<string> GenerateAuthorizationTemplate(ClaimsPrincipal claimsPrincipal, StringValues authorization,out List<object> authorizationClaims)
     {
         var templates = new List<string>();
-
+        authorizationClaims = new List<object>();
         if (!claimsPrincipal.Claims.Any()) return templates;
 
         templates.AddRange(new[]
@@ -239,6 +242,12 @@ public class HttpContextLogActionFilter : IAsyncActionFilter
             }
 
             templates.Add($"##{claim.Type} ({valueType})## {value}");
+            authorizationClaims.Add(new
+            {
+                claim.Type,
+                ValueType = valueType,
+                Value = value
+            });
         }
         return templates;
     }
@@ -452,7 +461,18 @@ public class HttpContextLogActionFilter : IAsyncActionFilter
 
         try
         {
-            var result = System.Text.Json.JsonSerializer.Serialize(obj);
+
+            // 序列化默认配置
+            var jsonSerializerOptions = new JsonSerializerOptions()
+            {
+                // 解决循环引用问题
+                ReferenceHandler = ReferenceHandler.IgnoreCycles,
+            };
+            jsonSerializerOptions.Converters.Add(new DateTimeJsonConverter());
+            jsonSerializerOptions.Converters.Add(new DateTimeNullJsonConverter());
+            // 解决 long 精度问题
+            jsonSerializerOptions.Converters.Add(new LongJsonConverter());
+            var result = System.Text.Json.JsonSerializer.Serialize(obj, jsonSerializerOptions);
             succeed = true;
             return result;
         }

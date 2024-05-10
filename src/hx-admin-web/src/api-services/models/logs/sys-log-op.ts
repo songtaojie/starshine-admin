@@ -41,12 +41,6 @@ export interface SysLogOp {
 	 */
 	isDelete?: boolean;
 	/**
-	 * 租户Id
-	 * @type {number}
-	 * @memberof SysLogOp
-	 */
-	tenantId?: number | null;
-	/**
 	 * 模块名称
 	 * @type {string}
 	 * @memberof SysLogOp
@@ -63,7 +57,7 @@ export interface SysLogOp {
 	 * @type {string}
 	 * @memberof SysLogOp
 	 */
-	displayTitle?: string | null;
+	displayName?: string | null;
 	/**
 	 * 执行状态
 	 * @type {string}

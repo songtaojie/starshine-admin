@@ -16,11 +16,6 @@ public class ClaimConst
     public const string Account = "Account";
 
     /// <summary>
-    /// 真实姓名
-    /// </summary>
-    public const string RealName = "RealName";
-
-    /// <summary>
     /// 昵称
     /// </summary>
     public const string NickName = "NickName";

@@ -30,37 +30,23 @@ public static class SqlSugarServiceCollectionExtensions
                     switch (entityInfo.PropertyName)
                     {
                         case nameof(FullAuditedEntityBase.Id):
-                            var id = entityInfo.EntityColumnInfo.PropertyInfo.GetValue(entityInfo.EntityValue);
-                            if(id == null || (id is long longId && longId == 0))
-                                entityInfo.SetValue(IdGenerater.GetNextId());
+                            var id = IdGenerater.GetNextId();
+                            entityInfo.SetValue(id);
                             break;
                         case nameof(FullAuditedEntityBase.CreateTime):
-                            var createTime = entityInfo.EntityColumnInfo.PropertyInfo.GetValue(entityInfo.EntityValue) as DateTime?;
-                            if (createTime == null)
-                                entityInfo.SetValue(DateTime.Now);
+                            entityInfo.SetValue(DateTime.Now);
                             break;
                         case nameof(FullAuditedEntityBase.UpdateTime):
-                            var updateTime = entityInfo.EntityColumnInfo.PropertyInfo.GetValue(entityInfo.EntityValue) as DateTime?;
-                            if (updateTime == null) entityInfo.SetValue(DateTime.Now);
+                            entityInfo.SetValue(DateTime.Now);
                             break;
                     }
                     var userId = userManager.GetUserId<long>();
                     if (userId > 0)
                     {
                         if (entityInfo.PropertyName == nameof(FullAuditedEntityBase.CreatorId))
-                        {
-                            var creatorId = entityInfo.EntityColumnInfo.PropertyInfo.GetValue(entityInfo.EntityValue) as long?;
-                            if(!creatorId.HasValue || creatorId == 0)
-                                entityInfo.SetValue(userId);
-                        }
-
+                            entityInfo.SetValue(userId);
                         if (entityInfo.PropertyName == nameof(FullAuditedEntityBase.UpdaterId))
-                        {
-                            var updaterId = entityInfo.EntityColumnInfo.PropertyInfo.GetValue(entityInfo.EntityValue) as long?;
-                            if (!updaterId.HasValue || updaterId == 0)
-                                entityInfo.SetValue(userId);
-                        }
-                            
+                            entityInfo.SetValue(userId);
                     }
                     var orgId = userManager.GetOrgId<long>();
                     if (orgId > 0)
@@ -68,11 +54,7 @@ public static class SqlSugarServiceCollectionExtensions
                         if (entityInfo.OperationType == DataFilterType.InsertByObject)
                         {
                             if (entityInfo.PropertyName == nameof(IOrgIdFilter.OrgId))
-                            {
-                                var orgIdValue = entityInfo.EntityColumnInfo.PropertyInfo.GetValue(entityInfo.EntityValue) as long?;
-                                if (!orgIdValue.HasValue || orgIdValue == 0)
-                                    entityInfo.SetValue(orgId);
-                            }
+                                entityInfo.SetValue(orgId);
                         }
                     }
                 }
@@ -91,7 +73,7 @@ public static class SqlSugarServiceCollectionExtensions
 
             };
         });
-        services.AddHostedService<SqlSugarHostedService>();
+        //services.AddHostedService<SqlSugarHostedService>();
         return services;
     }
 }

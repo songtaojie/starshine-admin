@@ -18,13 +18,14 @@ public class SysLogOpService : BaseService<SysLogOp>, ISysLogOpService
     /// 获取操作日志分页列表
     /// </summary>
     /// <returns></returns>
-    public async Task<PagedListResult<SysLogOp>> GetPage(PageLogInput input)
+    public async Task<PagedListResult<SysLogOpOutput>> GetPage(PageLogInput input)
     {
         return await _rep.AsQueryable()
             .WhereIF(input.StartTime.HasValue,u => u.CreateTime >= input.StartTime)
             .WhereIF(input.EndTime.HasValue, u => u.CreateTime <= input.EndTime)
             //.OrderBy(u => u.CreateTime, OrderByType.Desc)
             .OrderBuilder(input)
+            .Select<SysLogOpOutput>()
             .ToPagedListAsync(input.Page, input.PageSize);
     }
 

@@ -12,17 +12,9 @@ using System.Xml.Linq;
 
 namespace Hx.Admin.Web.Entry.Controllers;
 
-/// <summary>
-/// 缓存管理控制器
-/// </summary>
 public class SysCacheController : AdminControllerBase
 {
     private readonly ICache _cache;
-
-    /// <summary>
-    /// <see cref="SysCacheController"/>
-    /// </summary>
-    /// <param name="cache"></param>
     public SysCacheController(ICache cache)
     {
         _cache = cache;

@@ -15,7 +15,7 @@ public interface ISysLogOpService : IBaseService<SysLogOp>, IScopedDependency
     /// 获取操作日志分页列表
     /// </summary>
     /// <returns></returns>
-    Task<PagedListResult<SysLogOp>> GetPage(PageLogInput input);
+    Task<PagedListResult<SysLogOpOutput>> GetPage(PageLogInput input);
 
     /// <summary>
     /// 清空操作日志

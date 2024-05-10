@@ -18,12 +18,13 @@ public class SysLogVisService : BaseService<SysLogVis>, ISysLogVisService
     /// 获取访问日志分页列表
     /// </summary>
     /// <returns></returns>
-    public async Task<PagedListResult<SysLogVis>> GetPage(PageLogInput input)
+    public async Task<PagedListResult<SysLogVisOutput>> GetPage(PageLogInput input)
     {
         return await _rep.AsQueryable()
             .WhereIF(input.StartTime.HasValue, u => u.CreateTime >= input.StartTime)
             .WhereIF(input.EndTime.HasValue, u => u.CreateTime <= input.EndTime)
             .OrderBy(u => u.CreateTime, OrderByType.Desc)
+            .Select<SysLogVisOutput>()
             .ToPagedListAsync(input.Page, input.PageSize);
     }
 

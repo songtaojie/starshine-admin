@@ -6,18 +6,15 @@
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
+using Newtonsoft.Json;
 using Serilog.Core;
 using Serilog.Events;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
-using System.Text.Json;
-using System.Xml.XPath;
 
 
 namespace Hx.Admin.Serilog.Enricher;
@@ -42,7 +39,7 @@ public class HttpContextEnricher : ILogEventEnricher
                 {
                     x_forwarded_for = httpContext.Request.Headers["X-Forwarded-For"];
                 }
-                logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Client_Ip, JsonSerializer.Serialize(x_forwarded_for)));
+                logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Client_Ip, JsonConvert.SerializeObject(x_forwarded_for)));
                 logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Request_Path, httpContext.Request.Path));
                 logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Request_Method, httpContext.Request.Method));
                 
@@ -75,15 +72,8 @@ public class HttpContextEnricher : ILogEventEnricher
                     var displayNameAttribute = actionMethod.IsDefined(typeof(DisplayNameAttribute), true)
                         ? actionMethod.GetCustomAttribute<DisplayNameAttribute>(true)
                         : default;
-                    if (displayNameAttribute == null)
-                    {
-                        displayName = GetActionDescription(actionMethod);
-                    }
-                    else
-                    {
-                        displayName = displayNameAttribute.DisplayName;
-                    }
-                    logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Route_DisplayName, displayName));
+                    displayName = displayNameAttribute?.DisplayName;
+                    logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Route_DisplayName, displayNameAttribute?.DisplayName));
                     if (actionDescriptor.Parameters != null)
                     {
                         logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Route_ActionParameters, actionDescriptor.Parameters));
@@ -141,12 +131,6 @@ public class HttpContextEnricher : ILogEventEnricher
                 // 获取请求 cookies 信息
                 var requestHeaderCookies = Uri.UnescapeDataString(httpRequest.Headers["cookie"].ToString());
                 logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Request_HeaderCookies, requestHeaderCookies));
-                
-                //获取授权信息
-                if (httpContext.User != null && httpContext.User.Identity != null && httpContext.User.Identity.IsAuthenticated)
-                {
-                    logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(LogContextConst.Request_Claims, JsonSerializer.Serialize(httpContext.User.Claims)));
-                }
 
                 var loggerItems = new List<string>()
                 {
@@ -220,10 +204,10 @@ public class HttpContextEnricher : ILogEventEnricher
     private string GetActionDescription(MethodInfo actionMethod)
     {
         var type = actionMethod.DeclaringType!;
-        XPathNavigator? _xmlNavigator = null;
         var xmlName = string.Format("{0}.xml", type.Assembly.GetName().Name);
         string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, xmlName);
         if (!System.IO.File.Exists(path)) return string.Empty;
+        XPathNavigator? _xmlNavigator;
         if (!_xmlNavigatorDic.ContainsKey(path))
         {
             XPathDocument xmlDoc = new XPathDocument(path);

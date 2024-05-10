@@ -12,17 +12,9 @@ using Hx.Admin.Models.ViewModels.Wechat;
 
 namespace Hx.Admin.Web.Entry.Controllers;
 
-/// <summary>
-/// 微信用户管理
-/// </summary>
 public class SysWechatUserController : AdminControllerBase
 {
     private readonly ISysWechatUserService _service;
-
-    /// <summary>
-    /// 微信用户管理
-    /// </summary>
-    /// <param name="service"></param>
     public SysWechatUserController(ISysWechatUserService service)
     {
         _service = service;

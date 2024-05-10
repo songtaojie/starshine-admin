@@ -3,9 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Hx.Admin.Web.Entry.Controllers
 {
-    /// <summary>
-    /// 首页控制器
-    /// </summary>
     //[AllowAnonymous]
     public class HomeController : Controller
     {
@@ -15,10 +12,7 @@ namespace Hx.Admin.Web.Entry.Controllers
         //{
         //    _systemService = systemService;
         //}
-        /// <summary>
-        /// 首页
-        /// </summary>
-        /// <returns></returns>
+
         public IActionResult Index()
         {
             //ViewBag.Description = _systemService.GetDescription();

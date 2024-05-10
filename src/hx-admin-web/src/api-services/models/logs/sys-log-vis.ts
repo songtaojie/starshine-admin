@@ -17,12 +17,6 @@ export interface SysLogVis {
 	 */
 	createTime?: Date | null;
 	/**
-	 * 更新时间
-	 * @type {Date}
-	 * @memberof SysLogVis
-	 */
-	updateTime?: Date | null;
-	/**
 	 * 模块名称
 	 * @type {string}
 	 * @memberof SysLogVis
@@ -39,7 +33,7 @@ export interface SysLogVis {
 	 * @type {string}
 	 * @memberof SysLogVis
 	 */
-	displayName?: string | null;
+	displayTitle?: string | null;
 	/**
 	 * 执行状态
 	 * @type {string}
@@ -88,6 +82,12 @@ export interface SysLogVis {
 	 * @memberof SysLogVis
 	 */
 	elapsed?: number | null;
+	/**
+	 * 日志时间
+	 * @type {Date}
+	 * @memberof SysLogVis
+	 */
+	logDateTime?: Date | null;
 	/**
 	 * 账号
 	 * @type {string}

@@ -12,17 +12,10 @@ using Hx.Admin.Models.ViewModels.Region;
 
 namespace Hx.Admin.Web.Entry.Controllers;
 
-/// <summary>
-/// 区域管理
-/// </summary>
+
 public class SysRegionController : AdminControllerBase
 {
     private readonly ISysRegionService _service;
-
-    /// <summary>
-    /// <see cref="SysRegionController"/>
-    /// </summary>
-    /// <param name="service"></param>
     public SysRegionController(ISysRegionService service)
     {
         _service = service;
@@ -86,6 +79,7 @@ public class SysRegionController : AdminControllerBase
     /// <summary>
     /// 同步行政区域
     /// </summary>
+    /// <param name="input"></param>
     /// <returns></returns>
     [HttpPost]
     public async Task Sync()

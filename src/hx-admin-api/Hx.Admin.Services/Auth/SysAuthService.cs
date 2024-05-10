@@ -7,6 +7,7 @@ using Lazy.Captcha.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace Hx.Admin.Core.Service;
@@ -88,8 +89,10 @@ public class SysAuthService : BaseService<SysUser>, ISysAuthService
         var accessToken = JWTEncryption.Encrypt(new Dictionary<string, object>
         {
             { ClaimTypes.NameIdentifier, user.Id },
+            { ClaimTypes.WindowsAccountName,user.Account},
             { ClaimTypes.Role, Enum.GetName(user.AccountType) },
             { ClaimTypes.Name, user.RealName },
+            { ClaimTypes.GivenName, user.NickName },
             { HxClaimTypes.OrgId, user.OrgId },
         }, tokenExpire);
         // 生成刷新Token令牌

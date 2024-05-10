@@ -11,24 +11,17 @@ using Hx.Admin.Models.ViewModels.OnlineUser;
 
 namespace Hx.Admin.Web.Entry.Controllers;
 
-/// <summary>
-/// 在线用户
-/// </summary>
+
 public class SysOnlineUserController : AdminControllerBase
 {
     private readonly ISysOnlineUserService _service;
-
-    /// <summary>
-    /// <see cref="SysOnlineUserController"/>
-    /// </summary>
-    /// <param name="service"></param>
     public SysOnlineUserController(ISysOnlineUserService service)
     {
         _service = service;
     }
 
     /// <summary>
-    /// 获取在线用户分页列表数据
+    /// <see cref="ISysOnlineUserService.GetPage(PageOnlineUserInput)"/>
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
@@ -39,7 +32,7 @@ public class SysOnlineUserController : AdminControllerBase
     }
 
     /// <summary>
-    /// 强制下线
+    /// <see cref="ISysOnlineUserService.ForceOffline(SysOnlineUser)"/>
     /// </summary>
     /// <returns></returns>
     [HttpPost]

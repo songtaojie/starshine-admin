@@ -4,6 +4,7 @@ using Hx.Admin.Models.ViewModels.Hub;
 using Hx.Admin.Models.ViewModels.Message;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
+using System.Security.Claims;
 using UAParser;
 
 namespace Hx.Admin.Core;
@@ -45,13 +46,13 @@ public class OnlineUserHub : Hub<IOnlineUserHub>
         var claims = _httpContextAccessor.HttpContext?.User.Claims;
         var client = Parser.GetDefault().Parse(_httpContextAccessor.HttpContext?.Request.Headers["User-Agent"]);
 
-        var userId = claims.FirstOrDefault(u => u.Type == ClaimConst.UserId)?.Value;
+        var userId = claims.FirstOrDefault(u => u.Type == ClaimTypes.NameIdentifier)?.Value;
         var user = new SysOnlineUser
         {
             ConnectionId = Context.ConnectionId,
             UserId = string.IsNullOrWhiteSpace(userId) ? 0 : long.Parse(userId),
-            UserName = claims?.FirstOrDefault(u => u.Type == ClaimConst.Account)?.Value,
-            RealName = claims.FirstOrDefault(u => u.Type == ClaimConst.RealName)?.Value,
+            UserName = claims?.FirstOrDefault(u => u.Type == ClaimTypes.WindowsAccountName)?.Value,
+            RealName = claims.FirstOrDefault(u => u.Type == ClaimTypes.Name)?.Value,
             Time = DateTime.Now,
             Ip = _httpContextAccessor.HttpContext.GetRemoteIpAddressToIPv4(),
             Browser = client.UA.Family + client.UA.Major,

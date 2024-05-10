@@ -23,7 +23,7 @@
 		<el-card class="full-table" shadow="hover" style="margin-top: 8px">
 			<el-table :data="state.logData" style="width: 100%" v-loading="state.loading" border>
 				<el-table-column type="index" label="序号" width="55" align="center" />
-				<el-table-column prop="displayName" label="显示名称" width="150" align="center" show-overflow-tooltip />
+				<el-table-column prop="displayTitle" label="显示名称" width="150" align="center" show-overflow-tooltip />
 				<el-table-column prop="actionName" label="方法名称" width="150" header-align="center" show-overflow-tooltip />
 				<el-table-column prop="account" label="账号名称" width="100" align="center" show-overflow-tooltip />
 				<el-table-column prop="realName" label="真实姓名" width="100" align="center" show-overflow-tooltip />
@@ -38,7 +38,7 @@
 					</template>
 				</el-table-column>
 				<el-table-column prop="elapsed" label="耗时(ms)" width="90" align="center" show-overflow-tooltip />
-				<el-table-column prop="createTime" label="日志时间" width="160" align="center" fixed="right" show-overflow-tooltip />
+				<el-table-column prop="logDateTime" label="日志时间" width="160" align="center" fixed="right" show-overflow-tooltip />
 			</el-table>
 			<el-pagination
 				v-model:currentPage="state.tableParams.page"

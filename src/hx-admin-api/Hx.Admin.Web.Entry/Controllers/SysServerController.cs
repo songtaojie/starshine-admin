@@ -33,12 +33,6 @@ public class SysServerController : AdminControllerBase
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IWebHostEnvironment _webHostEnvironment;
-
-    /// <summary>
-    /// <see cref="SysServerController"/>
-    /// </summary>
-    /// <param name="httpContextAccessor"></param>
-    /// <param name="webHostEnvironment"></param>
     public SysServerController(IHttpContextAccessor httpContextAccessor, 
         IWebHostEnvironment webHostEnvironment)
     {

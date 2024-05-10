@@ -13,19 +13,10 @@ using Hx.Admin.Models;
 
 namespace Hx.Admin.Web.Entry.Controllers;
 
-/// <summary>
-/// 系统日志控制器
-/// </summary>
 public class SysLogController : AdminControllerBase
 {
     private readonly ISysLogVisService _service;
     private readonly ISysLogOpService _sysLogOpService;
-
-    /// <summary>
-    /// <see cref="SysLogController"/>
-    /// </summary>
-    /// <param name="service"></param>
-    /// <param name="sysLogOpService"></param>
     public SysLogController(ISysLogVisService service, 
         ISysLogOpService sysLogOpService)
     {
@@ -39,7 +30,7 @@ public class SysLogController : AdminControllerBase
     /// <param name="input"></param>
     /// <returns></returns>
     [HttpGet]
-    public async Task<PagedListResult<SysLogVis>> GetVisLogPage([FromQuery] PageLogInput input)
+    public async Task<PagedListResult<SysLogVisOutput>> GetVisLogPage([FromQuery] PageLogInput input)
     {
         return await _service.GetPage(input);
     }
@@ -55,14 +46,14 @@ public class SysLogController : AdminControllerBase
     }
 
     /// <summary>
-    /// 获取访问日志分页列表
+    /// 获取操作日志分页列表
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
     [HttpGet]
-    public async Task<PagedListResult<SysLogVis>> GetOpLogPage([FromQuery] PageLogInput input)
+    public async Task<PagedListResult<SysLogOpOutput>> GetOpLogPage([FromQuery] PageLogInput input)
     {
-        return await _service.GetPage(input);
+        return await _sysLogOpService.GetPage(input);
     }
 
     /// <summary>

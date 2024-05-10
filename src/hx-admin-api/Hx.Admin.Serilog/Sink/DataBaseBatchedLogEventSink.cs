@@ -15,10 +15,10 @@ using Serilog.Sinks.PeriodicBatching;
 using SqlSugar;
 using System.Security.Claims;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using UAParser;
 using Yitter.IdGenerator;
-using static SKIT.FlurlHttpClient.Wechat.Api.Models.WeDataQueryBindListResponse.Types;
 
 namespace Hx.Admin.Serilog.Sink;
 public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
@@ -32,7 +32,7 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
     {
         using var scope = _serviceProvider.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ISqlSugarClient>();
-        await WriteLogs(batch.FilterNotSqlLog(), db);
+        //await WriteLogs(batch.FilterNotSqlLog(), db);
         await WriteSqlLog(batch.FilterSqlLog(), db);
     }
 
@@ -79,31 +79,14 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
     private SysLogVis? WriteSysLogVis(LogEvent logEvent)
     {
         var actionName = logEvent.GetPropertyValue<string>(LogContextConst.Route_Action);
-        var visitAction = new string[] { "userinfo", "login" };
-        if (!string.IsNullOrEmpty(actionName) && visitAction.Any(r=>r.Equals(actionName,StringComparison.CurrentCultureIgnoreCase)))
+        if (!string.IsNullOrEmpty(actionName) && (actionName.Equals("Login")))
         {
             var remoteIPv4 = logEvent.GetPropertyValue<string>(LogContextConst.Request_RemoteIPv4);
             var elapsedMilliseconds = logEvent.GetPropertyValue<long?>(LogContextConst.Request_ElapsedMilliseconds);
             // 获取当前操作者
             var requestClaims = logEvent.GetPropertyValue<string>(LogContextConst.Request_Claims);
-            if (!string.IsNullOrEmpty(requestClaims))
-            { 
-                
-            }
-            var authorizationClaims = logEvent.GetPropertyValue<IEnumerable<Claim>>(LogContextConst.Request_Claims);
-            string account = "", realName = "", userId = "";
-            if (authorizationClaims != null)
-            {
-                foreach (var item in authorizationClaims)
-                {
-                    if (item.Type == ClaimConst.Account)
-                        account = item.Value;
-                    if (item.Type == ClaimConst.RealName)
-                        realName = item.Value;
-                    if (item.Type == ClaimConst.UserId)
-                        userId = item.Value;
-                }
-            }
+            var (account, realName, userId) = GetAccount(requestClaims);
+
             var sysLogVis = new SysLogVis
             {
                 ControllerName = logEvent.GetPropertyValue<string>(LogContextConst.Route_Controller),
@@ -142,20 +125,9 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
         var remoteIPv4 = logEvent.GetPropertyValue<string>(LogContextConst.Request_RemoteIPv4);
         var elapsedMilliseconds = logEvent.GetPropertyValue<long?>(LogContextConst.Request_ElapsedMilliseconds);
         // 获取当前操作者
-        var authorizationClaims = logEvent.GetPropertyValue<IEnumerable<Claim>>(LogContextConst.Request_Claims);
-        string account = "", realName = "", userId = "";
-        if (authorizationClaims != null)
-        {
-            foreach (var item in authorizationClaims)
-            {
-                if (item.Type == ClaimConst.Account)
-                    account = item.Value;
-                if (item.Type == ClaimConst.RealName)
-                    realName = item.Value;
-                if (item.Type == ClaimConst.UserId)
-                    userId = item.Value;
-            }
-        }
+        var requestClaims = logEvent.GetPropertyValue<string>(LogContextConst.Request_Claims);
+        var (account, realName, userId) = GetAccount(requestClaims);
+
         var sysLogOp = new SysLogOp
         {
             ControllerName = logEvent.GetPropertyValue<string>(LogContextConst.Route_Controller),
@@ -199,20 +171,8 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
         var remoteIPv4 = logEvent.GetPropertyValue<string>(LogContextConst.Request_RemoteIPv4);
         var elapsedMilliseconds = logEvent.GetPropertyValue<long?>(LogContextConst.Request_ElapsedMilliseconds);
         // 获取当前操作者
-        var authorizationClaims = logEvent.GetPropertyValue<IEnumerable<Claim>>(LogContextConst.Request_Claims);
-        string account = "", realName = "", userId = "";
-        if (authorizationClaims != null)
-        {
-            foreach (var item in authorizationClaims)
-            {
-                if (item.Type == ClaimConst.Account)
-                    account = item.Value;
-                if (item.Type == ClaimConst.RealName)
-                    realName = item.Value;
-                if (item.Type == ClaimConst.UserId)
-                    userId = item.Value;
-            }
-        }
+        var requestClaims = logEvent.GetPropertyValue<string>(LogContextConst.Request_Claims);
+        var (account, realName, userId) = GetAccount(requestClaims);
         var sysLogEx = new SysLogEx
         {
             ControllerName = logEvent.GetPropertyValue<string>(LogContextConst.Route_Controller),
@@ -368,6 +328,32 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
             return table.StartsWith("SysLog",StringComparison.CurrentCultureIgnoreCase);
         }
         return false;
+    }
+
+
+    private (string?, string?, string?) GetAccount(string? requestClaims)
+    {
+        if (string.IsNullOrEmpty(requestClaims)) return (null,null,null);
+        string? account = null, realName = null, userId = null;
+        var jsonDocument = System.Text.Json.JsonDocument.Parse(requestClaims);
+        // 遍历JsonDocument中的每个元素
+        foreach (JsonElement element in jsonDocument.RootElement.EnumerateArray())
+        {
+            if (element.GetProperty("Type").GetString() == ClaimTypes.WindowsAccountName)
+            {
+                account = element.GetProperty("Value").GetString();
+            }
+            if (element.GetProperty("Type").GetString() == ClaimTypes.Name)
+            {
+                realName = element.GetProperty("Value").GetString();
+            }
+
+            if (element.GetProperty("Type").GetString() == ClaimTypes.NameIdentifier)
+            {
+                userId = element.GetProperty("Value").GetString();
+            }
+        }
+        return (account, realName, userId);
     }
     #endregion
 }
