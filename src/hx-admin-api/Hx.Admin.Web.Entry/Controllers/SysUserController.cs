@@ -12,9 +12,16 @@ using Hx.Admin.Models.ViewModels.User;
 
 namespace Hx.Admin.Web.Entry.Controllers;
 
+/// <summary>
+/// 系统用户
+/// </summary>
 public class SysUserController : AdminControllerBase
 {
     private readonly ISysUserService _service;
+    /// <summary>
+    /// 系统用户
+    /// </summary>
+    /// <param name="service"></param>
     public SysUserController(ISysUserService service)
     {
         _service = service;

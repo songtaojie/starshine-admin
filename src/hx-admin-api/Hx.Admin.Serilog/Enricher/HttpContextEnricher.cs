@@ -165,32 +165,6 @@ public class HttpContextEnricher : ILogEventEnricher
                         loggerItems.AddRange(GenerateCookiesTemplate(context));
                         loggerItems.AddRange(GenerateSystemTemplate());
                         loggerItems.AddRange(GenerateProcessTemplate(context));
-
-                        //// 生成请求头日志模板
-                        //loggerItems.AddRange(GenerateRequestHeadersTemplate(context.Request.Headers));
-                        //if (context.User != null && context.User.Identity != null && context.User.Identity.IsAuthenticated)
-                        //{
-                        //    var accessToken = context.Response.Headers["access-token"].ToString();
-                        //    authorization = string.IsNullOrWhiteSpace(accessToken)
-                        //        ? context.Request.Headers["Authorization"].ToString()
-                        //        : "Bearer " + accessToken;
-                        //    loggerItems.AddRange(GenerateAuthorizationTemplate(context.User, authorization, out authorizationClaims));
-                        //}
-
-
-                        //if (actionDescriptor != null)
-                        //{
-                        //    var actionMethod = actionDescriptor.MethodInfo;
-                        //    loggerItems.AddRange(GenerateParameterTemplate(context.ActionArguments, actionMethod, context.HttpContext.Request.Headers["Content-Type"], out paramsList));
-                        //    // 添加返回值信息日志模板
-                        //    loggerItems.AddRange(GenerateReturnInfomationTemplate(resultContext, actionMethod, out returnValue));
-                        //    // [DisplayName] 特性
-                        //    var displayNameAttribute = actionMethod.IsDefined(typeof(DisplayNameAttribute), true)
-                        //        ? actionMethod.GetCustomAttribute<DisplayNameAttribute>(true)
-                        //        : default;
-                        //    displayName = displayNameAttribute?.DisplayName;
-                        //}
-
                         await Task.CompletedTask;
                     }
                 }, httpContext);

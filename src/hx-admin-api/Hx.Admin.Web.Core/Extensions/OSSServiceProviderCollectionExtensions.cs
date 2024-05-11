@@ -4,18 +4,8 @@
 //
 // 电话/微信：song977601042
 
-using Elasticsearch.Net;
-using Hx.Admin.Core;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using Nest;
 using OnceMi.AspNetCore.OSS;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Microsoft.Extensions.DependencyInjection;
 /// <summary>

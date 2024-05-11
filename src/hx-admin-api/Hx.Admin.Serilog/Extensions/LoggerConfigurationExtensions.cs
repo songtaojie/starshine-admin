@@ -5,15 +5,7 @@
 // 电话/微信：song977601042
 
 using Serilog.Events;
-using Serilog.Filters;
-using Serilog;
 using SqlSugar;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Nest;
 using Hx.Sqlsugar;
 
 namespace Hx.Admin.Serilog;

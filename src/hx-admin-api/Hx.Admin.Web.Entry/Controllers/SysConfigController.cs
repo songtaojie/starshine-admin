@@ -11,9 +11,16 @@ using Hx.Admin.Models.ViewModels.Config;
 
 namespace Hx.Admin.Web.Entry.Controllers;
 
+/// <summary>
+/// 系统配置
+/// </summary>
 public class SysConfigController : AdminControllerBase
 {
     private readonly ISysConfigService _service;
+    /// <summary>
+    /// 系统配置
+    /// </summary>
+    /// <param name="service"></param>
     public SysConfigController(ISysConfigService service)
     {
         _service = service;

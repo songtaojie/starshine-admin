@@ -5,12 +5,11 @@
 // 电话/微信：song977601042
 
 using Hx.Admin.IService;
-using Hx.Admin.Models.ViewModels.Org;
-using Hx.Admin.Models.ViewModels.Pos;
-using Hx.Admin.Models.ViewModels;
 using Hx.Admin.Models.ViewModels.Logs;
-using Hx.Admin.Models;
 using Hx.Admin.Serilog.Attributes;
+using Hx.Admin.IServices.Logs;
+using Hx.Sdk.Core;
+using Magicodes.ExporterAndImporter.Excel;
 
 namespace Hx.Admin.Web.Entry.Controllers;
 
@@ -21,17 +20,25 @@ public class SysLogController : AdminControllerBase
 {
     private readonly ISysLogVisService _service;
     private readonly ISysLogOpService _sysLogOpService;
+    private readonly ISysLogDiffService _sysLogDiffService;
+    private readonly ISysLogExService _sysLogExService;
 
     /// <summary>
     /// 系统日志
     /// </summary>
     /// <param name="service"></param>
     /// <param name="sysLogOpService"></param>
+    /// <param name="sysLogDiffService"></param>
+    /// <param name="sysLogExService"></param>
     public SysLogController(ISysLogVisService service, 
-        ISysLogOpService sysLogOpService)
+        ISysLogOpService sysLogOpService,
+        ISysLogDiffService sysLogDiffService,
+        ISysLogExService sysLogExService)
     {
         _service = service;
         _sysLogOpService = sysLogOpService;
+        _sysLogDiffService = sysLogDiffService;
+        _sysLogExService = sysLogExService;
     }
 
     /// <summary>
@@ -74,5 +81,61 @@ public class SysLogController : AdminControllerBase
     public async Task<bool> ClearOpLog()
     {
         return await _sysLogOpService.Clear();
+    }
+
+    /// <summary>
+    /// 获取操作日志分页列表
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
+    [HttpGet, SkipLogging]
+    public async Task<PagedListResult<SysLogDiffOutput>> GetDiffLogPage([FromQuery] PageLogInput input)
+    {
+        return await _sysLogDiffService.GetPage(input);
+    }
+
+    /// <summary>
+    /// 清空差异化日志
+    /// </summary>
+    /// <returns></returns>
+    [HttpPost]
+    public async Task<bool> ClearDiffLog()
+    {
+        return await _sysLogDiffService.Clear();
+    }
+
+    /// <summary>
+    /// 获取操作日志分页列表
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
+    [HttpGet, SkipLogging]
+    public async Task<PagedListResult<SysLogExOutput>> GetSysLogExPage([FromQuery] PageLogInput input)
+    {
+        return await _sysLogExService.GetPage(input);
+    }
+
+    /// <summary>
+    /// 清空异常日志
+    /// </summary>
+    /// <returns></returns>
+    [HttpPost]
+    public async Task<bool> ClearExLog()
+    {
+        return await _sysLogExService.Clear();
+    }
+
+    /// <summary>
+    /// 导出异常日志 🔖
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet,NonUnify]
+    public async Task<IActionResult> ExportLogEx([FromQuery] LogInput input)
+    {
+        var logExList = await _sysLogExService.GetExportListAsync(input);
+
+        IExcelExporter excelExporter = new ExcelExporter();
+        var res = await excelExporter.ExportAsByteArray(logExList);
+        return new FileStreamResult(new MemoryStream(res), "application/octet-stream") { FileDownloadName = DateTime.Now.ToString("yyyyMMddHHmm") + "异常日志.xlsx" };
     }
 }

@@ -18,12 +18,13 @@ public class SysLogDiffService : BaseService<SysLogDiff>, ISysLogDiffService
     /// 获取差异日志分页列表
     /// </summary>
     /// <returns></returns>
-    public async Task<PagedListResult<SysLogDiff>> GetPage(PageLogInput input)
+    public async Task<PagedListResult<SysLogDiffOutput>> GetPage(PageLogInput input)
     {
         return await _rep.AsQueryable()
             .WhereIF(input.StartTime.HasValue,u => u.CreateTime >= input.StartTime)
             .WhereIF(input.EndTime.HasValue, u => u.CreateTime <= input.EndTime)
             .OrderBy(u => u.CreateTime, OrderByType.Desc)
+            .Select<SysLogDiffOutput>()
             .ToPagedListAsync(input.Page, input.PageSize);
     }
 

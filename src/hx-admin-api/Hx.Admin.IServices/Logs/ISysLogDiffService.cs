@@ -13,7 +13,7 @@ public interface ISysLogDiffService : IBaseService<SysLogDiff>, IScopedDependenc
     /// 获取差异日志分页列表
     /// </summary>
     /// <returns></returns>
-    Task<PagedListResult<SysLogDiff>> GetPage(PageLogInput input);
+    Task<PagedListResult<SysLogDiffOutput>> GetPage(PageLogInput input);
 
     /// <summary>
     /// 清空差异日志

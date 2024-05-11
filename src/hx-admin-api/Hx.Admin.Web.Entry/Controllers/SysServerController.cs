@@ -6,21 +6,18 @@
 
 using AngleSharp.Html.Parser;
 using AspNetCoreRateLimit;
+using Elastic.Clients.Elasticsearch;
 using FluentEmail.Core;
 using FreeRedis;
-using Hx.Admin.IService;
-using Hx.Admin.Models.ViewModels.Role;
 using Lazy.Captcha.Core;
 using Magicodes.ExporterAndImporter.Excel;
 using Magicodes.ExporterAndImporter.Pdf;
-using Microsoft.AspNetCore.Http;
-using Nest;
 using OnceMi.AspNetCore.OSS;
 using SKIT.FlurlHttpClient.Wechat.Api;
 using SKIT.FlurlHttpClient.Wechat.TenpayV3;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Text.Json;
 using UAParser;
 using Yitter.IdGenerator;
 
@@ -33,6 +30,11 @@ public class SysServerController : AdminControllerBase
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IWebHostEnvironment _webHostEnvironment;
+    /// <summary>
+    /// 系统监控服务
+    /// </summary>
+    /// <param name="httpContextAccessor"></param>
+    /// <param name="webHostEnvironment"></param>
     public SysServerController(IHttpContextAccessor httpContextAccessor, 
         IWebHostEnvironment webHostEnvironment)
     {
@@ -108,7 +110,7 @@ public class SysServerController : AdminControllerBase
         var sqlSugarAssembly = typeof(ISqlSugarClient).Assembly.GetName();
         var yitIdAssembly = typeof(YitIdHelper).Assembly.GetName();
         var redisAssembly = typeof(RedisClient).Assembly.GetName();
-        var jsonAssembly = typeof(NewtonsoftJsonMvcCoreBuilderExtensions).Assembly.GetName();
+        var jsonAssembly = typeof(JsonSerializer).Assembly.GetName();
         var excelAssembly = typeof(IExcelImporter).Assembly.GetName();
         var pdfAssembly = typeof(IPdfExporter).Assembly.GetName();
         var captchaAssembly = typeof(ICaptcha).Assembly.GetName();
@@ -116,7 +118,7 @@ public class SysServerController : AdminControllerBase
         var wechatTenpayAssembly = typeof(WechatTenpayClient).Assembly.GetName();
         var ossAssembly = typeof(IOSSServiceFactory).Assembly.GetName();
         var parserAssembly = typeof(Parser).Assembly.GetName();
-        var nestAssembly = typeof(IElasticClient).Assembly.GetName();
+        var nestAssembly = typeof(ElasticsearchClient).Assembly.GetName();
         var limitAssembly = typeof(IpRateLimitMiddleware).Assembly.GetName();
         var htmlParserAssembly = typeof(HtmlParser).Assembly.GetName();
         var fluentEmailAssembly = typeof(IFluentEmail).Assembly.GetName();

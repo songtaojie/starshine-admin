@@ -10,10 +10,16 @@ using Hx.Admin.Models.ViewModels.Menu;
 
 namespace Hx.Admin.Web.Entry.Controllers;
 
-
+/// <summary>
+/// 系统菜单
+/// </summary>
 public class SysMenuController : AdminControllerBase
 {
     private readonly ISysMenuService _service;
+    /// <summary>
+    /// 系统菜单
+    /// </summary>
+    /// <param name="service"></param>
     public SysMenuController(ISysMenuService service)
     {
         _service = service;

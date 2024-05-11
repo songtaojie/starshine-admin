@@ -12,9 +12,16 @@ using System.IO;
 
 namespace Hx.Admin.Web.Entry.Controllers;
 
+/// <summary>
+/// 文件服务
+/// </summary>
 public class SysFileController : AdminControllerBase
 {
     private readonly ISysFileService _service;
+    /// <summary>
+    /// 文件服务
+    /// </summary>
+    /// <param name="service"></param>
     public SysFileController(ISysFileService service)
     {
         _service = service;
@@ -64,6 +71,11 @@ public class SysFileController : AdminControllerBase
         await _service.DeleteFile(input);
     }
 
+    /// <summary>
+    /// 获取下载文件
+    /// </summary>
+    /// <param name="input">获取文件信息</param>
+    /// <returns></returns>
     [HttpGet]
     public async Task<IActionResult> GetDownloadFile(FileInput input)
     {

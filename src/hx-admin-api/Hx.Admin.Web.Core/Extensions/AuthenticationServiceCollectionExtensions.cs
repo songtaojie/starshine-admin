@@ -4,26 +4,15 @@
 //
 // 电话/微信：song977601042
 
-using Hx.Admin.Core;
 using Hx.Admin.Web.Core.Authentication;
-using Hx.Cache;
-using Hx.Sdk.Core;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
-using Nest;
 using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace Microsoft.Extensions.DependencyInjection;
 public static class AuthenticationServiceCollectionExtensions

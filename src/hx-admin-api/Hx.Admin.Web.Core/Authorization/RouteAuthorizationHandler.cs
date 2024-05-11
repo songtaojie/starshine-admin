@@ -4,23 +4,17 @@
 //
 // 电话/微信：song977601042
 
-using Hx.Admin.Core;
-using Hx.Admin.Core.Service;
 using Hx.Admin.IService;
 using Hx.Common.Extensions;
 using Hx.Sdk.Core;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.DependencyInjection;
-using Nest;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Microsoft.AspNetCore.Authorization;

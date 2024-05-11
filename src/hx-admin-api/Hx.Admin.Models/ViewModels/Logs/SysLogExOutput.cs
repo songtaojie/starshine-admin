@@ -4,6 +4,7 @@
 //
 // 电话/微信：song977601042
 
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,14 +13,15 @@ using System.Threading.Tasks;
 
 namespace Hx.Admin.Models.ViewModels.Logs;
 /// <summary>
-/// 操作日志返回结果
+/// 异常日志
 /// </summary>
-public class SysLogOpOutput
+public class SysLogExOutput
 {
     /// <summary>
     /// 主键id
     /// </summary>
-    public long Id { get; set; }
+    public long Id {  get; set; }
+
     /// <summary>
     /// 模块名称
     /// </summary>
@@ -106,11 +108,6 @@ public class SysLogOpOutput
     public string? ReturnResult { get; set; }
 
     /// <summary>
-    /// 事件Id
-    /// </summary>
-    public int EventId { get; set; }
-
-    /// <summary>
     /// 线程Id
     /// </summary>
     public int ThreadId { get; set; }
@@ -129,6 +126,11 @@ public class SysLogOpOutput
     /// 日志消息Json
     /// </summary>
     public string? Message { get; set; }
+
+    /// <summary>
+    /// 日志级别
+    /// </summary>
+    public LogLevel? LogLevel { get; set; }
 
     /// <summary>
     /// 创建时间

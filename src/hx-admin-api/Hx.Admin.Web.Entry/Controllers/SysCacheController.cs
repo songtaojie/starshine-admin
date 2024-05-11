@@ -4,17 +4,18 @@
 //
 // 电话/微信：song977601042
 
-using Hx.Admin.IService;
-using Hx.Admin.Models.ViewModels.Config;
-using Nest;
-using System.ComponentModel;
-using System.Xml.Linq;
-
 namespace Hx.Admin.Web.Entry.Controllers;
 
+/// <summary>
+/// 系统缓存
+/// </summary>
 public class SysCacheController : AdminControllerBase
 {
     private readonly ICache _cache;
+    /// <summary>
+    /// 系统缓存
+    /// </summary>
+    /// <param name="cache"></param>
     public SysCacheController(ICache cache)
     {
         _cache = cache;

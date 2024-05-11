@@ -17,30 +17,6 @@ export interface SysLogOp {
 	 */
 	createTime?: Date | null;
 	/**
-	 * 更新时间
-	 * @type {Date}
-	 * @memberof SysLogOp
-	 */
-	updateTime?: Date | null;
-	/**
-	 * 创建者Id
-	 * @type {number}
-	 * @memberof SysLogOp
-	 */
-	createUserId?: number | null;
-	/**
-	 * 修改者Id
-	 * @type {number}
-	 * @memberof SysLogOp
-	 */
-	updateUserId?: number | null;
-	/**
-	 * 软删除
-	 * @type {boolean}
-	 * @memberof SysLogOp
-	 */
-	isDelete?: boolean;
-	/**
 	 * 模块名称
 	 * @type {string}
 	 * @memberof SysLogOp

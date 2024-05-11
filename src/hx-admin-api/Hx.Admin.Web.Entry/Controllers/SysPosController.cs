@@ -11,9 +11,16 @@ using Hx.Admin.Models.ViewModels.Pos;
 
 namespace Hx.Admin.Web.Entry.Controllers;
 
+/// <summary>
+/// 职位
+/// </summary>
 public class SysPosController : AdminControllerBase
 {
     private readonly ISysPosService _service;
+    /// <summary>
+    /// 职位
+    /// </summary>
+    /// <param name="service"></param>
     public SysPosController(ISysPosService service)
     {
         _service = service;

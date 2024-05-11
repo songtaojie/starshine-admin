@@ -12,11 +12,18 @@ using Hx.Admin.Models.ViewModels.Org;
 
 namespace Hx.Admin.Web.Entry.Controllers;
 
-
+/// <summary>
+/// 字典服务
+/// </summary>
 public class SysDictController : AdminControllerBase
 {
     private readonly ISysDictTypeService _service;
     private readonly ISysDictDataService _sysDictDataService;
+    /// <summary>
+    /// 字典服务
+    /// </summary>
+    /// <param name="service"></param>
+    /// <param name="sysDictDataService"></param>
     public SysDictController(ISysDictTypeService service, ISysDictDataService sysDictDataService)
     {
         _service = service;
@@ -37,7 +44,6 @@ public class SysDictController : AdminControllerBase
     /// <summary>
     /// 获取字典类型列表
     /// </summary>
-    /// <param name="input"></param>
     /// <returns></returns>
     [HttpGet]
     public async Task<IEnumerable<ListDictTypeOutput>> GetDictTypeList()
