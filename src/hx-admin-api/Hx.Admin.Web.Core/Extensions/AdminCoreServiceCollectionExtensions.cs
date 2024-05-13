@@ -72,7 +72,7 @@ public static class AdminCoreServiceCollectionExtensions
         // 电子邮件
         services.AddFluentEmail(configuration);
         services.AddSqlSugarSetup();
-        //services.AddQuartzService(configuration);
+        services.AddQuartzService(configuration);
     }
 
 

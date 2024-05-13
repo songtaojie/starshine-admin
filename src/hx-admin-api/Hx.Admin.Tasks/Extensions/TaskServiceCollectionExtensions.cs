@@ -19,6 +19,7 @@ using Hx.Common.Extensions;
 using System.Reflection;
 using Hx.Admin.Core;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
+using System.Collections.Specialized;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -44,9 +45,12 @@ public static class TaskServiceCollectionExtensions
                     if(string.IsNullOrWhiteSpace(jobDetail.JobId))
                         jobDetail.JobId = jobType.FullName!;
                     // Create a "key" for the job
-                    var jobKey = new JobKey(jobDetail.JobId);
+                    var jobKey = new JobKey(jobDetail.JobId, jobDetail.GroupName);
                     // Register the job with the DI container
-                    q.AddJob<LogJob>(opts => opts.WithIdentity(jobKey));
+                    q.AddJob<LogJob>(opts =>
+                    {
+                        opts.WithIdentity(jobKey).WithDescription(jobDetail.Description);
+                    });
                     var jobTriggerList = jobType.GetCustomAttributes<JobTriggerAttribute>();
                     if (jobTriggerList.Any())
                     {
@@ -59,7 +63,8 @@ public static class TaskServiceCollectionExtensions
                             q.AddTrigger(opts =>
                             {
                                 opts.ForJob(jobKey)
-                                    .WithIdentity(jobTrigger.TriggerId);
+                                    .WithIdentity(jobTrigger.TriggerId)
+                                    .WithDescription(jobTrigger.Description);
                                 if (jobTrigger.StartNow)
                                     opts.StartNow();
                                 var configCron = configuration[$"Quartz:{jobType.Name}"];
@@ -81,7 +86,7 @@ public static class TaskServiceCollectionExtensions
                         // Create a trigger for the job
                         q.AddTrigger(opts =>
                         {
-                            opts .ForJob(jobKey).StartNow().WithIdentity($"{jobDetail.JobId}-trigger");
+                            opts.ForJob(jobKey).StartNow().WithIdentity($"{jobDetail.JobId}-trigger");
                             var configCron = configuration[$"Quartz:{jobType.Name}"];
                             if (!string.IsNullOrWhiteSpace(configCron))
                             {
@@ -91,7 +96,12 @@ public static class TaskServiceCollectionExtensions
                     }
                 }
             }
-           
+            //持久化
+            q.UsePersistentStore(x =>
+            {
+                x.UseMicrosoftSQLite("DataSource=./HxAdmin.db");
+                x.UseNewtonsoftJsonSerializer();
+            });
         });
 
         // ASP.NET Core hosting
@@ -102,4 +112,5 @@ public static class TaskServiceCollectionExtensions
         });
         return services;
     }
+
 }

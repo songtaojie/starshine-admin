@@ -23,7 +23,6 @@
 
 	<ItemGroup>
 		<None Remove="Hx.Admin.db" />
-		<None Remove="Test.db" />
 	</ItemGroup>
 
 	<ItemGroup>

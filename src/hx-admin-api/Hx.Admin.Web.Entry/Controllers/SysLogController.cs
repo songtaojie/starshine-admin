@@ -110,7 +110,7 @@ public class SysLogController : AdminControllerBase
     /// <param name="input"></param>
     /// <returns></returns>
     [HttpGet, SkipLogging]
-    public async Task<PagedListResult<SysLogExOutput>> GetSysLogExPage([FromQuery] PageLogInput input)
+    public async Task<PagedListResult<SysLogExOutput>> GetExLogPage([FromQuery] PageLogInput input)
     {
         return await _sysLogExService.GetPage(input);
     }
@@ -130,12 +130,12 @@ public class SysLogController : AdminControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet,NonUnify]
-    public async Task<IActionResult> ExportLogEx([FromQuery] LogInput input)
+    public async Task<IActionResult> ExportExLog([FromQuery] LogInput input)
     {
         var logExList = await _sysLogExService.GetExportListAsync(input);
 
         IExcelExporter excelExporter = new ExcelExporter();
         var res = await excelExporter.ExportAsByteArray(logExList);
-        return new FileStreamResult(new MemoryStream(res), "application/octet-stream") { FileDownloadName = DateTime.Now.ToString("yyyyMMddHHmm") + "异常日志.xlsx" };
+        return new FileStreamResult(new MemoryStream(res), "application/octet-stream") { FileDownloadName = $"异常日志_{DateTime.Now:yyyyMMddHHmm}.xlsx" };
     }
 }

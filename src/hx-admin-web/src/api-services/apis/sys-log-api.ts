@@ -103,7 +103,7 @@ export class SysLogApi extends BaseAPI {
 	 * @memberof SysLogApi
 	 */
 	public async getExLogPage(params?: PageLogInput): Promise<AxiosResponse<AdminResultPagedListResult<SysLogEx>>> {
-		const api = `/api/sys-log/getdifflogpage`;
+		const api = `/api/sys-log/getexlogpage`;
 		return this.PageAdminResult<SysLogEx>({ api, params });
 	}
 
@@ -115,7 +115,20 @@ export class SysLogApi extends BaseAPI {
 	 * @memberof SysLogApi
 	 */
 	public async clearExLog(): Promise<AxiosResponse<AdminResult<Boolean>>> {
-		const api = `/api/sys-log/cleardifflog`;
+		const api = `/api/sys-log/clearexlog`;
 		return this.PostAdminResult<Boolean>({ api });
+	}
+
+	/**
+	 *
+	 * @summary 导出操作日志
+	 * @param {PageLogInput} [body]
+	 * @param {*} [options] Override http request option.
+	 * @throws {RequiredError}
+	 * @memberof SysLogApi
+	 */
+	public async exportExLog(params?: PageLogInput, options?: AxiosRequestConfig): Promise<AxiosResponse<AdminResult<any>>> {
+		const api = `/api/sys-log/exportexLog`;
+		return this.GetAdminResult<any>({ api, params, ...options });
 	}
 }

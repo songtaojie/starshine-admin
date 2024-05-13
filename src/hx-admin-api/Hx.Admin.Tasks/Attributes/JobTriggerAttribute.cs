@@ -40,7 +40,7 @@ public sealed class JobTriggerAttribute : Attribute
     /// <summary>
     /// Cron表达式
     /// </summary>
-    public string? Cron { get; }
+    public string? Cron { get; set; }
 
     /// <summary>
     /// 作业触发器 Id
