@@ -5,21 +5,12 @@
 // 电话/微信：song977601042
 
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Quartz.AspNetCore;
 using Quartz;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Hx.Admin.Tasks;
 using Hx.Sdk.Core;
 using Hx.Common.Extensions;
 using System.Reflection;
-using Hx.Admin.Core;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
-using System.Collections.Specialized;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -51,7 +42,7 @@ public static class TaskServiceCollectionExtensions
                     {
                         opts.WithIdentity(jobKey).WithDescription(jobDetail.Description);
                     });
-                    var jobTriggerList = jobType.GetCustomAttributes<JobTriggerAttribute>();
+                    var jobTriggerList = jobType.GetCustomAttributes<TriggerAttribute>(true);
                     if (jobTriggerList.Any())
                     {
                         int index = 0;
@@ -66,18 +57,38 @@ public static class TaskServiceCollectionExtensions
                                     .WithIdentity(jobTrigger.TriggerId)
                                     .WithDescription(jobTrigger.Description);
                                 if (jobTrigger.StartNow)
+                                {
                                     opts.StartNow();
-                                var configCron = configuration[$"Quartz:{jobType.Name}"];
-                                if (!string.IsNullOrWhiteSpace(configCron))
-                                {
-                                    opts.WithCronSchedule(configCron);
                                 }
-                                else if(!string.IsNullOrWhiteSpace(jobTrigger.Cron))
+                                else if(jobTrigger.RuntimeStartTime.HasValue)
                                 {
-                                    opts.WithCronSchedule(jobTrigger.Cron);
+                                    opts.StartAt(jobTrigger.RuntimeStartTime.Value);
                                 }
-
-                            }); // run every 5 seconds
+                                if (jobTrigger.RuntimeEndTime.HasValue)
+                                {
+                                    opts.EndAt(jobTrigger.RuntimeEndTime.Value);
+                                }
+                                if (jobTrigger.TriggerType == TriggerTypeEnum.Corn && jobTrigger is CronTriggerAttribute cronTrigger)
+                                {
+                                    var configCron = configuration[$"Quartz:{jobType.Name}"];
+                                    if (string.IsNullOrWhiteSpace(configCron))
+                                    {
+                                        configCron = cronTrigger.Cron;
+                                    }
+                                    if (!string.IsNullOrWhiteSpace(configCron))
+                                    {
+                                        opts.WithCronSchedule(configCron);
+                                    }
+                                }
+                                else if (jobTrigger.TriggerType == TriggerTypeEnum.Simple && jobTrigger is PeriodTriggerAttribute periodTrigger)
+                                {
+                                    var interval = jobTrigger.TriggerArgs?.FirstOrDefault() as long?;
+                                    if (interval.HasValue && interval > 100)
+                                    {
+                                        opts.WithSimpleSchedule(s => s.WithInterval(TimeSpan.FromMilliseconds(interval.Value)));
+                                    }
+                                }
+                            }); 
                             index++;
                         }
                     }
@@ -92,7 +103,7 @@ public static class TaskServiceCollectionExtensions
                             {
                                 opts.WithCronSchedule(configCron);
                             }
-                        }); 
+                        });
                     }
                 }
             }
@@ -113,4 +124,18 @@ public static class TaskServiceCollectionExtensions
         return services;
     }
 
+
+    /// <summary>
+    /// 检查字段域 非 Null 非空数组
+    /// </summary>
+    /// <param name="fields">字段值</param>
+    private static void CheckCronExpression(params object[] fields)
+    {
+        // 空检查
+        if (fields == null || fields.Length == 0) throw new ArgumentNullException(nameof(fields));
+
+        // 检查 fields 只能是 int, long，string 和非 null 类型
+        if (fields.Any(f => f == null || (f.GetType() != typeof(int) && f.GetType() != typeof(long) && f.GetType() != typeof(string)))) 
+            throw new InvalidOperationException("Invalid Cron expression.");
+    }
 }
