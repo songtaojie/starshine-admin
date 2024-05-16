@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Quartz;
 using Quartz.Impl.AdoJobStore;
 using Quartz.Spi;
+using SqlSugar;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,9 +35,8 @@ public class MyJobStoreTX: JobStoreTX
         {
             var objectCount = await ExecuteWithoutLock<int>(conn => ValidateAndCreateSchema(adoDelegate,conn, cancellationToken), cancellationToken).ConfigureAwait(false);
         }
-        
         await base.Initialize(loadHelper, signaler, cancellationToken);
-        _logger.LogInformation("CustomJobStore has been initialized, service provider is {ServiceProviderType}", _serviceProvider.GetType());
+        _logger.LogInformation("CustomJobStore has been initialized, service provider is ServiceProviderType");
     }
 
 
@@ -79,5 +79,19 @@ public class MyJobStoreTX: JobStoreTX
         TableLocks,
         TableSchedulerState
     };
-
+    //private virtual List<DbTableInfo> GetTableInfoList(bool isCache = true)
+    //{
+    //    string cacheKey = "DbMaintenanceProvider.GetTableInfoList" + this.Context.CurrentConnectionConfig.ConfigId;
+    //    cacheKey = GetCacheKey(cacheKey);
+    //    var result = new List<DbTableInfo>();
+    //    if (isCache)
+    //        result = GetListOrCache<DbTableInfo>(cacheKey, this.GetTableInfoListSql);
+    //    else
+    //        result = this.Context.Ado.SqlQuery<DbTableInfo>(this.GetTableInfoListSql);
+    //    foreach (var item in result)
+    //    {
+    //        item.DbObjectType = DbObjectType.Table;
+    //    }
+    //    return result;
+    //}
 }
