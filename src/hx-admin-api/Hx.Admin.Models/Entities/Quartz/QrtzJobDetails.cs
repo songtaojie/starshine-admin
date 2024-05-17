@@ -18,25 +18,26 @@ namespace Hx.Admin.Models;
 /// <summary>
 /// 系统作业信息表
 /// </summary>
-//[SugarTable("QRTZ_JOB_DETAILS", "系统作业信息表")]
-public class QrtzJobDetails:EntityBase
+[SugarTable("QRTZ_JOB_DETAILS", "系统作业信息表")]
+[Tenant(SqlSugarConst.Quartz_ConfigId)]
+public class QrtzJobDetails
 {
     /// <summary>
     /// 调度名字
     /// </summary>
-    [SugarColumn(ColumnDescription = "调度名字", ColumnName = "SCHED_NAME",Length =120,IsNullable =false)]
+    [SugarColumn(ColumnDescription = "调度名字", ColumnName = "SCHED_NAME",Length =120,IsNullable =false, IsPrimaryKey = true)]
     public string SchedulerName { get; set; }
 
     /// <summary>
     /// 任务名字
     /// </summary>
-    [SugarColumn(ColumnDescription = "任务名字", ColumnName = "JOB_NAME", Length = 150, IsNullable = false)]
+    [SugarColumn(ColumnDescription = "任务名字", ColumnName = "JOB_NAME", Length = 150, IsNullable = false, IsPrimaryKey = true)]
     public string JobName { get; set; }
 
     /// <summary>
     /// 任务分组
     /// </summary>
-    [SugarColumn(ColumnDescription = "任务分组", ColumnName = "JOB_GROUP", Length = 150, IsNullable = false)]
+    [SugarColumn(ColumnDescription = "任务分组", ColumnName = "JOB_GROUP", Length = 150, IsNullable = false, IsPrimaryKey = true)]
     public string JobGroup { get; set; }
 
     /// <summary>

@@ -15,25 +15,27 @@ namespace Hx.Admin.Models;
 /// <summary>
 /// 触发器
 /// </summary>
-//[SugarTable("QRTZ_TRIGGERS")]
+[SugarTable("QRTZ_TRIGGERS")]
+[Tenant(SqlSugarConst.Quartz_ConfigId)]
+[SugarIndex("IDX_QRTZ_T_G_J", nameof(SchedulerName), OrderByType.Asc, nameof(JobGroup), OrderByType.Desc, nameof(JobName), OrderByType.Desc)]
 public class QrtzTriggers
 {
     /// <summary>
     /// 调度名字
     /// </summary>
-    [SugarColumn(ColumnDescription = "调度名字", ColumnName = "SCHED_NAME", Length = 120, IsNullable = false)]
+    [SugarColumn(ColumnDescription = "调度名字", ColumnName = "SCHED_NAME", Length = 120, IsNullable = false,IsPrimaryKey =true)]
     public string SchedulerName { get; set; }
 
     /// <summary>
     /// 触发器名字
     /// </summary>
-    [SugarColumn(ColumnDescription = "触发器名字", ColumnName = "TRIGGER_NAME", Length = 150, IsNullable = false)]
+    [SugarColumn(ColumnDescription = "触发器名字", ColumnName = "TRIGGER_NAME", Length = 150, IsNullable = false, IsPrimaryKey = true)]
     public string TriggerName { get; set; }
 
     /// <summary>
     /// 触发器分组
     /// </summary>
-    [SugarColumn(ColumnDescription = "触发器分组", ColumnName = "TRIGGER_GROUP", Length = 150, IsNullable = false)]
+    [SugarColumn(ColumnDescription = "触发器分组", ColumnName = "TRIGGER_GROUP", Length = 150, IsNullable = false, IsPrimaryKey = true)]
     public string TriggerGroup { get; set; }
 
     /// <summary>

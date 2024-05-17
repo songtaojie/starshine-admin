@@ -15,6 +15,7 @@ using Hx.Sqlsugar;
 using Microsoft.Extensions.Options;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 using Quartz.Spi;
+using Hx.Admin.Core;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -32,7 +33,7 @@ public static class TaskServiceCollectionExtensions
 
         services.Configure<QuartzOptions,IOptions<DbSettingsOptions>>((quartzOptions,dbOptions) =>
         {
-            var dbConfig = dbOptions.Value.ConnectionConfigs?.FirstOrDefault(r => r.ConfigId.ToString() == "hxadmin_quartz");
+            var dbConfig = dbOptions.Value.ConnectionConfigs?.FirstOrDefault(r => r.ConfigId.ToString() == SqlSugarConst.Quartz_ConfigId);
             if(dbConfig == null)
                 throw new ArgumentNullException(nameof(dbConfig));
             var config = SchedulerBuilder.Create();
@@ -43,6 +44,7 @@ public static class TaskServiceCollectionExtensions
                     ado.ConnectionString = dbConfig.ConnectionString;
                 });
                 x.UseNewtonsoftJsonSerializer();
+                x.PerformSchemaValidation = false;
             });
             string[] allKeys = config.Properties.AllKeys!;
             foreach (string text in allKeys)
