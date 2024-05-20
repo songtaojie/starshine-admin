@@ -20,6 +20,8 @@ namespace Hx.Admin.Models;
 /// </summary>
 [SugarTable("QRTZ_JOB_DETAILS", "系统作业信息表")]
 [Tenant(SqlSugarConst.Quartz_ConfigId)]
+[SugarIndex("IDX_QRTZ_J_REQ_RECOVERY", nameof(SchedulerName), OrderByType.Asc, nameof(RequestsRecovery), OrderByType.Asc)]
+[SugarIndex("IDX_QRTZ_J_REQ_RECOVERY", nameof(SchedulerName), OrderByType.Asc, nameof(JobGroup), OrderByType.Asc)]
 public class QrtzJobDetails
 {
     /// <summary>
@@ -31,19 +33,19 @@ public class QrtzJobDetails
     /// <summary>
     /// 任务名字
     /// </summary>
-    [SugarColumn(ColumnDescription = "任务名字", ColumnName = "JOB_NAME", Length = 150, IsNullable = false, IsPrimaryKey = true)]
+    [SugarColumn(ColumnDescription = "任务名字", ColumnName = "JOB_NAME", Length = 200, IsNullable = false, IsPrimaryKey = true)]
     public string JobName { get; set; }
 
     /// <summary>
     /// 任务分组
     /// </summary>
-    [SugarColumn(ColumnDescription = "任务分组", ColumnName = "JOB_GROUP", Length = 150, IsNullable = false, IsPrimaryKey = true)]
+    [SugarColumn(ColumnDescription = "任务分组", ColumnName = "JOB_GROUP", Length = 200, IsNullable = false, IsPrimaryKey = true)]
     public string JobGroup { get; set; }
 
     /// <summary>
     /// 描述信息
     /// </summary>
-    [SugarColumn(ColumnDescription = "描述信息", ColumnName = "Description",  Length = 128)]
+    [SugarColumn(ColumnDescription = "描述信息", ColumnName = "Description",  Length = 250,IsNullable =true)]
     public string? Description { get; set; }
 
     /// <summary>
@@ -55,28 +57,28 @@ public class QrtzJobDetails
     /// <summary>
     /// 是否持久化
     /// </summary>
-    [SugarColumn(ColumnDescription = "是否持久化", ColumnName = "IS_DURABLE")]
-    public bool IsDurable { get; set; }
+    [SugarColumn(ColumnDescription = "是否持久化", ColumnName = "IS_DURABLE",Length =1)]
+    public string IsDurable { get; set; }
 
     /// <summary>
     /// 是否非并发
     /// </summary>
-    [SugarColumn(ColumnDescription = "是否非并发", ColumnName = "IS_NONCONCURRENT")]
-    public bool ISNonConcurrent{ get; set; }
+    [SugarColumn(ColumnDescription = "是否非并发", ColumnName = "IS_NONCONCURRENT",Length =1)]
+    public string ISNonConcurrent{ get; set; }
 
     /// <summary>
     /// 是否更新数据
     /// 指示作业执行完成时是否应重新存储作业数据
     /// </summary>
-    [SugarColumn(ColumnDescription = "是否更新数据", ColumnName = "IS_UPDATE_DATA")]
-    public bool IsUpdateData { get; set; }
+    [SugarColumn(ColumnDescription = "是否更新数据", ColumnName = "IS_UPDATE_DATA",Length =1)]
+    public string IsUpdateData { get; set; }
 
     /// <summary>
     /// 请求恢复
     /// 指导是否工作 如果出现“恢复”或“故障转移”情况，是否应该重新执行。
     /// </summary>
-    [SugarColumn(ColumnDescription = "请求恢复", ColumnName = "REQUESTS_RECOVERY")]
-    public bool RequestsRecovery { get; set; }
+    [SugarColumn(ColumnDescription = "请求恢复", ColumnName = "REQUESTS_RECOVERY",Length =1)]
+    public string RequestsRecovery { get; set; }
 
     /// <summary>
     /// 数据

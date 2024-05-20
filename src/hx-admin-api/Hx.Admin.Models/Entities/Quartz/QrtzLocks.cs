@@ -10,14 +10,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Hx.Admin.Models.Entities.Quartz;
-
+namespace Hx.Admin.Models;
 /// <summary>
-/// 触发器
+/// UseDBLocks设置为true时会使用
+/// 数据库的线程同步锁。
 /// </summary>
-[SugarTable("QRTZ_CALENDARS", "日历")]
+[SugarTable("QRTZ_LOCKS", "数据库的线程同步锁")]
 [Tenant(SqlSugarConst.Quartz_ConfigId)]
-public class QrtzCalendars
+public class QrtzLocks
 {
     /// <summary>
     /// 调度名字
@@ -26,14 +26,8 @@ public class QrtzCalendars
     public string SchedulerName { get; set; }
 
     /// <summary>
-    /// 日历名字
+    /// 锁名称
     /// </summary>
-    [SugarColumn(ColumnDescription = "日历名字", ColumnName = "CALENDAR_NAME", Length = 200, IsNullable = false, IsPrimaryKey = true)]
-    public string CalendarName { get; set; }
-
-    /// <summary>
-    /// 数据
-    /// </summary>
-    [SugarColumn(ColumnDescription = "数据", ColumnName = "CALENDAR", ColumnDataType = "blob", IsNullable = false)]
-    public byte[] Calendar { get; set; }
+    [SugarColumn(ColumnDescription = "锁名称", ColumnName = "LOCK_NAME", Length = 200, IsNullable = false, IsPrimaryKey = true)]
+    public string LockName { get; set; }
 }

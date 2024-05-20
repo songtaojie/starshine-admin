@@ -17,7 +17,18 @@ namespace Hx.Admin.Models;
 /// </summary>
 [SugarTable("QRTZ_TRIGGERS")]
 [Tenant(SqlSugarConst.Quartz_ConfigId)]
-[SugarIndex("IDX_QRTZ_T_G_J", nameof(SchedulerName), OrderByType.Asc, nameof(JobGroup), OrderByType.Desc, nameof(JobName), OrderByType.Desc)]
+[SugarIndex("IDX_QRTZ_T_J", nameof(SchedulerName), OrderByType.Asc, nameof(JobGroup), OrderByType.Desc, nameof(JobName), OrderByType.Desc)]
+[SugarIndex("IDX_QRTZ_T_JG", nameof(SchedulerName), OrderByType.Asc, nameof(JobGroup), OrderByType.Desc)]
+[SugarIndex("IDX_QRTZ_T_C", nameof(SchedulerName), OrderByType.Asc, nameof(CalenderName), OrderByType.Desc, nameof(JobName), OrderByType.Desc)]
+[SugarIndex("IDX_QRTZ_T_G", nameof(SchedulerName), OrderByType.Asc, nameof(TriggerGroup), OrderByType.Desc)]
+[SugarIndex("IDX_QRTZ_T_STATE", nameof(SchedulerName), OrderByType.Asc, nameof(TriggerState), OrderByType.Desc)]
+[SugarIndex("IDX_QRTZ_T_N_STATE", nameof(SchedulerName), OrderByType.Asc, nameof(TriggerName), OrderByType.Desc, nameof(TriggerGroup), OrderByType.Desc, nameof(TriggerState), OrderByType.Desc)]
+[SugarIndex("IDX_QRTZ_T_N_G_STATE", nameof(SchedulerName), OrderByType.Asc, nameof(TriggerGroup), OrderByType.Desc, nameof(TriggerState), OrderByType.Desc)]
+[SugarIndex("IDX_QRTZ_T_NEXT_FIRE_TIME", nameof(SchedulerName), OrderByType.Asc, nameof(NextFireTime), OrderByType.Desc)]
+[SugarIndex("IDX_QRTZ_T_NFT_ST", nameof(SchedulerName), OrderByType.Asc, nameof(TriggerState), OrderByType.Desc, nameof(NextFireTime), OrderByType.Desc)]
+[SugarIndex("IDX_QRTZ_T_NFT_MISFIRE", nameof(SchedulerName), OrderByType.Asc, nameof(MisfireInstructions), OrderByType.Desc, nameof(NextFireTime), OrderByType.Desc)]
+[SugarIndex("IDX_QRTZ_T_NFT_ST_MISFIRE", nameof(SchedulerName), OrderByType.Asc, nameof(MisfireInstructions), OrderByType.Desc, nameof(NextFireTime), OrderByType.Desc, nameof(TriggerState), OrderByType.Desc)]
+[SugarIndex("IDX_QRTZ_T_NFT_ST_MISFIRE_GRP", nameof(SchedulerName), OrderByType.Asc, nameof(MisfireInstructions), OrderByType.Desc, nameof(NextFireTime), OrderByType.Desc, nameof(TriggerGroup), OrderByType.Desc, nameof(TriggerState), OrderByType.Desc)]
 public class QrtzTriggers
 {
     /// <summary>
@@ -29,44 +40,43 @@ public class QrtzTriggers
     /// <summary>
     /// 触发器名字
     /// </summary>
-    [SugarColumn(ColumnDescription = "触发器名字", ColumnName = "TRIGGER_NAME", Length = 150, IsNullable = false, IsPrimaryKey = true)]
+    [SugarColumn(ColumnDescription = "触发器名字", ColumnName = "TRIGGER_NAME", Length = 200, IsNullable = false, IsPrimaryKey = true)]
     public string TriggerName { get; set; }
 
     /// <summary>
     /// 触发器分组
     /// </summary>
-    [SugarColumn(ColumnDescription = "触发器分组", ColumnName = "TRIGGER_GROUP", Length = 150, IsNullable = false, IsPrimaryKey = true)]
+    [SugarColumn(ColumnDescription = "触发器分组", ColumnName = "TRIGGER_GROUP", Length = 200, IsNullable = false, IsPrimaryKey = true)]
     public string TriggerGroup { get; set; }
 
     /// <summary>
     /// 任务名字
     /// </summary>
-    [SugarColumn(ColumnDescription = "任务名字", ColumnName = "JOB_NAME", Length = 150, IsNullable = false)]
+    [SugarColumn(ColumnDescription = "任务名字", ColumnName = "JOB_NAME", Length = 200, IsNullable = false)]
     public string JobName { get; set; }
-
 
     /// <summary>
     /// 任务分组
     /// </summary>
-    [SugarColumn(ColumnDescription = "任务分组", ColumnName = "JOB_GROUP", Length = 150, IsNullable = false)]
+    [SugarColumn(ColumnDescription = "任务分组", ColumnName = "JOB_GROUP", Length = 200, IsNullable = false)]
     public string JobGroup { get; set; }
 
     /// <summary>
     /// 描述信息
     /// </summary>
-    [SugarColumn(ColumnDescription = "描述信息", ColumnName = "Description", Length = 128)]
+    [SugarColumn(ColumnDescription = "描述信息", ColumnName = "Description", Length = 250)]
     public string? Description { get; set; }
 
     /// <summary>
     /// 下次触发时间
     /// </summary>
-    [SugarColumn(ColumnDescription = "下次触发时间", ColumnName = "NEXT_FIRE_TIME")]
+    [SugarColumn(ColumnDescription = "下次触发时间", ColumnName = "NEXT_FIRE_TIME",Length =19,IsNullable =true)]
     public long? NextFireTime { get; set; }
 
     /// <summary>
     /// 上次触发时间
     /// </summary>
-    [SugarColumn(ColumnDescription = "上次触发时间", ColumnName = "PREV_FIRE_TIME")]
+    [SugarColumn(ColumnDescription = "上次触发时间", ColumnName = "PREV_FIRE_TIME", Length = 19,IsNullable =true)]
     public long? PrevFireTime { get; set; }
 
     /// <summary>
@@ -104,13 +114,13 @@ public class QrtzTriggers
     /// <summary>
     /// 触发开始时间
     /// </summary>
-    [SugarColumn(ColumnDescription = "触发开始时间", ColumnName = "START_TIME",IsNullable =false)]
+    [SugarColumn(ColumnDescription = "触发开始时间", ColumnName = "START_TIME", Length = 19, IsNullable =false)]
     public long StartTime { get; set; }
 
     /// <summary>
     /// 触发截止时间
     /// </summary>
-    [SugarColumn(ColumnDescription = "触发截止时间", ColumnName = "END_TIME",IsNullable =true)]
+    [SugarColumn(ColumnDescription = "触发截止时间", ColumnName = "END_TIME", Length = 19, IsNullable =true)]
     public long? EndTime { get; set; }
 
     /// <summary>
@@ -122,7 +132,7 @@ public class QrtzTriggers
     /// <summary>
     /// 失败的指令。
     /// </summary>
-    [SugarColumn(ColumnDescription = "失败的指令。", ColumnName = "MISFIRE_INSTR", Length = 200, IsNullable = true)]
+    [SugarColumn(ColumnDescription = "失败的指令。", ColumnName = "MISFIRE_INSTR",Length =2, IsNullable = true)]
     public int? MisfireInstructions { get; set; }
 
     /// <summary>

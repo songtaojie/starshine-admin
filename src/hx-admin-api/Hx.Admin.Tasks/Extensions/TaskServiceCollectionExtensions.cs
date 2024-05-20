@@ -16,6 +16,7 @@ using Microsoft.Extensions.Options;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 using Quartz.Spi;
 using Hx.Admin.Core;
+using Quartz.Impl.AdoJobStore;
 
 namespace Microsoft.Extensions.DependencyInjection;
 

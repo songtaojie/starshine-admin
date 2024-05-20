@@ -11,12 +11,13 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Hx.Admin.Models;
+
 /// <summary>
 /// 触发器
 /// </summary>
-[SugarTable("QRTZ_BLOB_TRIGGERS", "系统Blob触发器")]
+[SugarTable("QRTZ_SCHEDULER_STATE", "系统简单触发器")]
 [Tenant(SqlSugarConst.Quartz_ConfigId)]
-public class QrtzBlobTriggers
+public class QrtzSchedulerState
 {
     /// <summary>
     /// 调度名字
@@ -25,20 +26,20 @@ public class QrtzBlobTriggers
     public string SchedulerName { get; set; }
 
     /// <summary>
-    /// 触发器名字
-    /// </summary>
-    [SugarColumn(ColumnDescription = "触发器名字", ColumnName = "TRIGGER_NAME", Length = 200, IsNullable = false, IsPrimaryKey = true)]
-    public string TriggerName { get; set; }
-
-    /// <summary>
     /// 触发器分组
     /// </summary>
-    [SugarColumn(ColumnDescription = "触发器分组", ColumnName = "TRIGGER_GROUP", Length = 200, IsNullable = false, IsPrimaryKey = true)]
-    public string TriggerGroup { get; set; }
+    [SugarColumn(ColumnDescription = "触发器分组", ColumnName = "INSTANCE_NAME", Length = 200, IsNullable = false)]
+    public string InstanceName { get; set; }
 
     /// <summary>
-    /// 数据
+    /// 下次触发时间
     /// </summary>
-    [SugarColumn(ColumnDescription = "数据", ColumnName = "BLOB_DATA", ColumnDataType = "blob", IsNullable = true)]
-    public byte[] BlobData { get; set; }
+    [SugarColumn(ColumnDescription = "下次触发时间", ColumnName = "LAST_CHECKIN_TIME")]
+    public long? LastCheckinTime { get; set; }
+
+    /// <summary>
+    /// 上次触发时间
+    /// </summary>
+    [SugarColumn(ColumnDescription = "上次触发时间", ColumnName = "CHECKIN_INTERVAL")]
+    public long? CheckinInterval { get; set; }
 }

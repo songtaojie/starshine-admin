@@ -38,20 +38,20 @@ public class MyJobStoreTX: JobStoreTX
     public override async Task Initialize(ITypeLoadHelper loadHelper, ISchedulerSignaler signaler, CancellationToken cancellationToken = default)
     {
         await base.Initialize(loadHelper, signaler, cancellationToken);
-        StdAdoDelegate? adoDelegate = Delegate as StdAdoDelegate;
-        if (adoDelegate == null) return;
-        try
-        {
-            int value = await ExecuteWithoutLock((ConnectionAndTransactionHolder conn) => ValidateAndCreateSchema(adoDelegate,conn, cancellationToken), cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
-            _logger.LogInformation($"Successfully validated presence of {value} schema objects");
-        }
-        catch (Exception cause)
-        {
-            throw new SchedulerException("Database schema validation failed. Make sure you have created the database tables that Quartz requires using the database schema scripts. You can disable this check by setting quartz.jobStore.performSchemaValidation to false", cause);
-        }
+    }
+    protected override Task<int> GetNumberOfJobs(ConnectionAndTransactionHolder conn, CancellationToken cancellationToken = default)
+    {
+        return base.GetNumberOfJobs(conn, cancellationToken);
     }
 
-
+    protected override Task<IReadOnlyCollection<string>> GetJobGroupNames(ConnectionAndTransactionHolder conn, CancellationToken cancellationToken = default)
+    {
+        return base.GetJobGroupNames(conn, cancellationToken);
+    }
+    protected override Task RecoverJobs(CancellationToken cancellationToken)
+    {
+        return base.RecoverJobs(cancellationToken);
+    }
     /// <summary>
     /// Validates the persistence schema and returns the number of validates objects.
     /// </summary>
