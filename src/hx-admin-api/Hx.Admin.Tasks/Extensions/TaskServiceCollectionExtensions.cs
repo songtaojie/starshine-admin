@@ -17,6 +17,7 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 using Quartz.Spi;
 using Hx.Admin.Core;
 using Quartz.Impl.AdoJobStore;
+using System.Reactive.Concurrency;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -27,8 +28,6 @@ public static class TaskServiceCollectionExtensions
 {
     public static IServiceCollection AddQuartzService(this IServiceCollection services, IConfiguration configuration)
     {
-
-        var jobTypes = App.EffectiveTypes.Where(t => typeof(IJob).IsAssignableFrom(t));
 
         services.AddQuartz();
 
@@ -55,6 +54,7 @@ public static class TaskServiceCollectionExtensions
                     quartzOptions[text] = config.Properties[text];
                 }
             }
+            quartzOptions.ScanToBuilders();
         });
         services.AddSingleton<IJobStore, MyJobStoreTX>();
         services.AddSingleton<ISchedulerListener, SampleSchedulerListener>();
