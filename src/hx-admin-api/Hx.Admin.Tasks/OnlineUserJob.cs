@@ -9,7 +9,7 @@ namespace Hx.Admin.Tasks;
 /// 清理在线用户作业任务
 /// </summary>
 [JobDetail("job_onlineUser", Description = "清理在线用户", GroupName = "default")]
-[CronTrigger("trigger_onlineUser", Description = "清理在线用户")]
+[Daily(TriggerId = "trigger_onlineUser", Description = "清理在线用户")]
 public class OnlineUserJob : IJob
 {
     private readonly IServiceProvider _serviceProvider;

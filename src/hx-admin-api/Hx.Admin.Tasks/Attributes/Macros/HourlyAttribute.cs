@@ -8,23 +8,23 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Hx.Admin.Tasks;
 
 /// <summary>
-/// 每月特定天（午夜）开始作业触发器特性
+/// 每小时开始作业触发器特性
 /// </summary>
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-public sealed class MonthlyAtAttribute : CronTriggerAttribute
+public sealed class HourlyAttribute : CronTriggerAttribute
 {
     /// <summary>
     /// 构造函数
     /// </summary>
-    /// <param name="args">字段值</param>
-    public MonthlyAtAttribute(params object[] args)
-        : base("@monthly", args)
+    /// <param name="args">参数值</param>
+    public HourlyAttribute()
+        : base()
     {
+        Cron = "0 * * * *";
     }
 }

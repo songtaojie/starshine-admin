@@ -20,10 +20,10 @@ public class CronTriggerAttribute : TriggerAttribute
     /// <summary>
     /// 构造函数
     /// </summary>
-    /// <param name="triggerId">triggerId</param>
-    public CronTriggerAttribute(string triggerId, params object[] args) : this(args)
+    /// <param name="cron">cron表达式</param>
+    public CronTriggerAttribute(string cron, params object[] args) : this(args)
     {
-        TriggerId = triggerId;
+        Cron = cron;
     }
 
     /// <summary>
@@ -38,5 +38,28 @@ public class CronTriggerAttribute : TriggerAttribute
     /// <summary>
     /// Cron表达式
     /// </summary>
-    public string? Cron { get; set; }
+    public string? Cron { get; protected set; }
+
+    /// <summary>
+    /// 检查参数非 Null 非空数组
+    /// </summary>
+    /// <param name="args">参数值</param>
+    protected void CheckArgsNotNullOrEmpty(params object[] args)
+    {
+        // 空检查
+        if (args == null || args.Length == 0) throw new ArgumentNullException(nameof(args));
+
+        // 检查 fields 只能是 int, long，string 和非 null 类型
+        if (args.Any(f => f == null || (f.GetType() != typeof(int) && f.GetType() != typeof(long) && f.GetType() != typeof(string)))) throw new InvalidOperationException("Invalid Cron expression.");
+    }
+
+    /// <summary>
+    /// 将参数值转换成 string
+    /// </summary>
+    /// <param name="args">参数值</param>
+    /// <returns><see cref="string"/></returns>
+    protected string FieldsToString(params object[] args)
+    {
+        return string.Join(",", args);
+    }
 }

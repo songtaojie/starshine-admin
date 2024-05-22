@@ -8,22 +8,22 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Hx.Admin.Tasks;
 /// <summary>
-/// 每天特定小时开始作业触发器特性
+/// 每天（午夜）开始作业触发器特性
 /// </summary>
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-public sealed class DailyAtAttribute : CronTriggerAttribute
+public sealed class DailyAttribute : CronTriggerAttribute
 {
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="args">参数值</param>
-    public DailyAtAttribute(params object[] args)
-        : base("@daily", args)
+    public DailyAttribute()
+        : base()
     {
+        Cron = "0 0 * * * ?";
     }
 }

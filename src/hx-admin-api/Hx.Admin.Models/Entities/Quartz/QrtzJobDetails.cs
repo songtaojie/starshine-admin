@@ -57,28 +57,28 @@ public class QrtzJobDetails
     /// <summary>
     /// 是否持久化
     /// </summary>
-    [SugarColumn(ColumnDescription = "是否持久化", ColumnName = "IS_DURABLE",Length =1)]
-    public string IsDurable { get; set; }
+    [SugarColumn(ColumnDescription = "是否持久化", ColumnName = "IS_DURABLE")]
+    public bool IsDurable { get; set; }
 
     /// <summary>
     /// 是否非并发
     /// </summary>
-    [SugarColumn(ColumnDescription = "是否非并发", ColumnName = "IS_NONCONCURRENT",Length =1)]
-    public string ISNonConcurrent{ get; set; }
+    [SugarColumn(ColumnDescription = "是否非并发", ColumnName = "IS_NONCONCURRENT")]
+    public bool ISNonConcurrent{ get; set; }
 
     /// <summary>
     /// 是否更新数据
     /// 指示作业执行完成时是否应重新存储作业数据
     /// </summary>
-    [SugarColumn(ColumnDescription = "是否更新数据", ColumnName = "IS_UPDATE_DATA",Length =1)]
-    public string IsUpdateData { get; set; }
+    [SugarColumn(ColumnDescription = "是否更新数据", ColumnName = "IS_UPDATE_DATA")]
+    public bool IsUpdateData { get; set; }
 
     /// <summary>
     /// 请求恢复
     /// 指导是否工作 如果出现“恢复”或“故障转移”情况，是否应该重新执行。
     /// </summary>
-    [SugarColumn(ColumnDescription = "请求恢复", ColumnName = "REQUESTS_RECOVERY",Length =1)]
-    public string RequestsRecovery { get; set; }
+    [SugarColumn(ColumnDescription = "请求恢复", ColumnName = "REQUESTS_RECOVERY")]
+    public bool RequestsRecovery { get; set; }
 
     /// <summary>
     /// 数据

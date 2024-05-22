@@ -19,7 +19,7 @@ namespace Hx.Admin.Tasks;
 /// 清理日志作业任务
 /// </summary>
 [JobDetail("job_log", Description = "清理操作日志", GroupName = "default")]
-[CronTrigger("trigger_log",Cron= "0 0/1 * * * ? *", Description = "清理操作日志")]
+[Daily(TriggerId = "trigger_log", Description = "清理操作日志",StartNow =true)]
 [DisallowConcurrentExecution]
 public class LogJob : IJob
 {

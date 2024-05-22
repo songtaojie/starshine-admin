@@ -18,6 +18,8 @@ using Quartz.Spi;
 using Hx.Admin.Core;
 using Quartz.Impl.AdoJobStore;
 using System.Reactive.Concurrency;
+using IP2Region.Ex.Models;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -28,16 +30,14 @@ public static class TaskServiceCollectionExtensions
 {
     public static IServiceCollection AddQuartzService(this IServiceCollection services, IConfiguration configuration)
     {
-
-        services.AddQuartz();
-
-        services.Configure<QuartzOptions,IOptions<DbSettingsOptions>>((quartzOptions,dbOptions) =>
+        IEnumerable<DbConnectionConfig>? dbConnectionConfigs = new List<DbConnectionConfig>();
+        configuration.GetSection("DbSettings:ConnectionConfigs").Bind(dbConnectionConfigs);
+        var dbConfig = dbConnectionConfigs.FirstOrDefault(r => r.ConfigId?.ToString() == SqlSugarConst.Quartz_ConfigId);
+        if (dbConfig == null)
+            throw new ArgumentNullException(nameof(dbConfig));
+        services.AddQuartz(quartzOptions =>
         {
-            var dbConfig = dbOptions.Value.ConnectionConfigs?.FirstOrDefault(r => r.ConfigId.ToString() == SqlSugarConst.Quartz_ConfigId);
-            if(dbConfig == null)
-                throw new ArgumentNullException(nameof(dbConfig));
-            var config = SchedulerBuilder.Create();
-            config.UsePersistentStore<MyJobStoreTX>(x =>
+            quartzOptions.UsePersistentStore<MyJobStoreTX>(x =>
             {
                 x.UseGenericDatabase(GetProvider(dbConfig.DbType), ado =>
                 {
@@ -46,18 +46,9 @@ public static class TaskServiceCollectionExtensions
                 x.UseNewtonsoftJsonSerializer();
                 x.PerformSchemaValidation = false;
             });
-            string[] allKeys = config.Properties.AllKeys!;
-            foreach (string text in allKeys)
-            {
-                if (text != null)
-                {
-                    quartzOptions[text] = config.Properties[text];
-                }
-            }
             quartzOptions.ScanToBuilders();
+            quartzOptions.AddSchedulerListener<SampleSchedulerListener>();
         });
-        services.AddSingleton<IJobStore, MyJobStoreTX>();
-        services.AddSingleton<ISchedulerListener, SampleSchedulerListener>();
         // ASP.NET Core hosting
         services.AddQuartzServer(options =>
         {
