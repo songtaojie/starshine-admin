@@ -282,3 +282,4 @@ dist/
 node_modules/
 /Web/package-lock.json
 .DS_Store
+/src/hx-admin-api/Hx.Admin.Web.Entry/HxAdmin.db
