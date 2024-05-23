@@ -8,18 +8,10 @@ using Microsoft.Extensions.Configuration;
 using Quartz.AspNetCore;
 using Quartz;
 using Hx.Admin.Tasks;
-using Hx.Sdk.Core;
-using Hx.Common.Extensions;
-using System.Reflection;
 using Hx.Sqlsugar;
-using Microsoft.Extensions.Options;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
-using Quartz.Spi;
 using Hx.Admin.Core;
-using Quartz.Impl.AdoJobStore;
-using System.Reactive.Concurrency;
-using IP2Region.Ex.Models;
-using Microsoft.AspNetCore.SignalR;
+using Elastic.Clients.Elasticsearch;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -37,17 +29,29 @@ public static class TaskServiceCollectionExtensions
             throw new ArgumentNullException(nameof(dbConfig));
         services.AddQuartz(quartzOptions =>
         {
-            quartzOptions.UsePersistentStore<MyJobStoreTX>(x =>
-            {
-                x.UseGenericDatabase(GetProvider(dbConfig.DbType), ado =>
-                {
-                    ado.ConnectionString = dbConfig.ConnectionString;
-                });
-                x.UseNewtonsoftJsonSerializer();
-                x.PerformSchemaValidation = false;
-            });
-            quartzOptions.ScanToBuilders();
-            quartzOptions.AddSchedulerListener<SampleSchedulerListener>();
+            //quartzOptions.ScanToBuilders();
+            /// Just use the name of your job that you created in the Jobs folder.
+            var jobKey = new JobKey("job_log");
+            //quartzOptions.AddJob<LogJob>(opts => opts.WithIdentity(jobKey));
+            quartzOptions.AddJob(typeof(LogJob), jobKey, opts => opts.WithIdentity(jobKey));
+
+            quartzOptions.AddTrigger(opts => opts
+                .ForJob(jobKey)
+                .WithIdentity("trigger_log")
+                .StartNow()
+                .WithSimpleSchedule(s=>s.WithIntervalInSeconds(2))
+                //This Cron interval can be described as "run every minute" (when second is zero)
+            );
+            //quartzOptions.UsePersistentStore(x =>
+            //{
+            //    x.UseGenericDatabase(GetProvider(dbConfig.DbType), ado =>
+            //    {
+            //        ado.ConnectionString = dbConfig.ConnectionString;
+            //    });
+            //    x.UseNewtonsoftJsonSerializer();
+            //    x.PerformSchemaValidation = true;
+            //});
+            //quartzOptions.AddSchedulerListener<SampleSchedulerListener>();
         });
         // ASP.NET Core hosting
         services.AddQuartzServer(options =>
@@ -56,21 +60,6 @@ public static class TaskServiceCollectionExtensions
             options.WaitForJobsToComplete = true;
         });
         return services;
-    }
-
-
-    /// <summary>
-    /// 检查字段域 非 Null 非空数组
-    /// </summary>
-    /// <param name="fields">字段值</param>
-    private static void CheckCronExpression(params object[] fields)
-    {
-        // 空检查
-        if (fields == null || fields.Length == 0) throw new ArgumentNullException(nameof(fields));
-
-        // 检查 fields 只能是 int, long，string 和非 null 类型
-        if (fields.Any(f => f == null || (f.GetType() != typeof(int) && f.GetType() != typeof(long) && f.GetType() != typeof(string)))) 
-            throw new InvalidOperationException("Invalid Cron expression.");
     }
 
     private static string GetProvider(SqlSugar.DbType dbType)

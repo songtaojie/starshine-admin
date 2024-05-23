@@ -64,7 +64,7 @@ public class QrtzTriggers
     /// <summary>
     /// 描述信息
     /// </summary>
-    [SugarColumn(ColumnDescription = "描述信息", ColumnName = "Description", Length = 250)]
+    [SugarColumn(ColumnDescription = "描述信息", ColumnName = "Description", Length = 250,IsNullable =true)]
     public string? Description { get; set; }
 
     /// <summary>

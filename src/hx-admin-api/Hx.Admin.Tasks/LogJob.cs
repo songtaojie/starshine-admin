@@ -19,7 +19,7 @@ namespace Hx.Admin.Tasks;
 /// 清理日志作业任务
 /// </summary>
 [JobDetail("job_log", Description = "清理操作日志", GroupName = "default")]
-[Daily(TriggerId = "trigger_log", Description = "清理操作日志",StartNow =true)]
+[PeriodSeconds(1,TriggerId = "trigger_log", Description = "清理操作日志",StartNow =true)]
 [DisallowConcurrentExecution]
 public class LogJob : IJob
 {
@@ -32,16 +32,18 @@ public class LogJob : IJob
 
     public async System.Threading.Tasks.Task Execute(IJobExecutionContext context)
     {
-        
-        using var serviceScope = _serviceProvider.CreateScope();
-        var logVisRep = serviceScope.ServiceProvider.GetRequiredService<ISqlSugarRepository<SysLogVis>>();
-        var logOpRep = serviceScope.ServiceProvider.GetRequiredService<ISqlSugarRepository<SysLogOp>>();
-        var logDiffRep = serviceScope.ServiceProvider.GetRequiredService<ISqlSugarRepository<SysLogDiff>>();
 
-        var daysAgo = 30; // 删除30天以前
-        await logVisRep.Context.Deleteable<SysLogVis>().Where(u => u.CreateTime < DateTime.Now.AddDays(-daysAgo)).ExecuteCommandAsync(context.CancellationToken); // 删除访问日志
-        await logOpRep.Context.Deleteable<SysLogVis>().Where(u => u.CreateTime < DateTime.Now.AddDays(-daysAgo)).ExecuteCommandAsync(context.CancellationToken); // 删除操作日志
-        await logDiffRep.Context.Deleteable<SysLogVis>().Where(u => u.CreateTime < DateTime.Now.AddDays(-daysAgo)).ExecuteCommandAsync(context.CancellationToken); // 删除差异日志
+        Console.WriteLine($"执行任务调度: {DateTime.Now}");
+        await Task.CompletedTask;
+        //using var serviceScope = _serviceProvider.CreateScope();
+        //var logVisRep = serviceScope.ServiceProvider.GetRequiredService<ISqlSugarRepository<SysLogVis>>();
+        //var logOpRep = serviceScope.ServiceProvider.GetRequiredService<ISqlSugarRepository<SysLogOp>>();
+        //var logDiffRep = serviceScope.ServiceProvider.GetRequiredService<ISqlSugarRepository<SysLogDiff>>();
+
+        //var daysAgo = 30; // 删除30天以前
+        //await logVisRep.Context.Deleteable<SysLogVis>().Where(u => u.CreateTime < DateTime.Now.AddDays(-daysAgo)).ExecuteCommandAsync(context.CancellationToken); // 删除访问日志
+        //await logOpRep.Context.Deleteable<SysLogVis>().Where(u => u.CreateTime < DateTime.Now.AddDays(-daysAgo)).ExecuteCommandAsync(context.CancellationToken); // 删除操作日志
+        //await logDiffRep.Context.Deleteable<SysLogVis>().Where(u => u.CreateTime < DateTime.Now.AddDays(-daysAgo)).ExecuteCommandAsync(context.CancellationToken); // 删除差异日志
     }
 
 }

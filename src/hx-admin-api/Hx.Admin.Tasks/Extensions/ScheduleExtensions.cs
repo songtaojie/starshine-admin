@@ -12,7 +12,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-
 namespace Hx.Admin.Tasks;
 public static class ScheduleExtensions
 {
@@ -183,3 +182,4 @@ public static class ScheduleExtensions
         return true;
     }
 }
+
