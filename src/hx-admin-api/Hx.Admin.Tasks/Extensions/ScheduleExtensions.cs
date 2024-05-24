@@ -55,7 +55,7 @@ public static class ScheduleExtensions
                         quartzOptions.AddTrigger(triggerBuilder =>
                         {
                             triggerBuilder.ForJob(jobKey)
-                                .WithIdentity(jobtrigger.TriggerId)
+                                .WithIdentity(jobtrigger.TriggerId, jobdetail.GroupName)
                                 .WithDescription(jobtrigger.Description);
                             if (jobtrigger.StartNow)
                             {
@@ -78,7 +78,10 @@ public static class ScheduleExtensions
                                 var interval = jobtrigger.TriggerArgs?.FirstOrDefault() as long?;
                                 if (interval.HasValue && interval > 100)
                                 {
-                                    triggerBuilder.WithSimpleSchedule(s => s.WithInterval(TimeSpan.FromMilliseconds(interval.Value)));
+                                    triggerBuilder.WithSimpleSchedule(s =>
+                                    {
+                                        s.WithInterval(TimeSpan.FromMilliseconds(interval.Value)).RepeatForever();
+                                    });
                                 }
                             }
                         });

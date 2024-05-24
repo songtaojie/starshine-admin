@@ -12,6 +12,9 @@ using Hx.Sqlsugar;
 using Hx.Admin.Core;
 using Elastic.Clients.Elasticsearch;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
+using Hx.Admin.Tasks.JobStore;
+using Quartz.Impl.AdoJobStore;
+using Quartz.Util;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -29,28 +32,13 @@ public static class TaskServiceCollectionExtensions
             throw new ArgumentNullException(nameof(dbConfig));
         services.AddQuartz(quartzOptions =>
         {
-            //quartzOptions.ScanToBuilders();
-            /// Just use the name of your job that you created in the Jobs folder.
-            var jobKey = new JobKey("job_log");
-            //quartzOptions.AddJob<LogJob>(opts => opts.WithIdentity(jobKey));
-            quartzOptions.AddJob(typeof(LogJob), jobKey, opts => opts.WithIdentity(jobKey));
-
-            quartzOptions.AddTrigger(opts => opts
-                .ForJob(jobKey)
-                .WithIdentity("trigger_log")
-                .StartNow()
-                .WithSimpleSchedule(s=>s.WithIntervalInSeconds(2))
-                //This Cron interval can be described as "run every minute" (when second is zero)
-            );
-            //quartzOptions.UsePersistentStore(x =>
-            //{
-            //    x.UseGenericDatabase(GetProvider(dbConfig.DbType), ado =>
-            //    {
-            //        ado.ConnectionString = dbConfig.ConnectionString;
-            //    });
-            //    x.UseNewtonsoftJsonSerializer();
-            //    x.PerformSchemaValidation = true;
-            //});
+            quartzOptions.ScanToBuilders();
+            quartzOptions.UsePersistentStore(x =>
+            {
+                x.UseDatabase(dbConfig);
+                x.UseNewtonsoftJsonSerializer();
+                x.PerformSchemaValidation = true;
+            });
             //quartzOptions.AddSchedulerListener<SampleSchedulerListener>();
         });
         // ASP.NET Core hosting
@@ -62,17 +50,36 @@ public static class TaskServiceCollectionExtensions
         return services;
     }
 
-    private static string GetProvider(SqlSugar.DbType dbType)
+    private static void UseDatabase(this SchedulerBuilder.PersistentStoreOptions storeOptions,DbConnectionConfig dbCOnfig)
     {
-        return dbType switch
-        {
-            SqlSugar.DbType.MySql => "MySql",
-            SqlSugar.DbType.PostgreSQL => "Npgsql",
-            SqlSugar.DbType.SqlServer => "SqlServer",
-            SqlSugar.DbType.Sqlite => "SQLite-Microsoft",
-            SqlSugar.DbType.MySqlConnector => "MySqlConnector",
-            SqlSugar.DbType.Oracle => "OracleODPManaged",
-            _ => throw new InvalidOperationException("无效的数据库操作类型")
-        };
+        string driverDelegateType = string.Empty;
+        switch (dbCOnfig.DbType)
+        { 
+            case SqlSugar.DbType.MySql:
+                storeOptions.UseMySql(dbCOnfig.ConnectionString);
+                break;
+            case SqlSugar.DbType.PostgreSQL:
+                storeOptions.UsePostgres(dbCOnfig.ConnectionString);
+                break;
+            case SqlSugar.DbType.SqlServer:
+                storeOptions.UseSqlServer(dbCOnfig.ConnectionString);
+                break;
+            case SqlSugar.DbType.Sqlite:
+                storeOptions.UseMicrosoftSQLite(dbCOnfig.ConnectionString);
+                driverDelegateType = typeof(HxSQLiteDelegate).AssemblyQualifiedNameWithoutVersion();
+                break;
+            case SqlSugar.DbType.MySqlConnector:
+                storeOptions.UseMySqlConnector(x=>
+                { 
+                    x.ConnectionString = dbCOnfig.ConnectionString;
+                });
+                break;
+            case SqlSugar.DbType.Oracle:
+                storeOptions.UseOracle(dbCOnfig.ConnectionString);
+                break;
+            default:
+                throw new NotImplementedException("不支持的DbType");
+        }
+        storeOptions.SetProperty("quartz.jobStore.driverDelegateType", driverDelegateType);
     }
 }

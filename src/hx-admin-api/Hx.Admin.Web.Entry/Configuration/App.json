@@ -7,7 +7,7 @@
   "AllowedHosts": "*",
 
   "AppSettings": {
-    "EnabledSwagger": true // 生产环境是否开启Swagger
+    "EnabledSwagger": false // 生产环境是否开启Swagger
   },
   "CorsAccessorSettings": {
     "WithExposedHeaders": [ "Content-Disposition", "X-Pagination", "access-token", "x-access-token" ], // 如果前端不代理且是axios请求
