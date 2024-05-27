@@ -93,6 +93,7 @@ public static class ScheduleExtensions
         return quartzOptions;
     }
 
+
     /// <summary>
     /// 扫描类型集合
     /// </summary>
@@ -133,7 +134,7 @@ public static class ScheduleExtensions
                         quartzOptions.AddTrigger(triggerBuilder =>
                         {
                             triggerBuilder.ForJob(jobKey)
-                                .WithIdentity(jobtrigger.TriggerId)
+                                .WithIdentity(jobtrigger.TriggerId, jobdetail.GroupName)
                                 .WithDescription(jobtrigger.Description);
                             if (jobtrigger.StartNow)
                             {
@@ -156,7 +157,10 @@ public static class ScheduleExtensions
                                 var interval = jobtrigger.TriggerArgs?.FirstOrDefault() as long?;
                                 if (interval.HasValue && interval > 100)
                                 {
-                                    triggerBuilder.WithSimpleSchedule(s => s.WithInterval(TimeSpan.FromMilliseconds(interval.Value)));
+                                    triggerBuilder.WithSimpleSchedule(s =>
+                                    {
+                                        s.WithInterval(TimeSpan.FromMilliseconds(interval.Value)).RepeatForever();
+                                    });
                                 }
                             }
                         });
@@ -167,8 +171,6 @@ public static class ScheduleExtensions
         }
         return quartzOptions;
     }
-
-
 
     /// <summary>
     /// 判断类型是否是 IJob 实现类型

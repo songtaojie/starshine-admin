@@ -15,6 +15,10 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
 using Hx.Admin.Tasks.JobStore;
 using Quartz.Impl.AdoJobStore;
 using Quartz.Util;
+using Microsoft.Extensions.Options;
+using System.Runtime.Intrinsics.Arm;
+using SqlSugar;
+using Hx.Admin.Models;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -30,16 +34,77 @@ public static class TaskServiceCollectionExtensions
         var dbConfig = dbConnectionConfigs.FirstOrDefault(r => r.ConfigId?.ToString() == SqlSugarConst.Quartz_ConfigId);
         if (dbConfig == null)
             throw new ArgumentNullException(nameof(dbConfig));
-        services.AddQuartz(quartzOptions =>
+      
+        services.Configure<QuartzOptions,IServiceProvider>((quartzOptions, provider) =>
         {
             quartzOptions.ScanToBuilders();
+
+            using var scope = provider.CreateScope();
+            var sqlSugarClient = scope.ServiceProvider.GetRequiredService<ISqlSugarClient>();
+            var db = sqlSugarClient.AsTenant().GetConnectionScope(SqlSugarConst.Quartz_ConfigId);
+            // 获取数据库所有通过脚本创建的作业
+            var allDbScriptJobs = await db.Queryable<SysJobDetail>().Where(u => u.CreateType != JobCreateTypeEnum.BuiltIn).ToListAsync();
+            foreach (var dbDetail in allDbScriptJobs)
+            {
+                // 动态创建作业
+                Type jobType;
+                switch (dbDetail.CreateType)
+                {
+                    case JobCreateTypeEnum.Script:
+                        jobType = dynamicJobCompiler.BuildJob(dbDetail.ScriptCode);
+                        break;
+
+                    case JobCreateTypeEnum.Http:
+                        jobType = typeof(HttpJob);
+                        break;
+
+                    default:
+                        throw new NotSupportedException();
+                }
+
+                // 动态构建的 jobType 的程序集名称为随机名称，需重新设置
+                dbDetail.AssemblyName = jobType.Assembly.FullName!.Split(',')[0];
+                var jobBuilder = JobBuilder.Create(jobType).LoadFrom(dbDetail);
+
+                // 强行设置为不扫描 IJob 实现类 [Trigger] 特性触发器，否则 SchedulerBuilder.Create 会再次扫描，导致重复添加同名触发器
+                jobBuilder.SetIncludeAnnotations(false);
+
+                // 获取作业的所有数据库的触发器加入到作业中
+                var dbTriggers = await db.Queryable<SysJobTrigger>().Where(u => u.JobId == jobBuilder.JobId).ToListAsync();
+                var triggerBuilders = dbTriggers.Select(u => TriggerBuilder.Create(u.TriggerId).LoadFrom(u).Updated());
+                var schedulerBuilder = SchedulerBuilder.Create(jobBuilder, triggerBuilders.ToArray());
+
+                // 标记更新
+                schedulerBuilder.Updated();
+
+                allJobs.Add(schedulerBuilder);
+            }
+
+            //var jobKey = new JobKey("options-custom-job", "custom");
+            //quartzOptions.AddJob<LogJob>(j => j.WithIdentity(jobKey));
+            //quartzOptions.AddTrigger(trigger => trigger
+            //    .WithIdentity("options-custom-trigger", "custom")
+            //    .ForJob(jobKey)
+            //    .WithSimpleSchedule(s=>s.WithIntervalInSeconds(1000)));
+            //if (!string.IsNullOrWhiteSpace(dep.Value.CronSchedule))
+            //{
+            //    var jobKey = new JobKey("options-custom-job", "custom");
+            //    options.AddJob<ExampleJob>(j => j.WithIdentity(jobKey));
+            //    options.AddTrigger(trigger => trigger
+            //        .WithIdentity("options-custom-trigger", "custom")
+            //        .ForJob(jobKey)
+            //        .WithCronSchedule(dep.Value.CronSchedule));
+            //}
+        });
+        services.AddQuartz(quartzOptions =>
+        {
+            //quartzOptions.ScanToBuilders();
             quartzOptions.UsePersistentStore(x =>
             {
                 x.UseDatabase(dbConfig);
                 x.UseNewtonsoftJsonSerializer();
                 x.PerformSchemaValidation = true;
             });
-            //quartzOptions.AddSchedulerListener<SampleSchedulerListener>();
         });
         // ASP.NET Core hosting
         services.AddQuartzServer(options =>
