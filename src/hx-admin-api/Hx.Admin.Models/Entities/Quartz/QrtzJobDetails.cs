@@ -64,7 +64,7 @@ public class QrtzJobDetails
     /// 是否非并发
     /// </summary>
     [SugarColumn(ColumnDescription = "是否非并发", ColumnName = "IS_NONCONCURRENT")]
-    public bool ISNonConcurrent{ get; set; }
+    public bool IsNonConcurrent{ get; set; }
 
     /// <summary>
     /// 是否更新数据
@@ -85,4 +85,16 @@ public class QrtzJobDetails
     /// </summary>
     [SugarColumn(ColumnDescription = "数据", ColumnName = "JOB_DATA",ColumnDataType ="blob",IsNullable =true)]
     public byte[] JobData { get; set; }
+
+    /// <summary>
+    /// 作业创建类型
+    /// </summary>
+    [SugarColumn(ColumnDescription = "作业创建类型")]
+    public JobCreateTypeEnum CreateType { get; set; } = JobCreateTypeEnum.BuiltIn;
+
+    /// <summary>
+    /// 脚本代码
+    /// </summary>
+    [SugarColumn(ColumnDescription = "脚本代码", IsNullable = true, ColumnDataType = StaticConfig.CodeFirst_BigString)]
+    public string? ScriptCode { get; set; }
 }

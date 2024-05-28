@@ -106,21 +106,21 @@ public static class ScheduleExtensions
         {
             foreach (var jobtype in jobTypes)
             {
-                var jobdetail = jobtype.GetCustomAttribute<JobDetailAttribute>();
+                var jobDetailAttribute = jobtype.GetCustomAttribute<JobDetailAttribute>();
                 JobKey jobKey;
-                if (jobdetail == null)
+                if (jobDetailAttribute == null)
                 {
                     jobKey = new JobKey(jobtype.FullName!);
                 }
                 else
                 {
-                    if (string.IsNullOrWhiteSpace(jobdetail.JobId))
-                        jobdetail.JobId = jobtype.FullName!;
-                    jobKey = new JobKey(jobdetail.JobId, jobdetail.GroupName);
+                    if (string.IsNullOrWhiteSpace(jobDetailAttribute.JobId))
+                        jobDetailAttribute.JobId = jobtype.FullName!;
+                    jobKey = new JobKey(jobDetailAttribute.JobId, jobDetailAttribute.GroupName);
                 }
                 quartzOptions.AddJob(jobtype, jobBuilder =>
                 {
-                    jobBuilder.WithIdentity(jobKey).WithDescription(jobdetail?.Description);
+                    jobBuilder.WithIdentity(jobKey).WithDescription(jobDetailAttribute?.Description);
                 });
                 var jobtriggerlist = jobtype.GetCustomAttributes<TriggerAttribute>(true);
                 if (jobtriggerlist.Any())
@@ -134,7 +134,7 @@ public static class ScheduleExtensions
                         quartzOptions.AddTrigger(triggerBuilder =>
                         {
                             triggerBuilder.ForJob(jobKey)
-                                .WithIdentity(jobtrigger.TriggerId, jobdetail.GroupName)
+                                .WithIdentity(jobtrigger.TriggerId, jobDetailAttribute.GroupName)
                                 .WithDescription(jobtrigger.Description);
                             if (jobtrigger.StartNow)
                             {
