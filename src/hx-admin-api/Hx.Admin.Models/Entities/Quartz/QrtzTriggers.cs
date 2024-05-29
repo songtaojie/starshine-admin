@@ -29,8 +29,13 @@ namespace Hx.Admin.Models;
 [SugarIndex("IDX_QRTZ_T_NFT_MISFIRE", nameof(SchedulerName), OrderByType.Asc, nameof(MisfireInstructions), OrderByType.Desc, nameof(NextFireTime), OrderByType.Desc)]
 [SugarIndex("IDX_QRTZ_T_NFT_ST_MISFIRE", nameof(SchedulerName), OrderByType.Asc, nameof(MisfireInstructions), OrderByType.Desc, nameof(NextFireTime), OrderByType.Desc, nameof(TriggerState), OrderByType.Desc)]
 [SugarIndex("IDX_QRTZ_T_NFT_ST_MISFIRE_GRP", nameof(SchedulerName), OrderByType.Asc, nameof(MisfireInstructions), OrderByType.Desc, nameof(NextFireTime), OrderByType.Desc, nameof(TriggerGroup), OrderByType.Desc, nameof(TriggerState), OrderByType.Desc)]
-public class QrtzTriggers
+public class QrtzTriggers:EntityBase
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    [SugarColumn(IsIdentity =true)]
+    public override long Id { get => base.Id; set => base.Id = value; }
     /// <summary>
     /// 调度名字
     /// </summary>

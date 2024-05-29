@@ -5,7 +5,6 @@
   // "https_port": 44325,
 
   "AllowedHosts": "*",
-
   "AppSettings": {
     "EnabledSwagger": false // 生产环境是否开启Swagger
   },

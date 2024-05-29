@@ -5,6 +5,7 @@
 // 电话/微信：song977601042
 
 using Hx.Admin.Core;
+using Hx.Admin.IServices;
 using Hx.Admin.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Quartz;
@@ -20,8 +21,9 @@ namespace Hx.Admin.Tasks;
 public class DbJobPersistence
 {
     private readonly IServiceProvider _serviceProvider;
-    private readonly DynamicJobCompiler _dynamicJobCompiler;
-    public DbJobPersistence(IServiceProvider serviceProvider, DynamicJobCompiler dynamicJobCompiler)
+    private readonly IDynamicJobCompiler _dynamicJobCompiler;
+    public DbJobPersistence(IServiceProvider serviceProvider, 
+        IDynamicJobCompiler dynamicJobCompiler)
     {
         _serviceProvider = serviceProvider;
         _dynamicJobCompiler = dynamicJobCompiler;
@@ -38,13 +40,14 @@ public class DbJobPersistence
         {
             // 动态创建作业
             Type? jobType;
+            JobKey? jobKey = null;
             switch (dbDetail.CreateType)
             {
                 case JobCreateTypeEnum.Script:
                     jobType = _dynamicJobCompiler.BuildJob(dbDetail.ScriptCode!);
                     if (jobType != null)
                     {
-                        JobKey jobKey = new JobKey(dbDetail.JobName, dbDetail.JobGroup);
+                        jobKey = new JobKey(dbDetail.JobName, dbDetail.JobGroup);
                         quartzOptions.AddJob(jobType, jobBuilder =>
                         {
                             
@@ -67,15 +70,49 @@ public class DbJobPersistence
                     throw new NotSupportedException();
             }
 
-            // 动态构建的 jobType 的程序集名称为随机名称，需重新设置
-            dbDetail.AssemblyName = jobType.Assembly.FullName!.Split(',')[0];
-            var jobBuilder = JobBuilder.Create(jobType).LoadFrom(dbDetail);
-
-            // 强行设置为不扫描 IJob 实现类 [Trigger] 特性触发器，否则 SchedulerBuilder.Create 会再次扫描，导致重复添加同名触发器
-            jobBuilder.SetIncludeAnnotations(false);
-
             // 获取作业的所有数据库的触发器加入到作业中
-            var dbTriggers = await db.Queryable<SysJobTrigger>().Where(u => u.JobId == jobBuilder.JobId).ToListAsync();
+            var dbTriggers = await db.Queryable<QrtzTriggers>().Where(u =>u.SchedulerName == dbDetail.SchedulerName && u.JobGroup == dbDetail.JobGroup && u.JobName == dbDetail.JobName).ToListAsync();
+            dbTriggers.ForEach(dbTrigger =>
+            {
+                quartzOptions.AddTrigger(triggerBuilder =>
+                {
+                    triggerBuilder.ForJob(jobKey!)
+                                .WithIdentity(dbTrigger.TriggerName, dbTrigger.TriggerGroup ?? dbTrigger.JobGroup)
+                                .WithDescription(dbTrigger.Description);
+                    if (dbTrigger.StartTime > 0)
+                    { 
+                        
+                    }
+                    if (dbTrigger .StartNow)
+                    {
+                        triggerBuilder.StartNow();
+                    }
+                    else if (jobtrigger.RuntimeStartTime.HasValue)
+                    {
+                        triggerBuilder.StartAt(jobtrigger.RuntimeStartTime.Value);
+                    }
+                    if (jobtrigger.RuntimeEndTime.HasValue)
+                    {
+                        triggerBuilder.EndAt(jobtrigger.RuntimeEndTime.Value);
+                    }
+                    if (jobtrigger.TriggerType == TriggerTypeEnum.Corn && jobtrigger is CronTriggerAttribute cronTrigger)
+                    {
+                        triggerBuilder.WithCronSchedule(cronTrigger.Cron!);
+                    }
+                    else if (jobtrigger.TriggerType == TriggerTypeEnum.Simple && jobtrigger is PeriodTriggerAttribute periodTrigger)
+                    {
+                        var interval = jobtrigger.TriggerArgs?.FirstOrDefault() as long?;
+                        if (interval.HasValue && interval > 100)
+                        {
+                            triggerBuilder.WithSimpleSchedule(s =>
+                            {
+                                s.WithInterval(TimeSpan.FromMilliseconds(interval.Value)).RepeatForever();
+                            });
+                        }
+                    }
+                });
+            });
+
             var triggerBuilders = dbTriggers.Select(u => TriggerBuilder.Create(u.TriggerId).LoadFrom(u).Updated());
             var schedulerBuilder = SchedulerBuilder.Create(jobBuilder, triggerBuilders.ToArray());
 

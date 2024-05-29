@@ -22,8 +22,11 @@ namespace Hx.Admin.Models;
 [Tenant(SqlSugarConst.Quartz_ConfigId)]
 [SugarIndex("IDX_QRTZ_J_REQ_RECOVERY", nameof(SchedulerName), OrderByType.Asc, nameof(RequestsRecovery), OrderByType.Asc)]
 [SugarIndex("IDX_QRTZ_J_REQ_RECOVERY", nameof(SchedulerName), OrderByType.Asc, nameof(JobGroup), OrderByType.Asc)]
-public class QrtzJobDetails
+public class QrtzJobDetails:EntityBase
 {
+    [SugarColumn(ColumnDescription = "自增id", IsIdentity =true)]
+    public override long Id { get; set; }
+
     /// <summary>
     /// 调度名字
     /// </summary>

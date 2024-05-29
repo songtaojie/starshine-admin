@@ -4,6 +4,7 @@
 //
 // 电话/微信：song977601042
 
+using Hx.Admin.IServices;
 using Hx.Common.DependencyInjection;
 using Hx.Common.Extensions;
 using Quartz;
@@ -13,9 +14,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Hx.Admin.Tasks;
-[Injection(Pattern = InjectionPatterns.Self)]
-public class DynamicJobCompiler : ISingletonDependency
+namespace Hx.Admin.Services;
+public class DynamicJobCompiler : IDynamicJobCompiler, ISingletonDependency
 {
     /// <summary>
     /// 编译代码并返回其中实现 IJob 的类型

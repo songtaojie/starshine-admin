@@ -59,7 +59,6 @@ public static class TaskServiceCollectionExtensions
         });
         services.AddQuartz(quartzOptions =>
         {
-            //quartzOptions.ScanToBuilders();
             quartzOptions.UsePersistentStore(x =>
             {
                 x.UseDatabase(dbConfig);
