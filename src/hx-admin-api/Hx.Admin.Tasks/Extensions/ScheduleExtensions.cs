@@ -55,7 +55,7 @@ public static class ScheduleExtensions
                         quartzOptions.AddTrigger(triggerBuilder =>
                         {
                             triggerBuilder.ForJob(jobKey)
-                                .WithIdentity(jobtrigger.TriggerId, jobdetail.GroupName)
+                                .WithIdentity(jobtrigger.TriggerId, jobdetail?.GroupName ?? string.Empty)
                                 .WithDescription(jobtrigger.Description);
                             if (jobtrigger.StartNow)
                             {
@@ -134,7 +134,7 @@ public static class ScheduleExtensions
                         quartzOptions.AddTrigger(triggerBuilder =>
                         {
                             triggerBuilder.ForJob(jobKey)
-                                .WithIdentity(jobtrigger.TriggerId, jobDetailAttribute.GroupName)
+                                .WithIdentity(jobtrigger.TriggerId, jobDetailAttribute?.GroupName ?? string.Empty)
                                 .WithDescription(jobtrigger.Description);
                             if (jobtrigger.StartNow)
                             {

@@ -20,7 +20,7 @@ public class SysUserExtOrgService : BaseService<SysUserExtOrg>, ISysUserExtOrgSe
     /// <returns></returns>
     public async Task<IEnumerable<SysUserExtOrg>> GetUserExtOrgList(long userId)
     {
-        return await _rep.ToListAsync(u => u.UserId == userId);
+        return await _rep.GetListAsync(u => u.UserId == userId);
     }
 
     /// <summary>
@@ -38,7 +38,7 @@ public class SysUserExtOrgService : BaseService<SysUserExtOrg>, ISysUserExtOrgSe
         {
             u.UserId = userId;
         });
-        await _rep.InsertAsync(extOrgList);
+        await _rep.InsertRangeAsync(extOrgList);
     }
 
     /// <summary>

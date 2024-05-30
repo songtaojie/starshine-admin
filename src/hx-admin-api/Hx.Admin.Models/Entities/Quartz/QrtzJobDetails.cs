@@ -54,8 +54,8 @@ public class QrtzJobDetails:EntityBase
     /// <summary>
     /// 任务类名称
     /// </summary>
-    [SugarColumn(ColumnDescription = "任务类名称", ColumnName = "JOB_CLASS_NAME", Length = 250)]
-    public string? JobClassName { get; set; }
+    [SugarColumn(ColumnDescription = "任务类名称", ColumnName = "JOB_CLASS_NAME", IsNullable =false, Length = 250)]
+    public string JobClassName { get; set; }
 
     /// <summary>
     /// 是否持久化

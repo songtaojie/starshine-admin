@@ -191,7 +191,7 @@ public class SysOrgService : BaseService<SysOrg>, ISysOrgService
 
         // 若机构有用户则禁止删除
         var orgHasUser = await _rep.Change<SysUser>()
-            .AnyAsync(u => u.OrgId == input.Id);
+            .IsAnyAsync(u => u.OrgId == input.Id);
         if (orgHasUser)  throw new UserFriendlyException("该机构下有用户，请先取消用户关联机构");
 
         // 若扩展机构有用户则禁止删除
@@ -205,7 +205,7 @@ public class SysOrgService : BaseService<SysOrg>, ISysOrgService
 
         // 若子机构有用户则禁止删除
         var cOrgHasEmp = await _rep.Change<SysUser>()
-            .AnyAsync(u => orgIdList.Contains(u.OrgId));
+            .IsAnyAsync(u => orgIdList.Contains(u.OrgId));
         if (cOrgHasEmp) 
            throw new UserFriendlyException("下级机构下有用户禁止删除");
 

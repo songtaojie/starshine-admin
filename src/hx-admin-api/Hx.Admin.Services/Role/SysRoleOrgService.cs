@@ -29,7 +29,7 @@ public class SysRoleOrgService : BaseService<SysRoleOrg>, ISysRoleOrgService
                 RoleId = input.Id,
                 OrgId = u
             }).ToList();
-            await _rep.InsertAsync(roleOrgs);
+            await _rep.InsertRangeAsync(roleOrgs);
         }
     }
 

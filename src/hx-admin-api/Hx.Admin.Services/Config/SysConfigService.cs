@@ -114,7 +114,7 @@ public class SysConfigService :BaseService<SysConfig>, ISysConfigService
     /// <returns></returns>
     public async Task<T?> GetConfigValue<T>(string code)
     {
-        var config = await _rep.FirstOrDefaultAsync(u => u.Code == code);
+        var config = await _rep.GetFirstAsync(u => u.Code == code);
         var value = config != null ? config.Value : default;
         if (string.IsNullOrWhiteSpace(value)) return default;
         return (T)Convert.ChangeType(value, typeof(T));

@@ -28,7 +28,7 @@ public class QrtzSchedulerState
     /// <summary>
     /// 触发器分组
     /// </summary>
-    [SugarColumn(ColumnDescription = "触发器分组", ColumnName = "INSTANCE_NAME", Length = 200, IsNullable = false)]
+    [SugarColumn(ColumnDescription = "触发器分组", ColumnName = "INSTANCE_NAME", Length = 200, IsNullable = false, IsPrimaryKey = true)]
     public string InstanceName { get; set; }
 
     /// <summary>

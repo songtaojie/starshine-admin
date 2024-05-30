@@ -39,6 +39,6 @@ public class QrtzBlobTriggers
     /// <summary>
     /// 数据
     /// </summary>
-    [SugarColumn(ColumnDescription = "数据", ColumnName = "BLOB_DATA", ColumnDataType = "blob", IsNullable = true)]
+    [SugarColumn(ColumnDescription = "数据", ColumnName = "BLOB_DATA", ColumnDataType = "BLOB", IsNullable = true)]
     public byte[] BlobData { get; set; }
 }

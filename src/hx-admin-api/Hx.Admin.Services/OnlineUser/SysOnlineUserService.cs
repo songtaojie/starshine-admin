@@ -52,7 +52,7 @@ public class SysOnlineUserService : BaseService<SysOnlineUser>, ISysOnlineUserSe
     /// <returns></returns>
     public async Task PublicNotice(SysNotice notice, List<long> userIds)
     {
-        var userList = await _rep.ToListAsync(m => userIds.Contains(m.UserId));
+        var userList = await _rep.GetListAsync(m => userIds.Contains(m.UserId));
         if (!userList.Any()) return;
 
         foreach (var item in userList)

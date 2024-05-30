@@ -143,6 +143,6 @@ public class QrtzTriggers:EntityBase
     /// <summary>
     /// 数据
     /// </summary>
-    [SugarColumn(ColumnDescription = "数据", ColumnName = "JOB_DATA", ColumnDataType = "blob",IsNullable =true)]
+    [SugarColumn(ColumnDescription = "数据", ColumnName = "JOB_DATA", ColumnDataType = "BLOB", IsNullable =true)]
     public byte[] JobData { get; set; }
 }

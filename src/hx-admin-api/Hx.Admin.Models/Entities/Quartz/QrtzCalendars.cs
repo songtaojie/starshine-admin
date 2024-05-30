@@ -34,6 +34,6 @@ public class QrtzCalendars
     /// <summary>
     /// 数据
     /// </summary>
-    [SugarColumn(ColumnDescription = "数据", ColumnName = "CALENDAR", ColumnDataType = "blob", IsNullable = false)]
+    [SugarColumn(ColumnDescription = "数据", ColumnName = "CALENDAR", ColumnDataType = "BLOB", IsNullable = false)]
     public byte[] Calendar { get; set; }
 }

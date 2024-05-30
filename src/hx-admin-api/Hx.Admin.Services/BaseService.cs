@@ -24,7 +24,7 @@ public abstract class BaseService<TEntity> where TEntity : EntityBase, new()
     /// <returns>模型数据</returns>
     public async Task<TEntity> FindAsync(object id)
     {
-        return await Task.FromResult(_rep.Single(id));
+        return await _rep.GetByIdAsync(id);
     }
 
     /// <summary>
@@ -34,7 +34,7 @@ public abstract class BaseService<TEntity> where TEntity : EntityBase, new()
     /// <returns>满足当前条件的一个实体</returns>
     public async Task<TEntity> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate, bool defaultFilter = true)
     {
-        return await _rep.FirstOrDefaultAsync(predicate);
+        return await _rep.GetFirstAsync(predicate);
     }
     #endregion
 
@@ -90,9 +90,9 @@ public abstract class BaseService<TEntity> where TEntity : EntityBase, new()
     /// </summary>
     /// <param name="entityList"></param>
     /// <returns></returns>
-    public virtual async Task<bool> BatchInsertAsync(IEnumerable<TEntity> entityList)
+    public virtual async Task<bool> BatchInsertAsync(List<TEntity> entityList)
     {
-        return await _rep.InsertAsync(entityList) > 0;
+        return await _rep.InsertRangeAsync(entityList);
     }
     #endregion
 
@@ -190,7 +190,7 @@ public abstract class BaseService<TEntity> where TEntity : EntityBase, new()
     {
         if (id is long longId && await BeforeDeleteAsync(longId))
         {
-            return await _rep.DeleteAsync(id) > 0;
+            return await _rep.DeleteByIdAsync(id);
         }
         return false;
     }
@@ -203,7 +203,7 @@ public abstract class BaseService<TEntity> where TEntity : EntityBase, new()
     {
         if (await BeforeDeleteAsync(entity))
         {
-            return await _rep.DeleteAsync(entity) > 0;
+            return await _rep.DeleteAsync(entity);
         }
         return false;
     }

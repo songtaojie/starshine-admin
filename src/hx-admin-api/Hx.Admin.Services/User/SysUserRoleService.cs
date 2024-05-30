@@ -29,7 +29,7 @@ public class SysUserRoleService : BaseService<SysUserRole>, ISysUserRoleService
             UserId = input.UserId,
             RoleId = u
         }).ToList();
-        await _rep.InsertAsync(roles);
+        await _rep.InsertRangeAsync(roles);
     }
 
     /// <summary>

@@ -278,7 +278,7 @@ public class SysFileService : BaseService<SysFile>, ISysFileService
     {
         var sysUserRep = _rep.Change<SysUser>();
         var userId = _userManager.GetUserId<long>();
-        var user = await sysUserRep.FirstOrDefaultAsync(u => u.Id == userId);
+        var user = await sysUserRep.GetFirstAsync(u => u.Id == userId);
         // 删除当前用户已有头像
         if (!string.IsNullOrWhiteSpace(user.Avatar))
         {
@@ -301,7 +301,7 @@ public class SysFileService : BaseService<SysFile>, ISysFileService
     {
         var sysUserRep = _rep.Change<SysUser>();
         var userId = _userManager.GetUserId<long>();
-        var user = await sysUserRep.FirstOrDefaultAsync(u => u.Id == userId);
+        var user = await sysUserRep.GetFirstAsync(u => u.Id == userId);
         // 删除当前用户已有电子签名
         if (!string.IsNullOrWhiteSpace(user.Signature) && user.Signature.EndsWith(".png"))
         {

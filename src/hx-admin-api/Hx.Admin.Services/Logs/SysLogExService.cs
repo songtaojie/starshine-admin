@@ -44,7 +44,7 @@ public class SysLogExService : BaseService<SysLogEx>, ISysLogExService
     /// <returns></returns>
     public async Task<bool> Clear()
     {
-        return await _rep.DeleteAsync(u => u.Id > 0) > 0;
+        return await _rep.DeleteAsync(u => u.Id > 0);
     }
 
     /// <summary>

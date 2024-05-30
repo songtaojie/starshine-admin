@@ -47,7 +47,7 @@ public interface IBaseService<TEntity> where TEntity : EntityBase, new()
     /// </summary>
     /// <param name="entityList"></param>
     /// <returns></returns>
-    Task<bool> BatchInsertAsync(IEnumerable<TEntity> entityList);
+    Task<bool> BatchInsertAsync(List<TEntity> entityList);
     #endregion
 
     #region 更新

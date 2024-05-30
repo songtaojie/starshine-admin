@@ -58,8 +58,8 @@ public class SysPosService : BaseService<SysPos>, ISysPosService
     public override async Task<bool> BeforeDeleteAsync(long id)
     {
         // 该职位下是否有用户
-        var hasPosEmp = await _rep.Change<SysUser>()
-            .AnyAsync(u => u.PosId == id);
+        var hasPosEmp = await _rep.ChangeRepository<ISqlSugarRepository<SysUser>>()
+            .IsAnyAsync(u => u.PosId == id);
         if (hasPosEmp)
             throw new UserFriendlyException("该职位已绑定用户，请先删除用户");
 

@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Hx.Admin.IServices\Hx.Admin.IServices.csproj" />
+    <ProjectReference Include="..\Hx.Admin.Tasks\Hx.Admin.Tasks.csproj" />
   </ItemGroup>
 
 </Project>

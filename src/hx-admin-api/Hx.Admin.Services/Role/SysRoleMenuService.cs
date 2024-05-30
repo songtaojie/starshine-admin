@@ -43,7 +43,7 @@ public class SysRoleMenuService : BaseService<SysRoleMenu>, ISysRoleMenuService
             RoleId = input.Id,
             MenuId = u
         }).ToList();
-        await _rep.InsertAsync(menus);
+        await _rep.InsertRangeAsync(menus);
 
         // 清除缓存
         _cache.RemoveByPrefix(CacheConst.KeyMenu);

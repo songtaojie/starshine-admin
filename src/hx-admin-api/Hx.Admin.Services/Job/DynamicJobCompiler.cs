@@ -15,7 +15,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Hx.Admin.Services;
-public class DynamicJobCompiler : IDynamicJobCompiler, ISingletonDependency
+public class DynamicJobCompiler : IDynamicJobCompiler
 {
     /// <summary>
     /// 编译代码并返回其中实现 IJob 的类型

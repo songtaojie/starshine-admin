@@ -28,13 +28,13 @@ public class QrtzSimpleTriggers
     /// <summary>
     /// 触发器名字
     /// </summary>
-    [SugarColumn(ColumnDescription = "触发器名字", ColumnName = "TRIGGER_NAME", Length = 150, IsNullable = false, IsPrimaryKey = true)]
+    [SugarColumn(ColumnDescription = "触发器名字", ColumnName = "TRIGGER_NAME", Length = 200, IsNullable = false, IsPrimaryKey = true)]
     public string TriggerName { get; set; }
 
     /// <summary>
     /// 触发器分组
     /// </summary>
-    [SugarColumn(ColumnDescription = "触发器分组", ColumnName = "TRIGGER_GROUP", Length = 150, IsNullable = false, IsPrimaryKey = true)]
+    [SugarColumn(ColumnDescription = "触发器分组", ColumnName = "TRIGGER_GROUP", Length = 200, IsNullable = false, IsPrimaryKey = true)]
     public string TriggerGroup { get; set; }
 
     /// <summary>

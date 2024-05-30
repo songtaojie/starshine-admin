@@ -58,20 +58,20 @@ public class QrtzFiredTriggers
     /// <summary>
     /// 触发时间
     /// </summary>
-    [SugarColumn(ColumnDescription = "触发时间", ColumnName = "FIRED_TIME", Length =19, IsNullable = false)]
+    [SugarColumn(ColumnDescription = "触发时间", ColumnName = "FIRED_TIME", IsNullable = false)]
     public long FireTime { get; set; }
 
     /// <summary>
     /// 调度时间
     /// </summary>
-    [SugarColumn(ColumnDescription = "调度时间", ColumnName = "SCHED_TIME", Length =19, IsNullable = false)]
+    [SugarColumn(ColumnDescription = "调度时间", ColumnName = "SCHED_TIME", IsNullable = false)]
     public long SchedTime { get; set; }
 
     /// <summary>
     /// 优先级
     /// </summary>
-    [SugarColumn(ColumnDescription = "任务名字", ColumnName = "PRIORITY", Length =13, IsNullable = false)]
-    public long Priority { get; set; }
+    [SugarColumn(ColumnDescription = "优先级", ColumnName = "PRIORITY", IsNullable = false)]
+    public int Priority { get; set; }
 
     /// <summary>
     /// 触发器状态
@@ -92,25 +92,25 @@ public class QrtzFiredTriggers
     /// <summary>
     /// 任务名字
     /// </summary>
-    [SugarColumn(ColumnDescription = "任务名字", ColumnName = "JOB_NAME", Length = 200, IsNullable = false)]
-    public string JobName { get; set; }
+    [SugarColumn(ColumnDescription = "任务名字", ColumnName = "JOB_NAME", Length = 200)]
+    public string? JobName { get; set; }
 
     /// <summary>
     /// 任务分组
     /// </summary>
-    [SugarColumn(ColumnDescription = "任务分组", ColumnName = "JOB_GROUP", Length = 200, IsNullable = false)]
-    public string JobGroup { get; set; }
+    [SugarColumn(ColumnDescription = "任务分组", ColumnName = "JOB_GROUP", Length = 200)]
+    public string? JobGroup { get; set; }
 
     /// <summary>
     /// 是否非并发
     /// </summary>
-    [SugarColumn(ColumnDescription = "是否非并发", ColumnName = "IS_NONCONCURRENT", Length = 1)]
-    public string ISNonConcurrent { get; set; }
+    [SugarColumn(ColumnDescription = "是否非并发", ColumnName = "IS_NONCONCURRENT",IsNullable =true)]
+    public bool? ISNonConcurrent { get; set; }
 
     /// <summary>
     /// 请求恢复
     /// 指导是否工作 如果出现“恢复”或“故障转移”情况，是否应该重新执行。
     /// </summary>
-    [SugarColumn(ColumnDescription = "请求恢复", ColumnName = "REQUESTS_RECOVERY",Length =1)]
-    public string RequestsRecovery { get; set; }
+    [SugarColumn(ColumnDescription = "请求恢复", ColumnName = "REQUESTS_RECOVERY", IsNullable = true)]
+    public bool? RequestsRecovery { get; set; }
 }

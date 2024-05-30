@@ -34,7 +34,7 @@ public class SysLogDiffService : BaseService<SysLogDiff>, ISysLogDiffService
     /// <returns></returns>
     public async Task<bool> Clear()
     {
-        return await _rep.DeleteAsync(u => u.Id > 0) > 0;
+        return await _rep.DeleteAsync(u => u.Id > 0);
     }
 
     

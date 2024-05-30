@@ -81,4 +81,6 @@ public class DbJobStoreTX : JobStoreTX
                 throw new NotImplementedException("不支持的DbType");
         }
     }
+
+    protected override IDriverDelegate Delegate => base.Delegate;
 }

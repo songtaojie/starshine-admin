@@ -19,6 +19,7 @@ using Microsoft.Extensions.Options;
 using System.Runtime.Intrinsics.Arm;
 using SqlSugar;
 using Hx.Admin.Models;
+using Hx.Admin.IServices;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -38,28 +39,13 @@ public static class TaskServiceCollectionExtensions
         services.Configure<QuartzOptions,IServiceProvider>((quartzOptions, provider) =>
         {
             quartzOptions.ScanToBuilders();
-
             using var scope = provider.CreateScope();
-
-            //var jobKey = new JobKey("options-custom-job", "custom");
-            //quartzOptions.AddJob<LogJob>(j => j.WithIdentity(jobKey));
-            //quartzOptions.AddTrigger(trigger => trigger
-            //    .WithIdentity("options-custom-trigger", "custom")
-            //    .ForJob(jobKey)
-            //    .WithSimpleSchedule(s=>s.WithIntervalInSeconds(1000)));
-            //if (!string.IsNullOrWhiteSpace(dep.Value.CronSchedule))
-            //{
-            //    var jobKey = new JobKey("options-custom-job", "custom");
-            //    options.AddJob<ExampleJob>(j => j.WithIdentity(jobKey));
-            //    options.AddTrigger(trigger => trigger
-            //        .WithIdentity("options-custom-trigger", "custom")
-            //        .ForJob(jobKey)
-            //        .WithCronSchedule(dep.Value.CronSchedule));
-            //}
+            var sysJobService = scope.ServiceProvider.GetRequiredService<ISysJobService>();
+            sysJobService.ScanDbJobToQuartz(quartzOptions);
         });
         services.AddQuartz(quartzOptions =>
         {
-            quartzOptions.UsePersistentStore(x =>
+            quartzOptions.UsePersistentStore<DbJobStoreTX>(x =>
             {
                 x.UseDatabase(dbConfig);
                 x.UseNewtonsoftJsonSerializer();
@@ -77,7 +63,6 @@ public static class TaskServiceCollectionExtensions
 
     private static void UseDatabase(this SchedulerBuilder.PersistentStoreOptions storeOptions,DbConnectionConfig dbCOnfig)
     {
-        string driverDelegateType = string.Empty;
         switch (dbCOnfig.DbType)
         { 
             case SqlSugar.DbType.MySql:
@@ -91,7 +76,6 @@ public static class TaskServiceCollectionExtensions
                 break;
             case SqlSugar.DbType.Sqlite:
                 storeOptions.UseMicrosoftSQLite(dbCOnfig.ConnectionString);
-                driverDelegateType = typeof(HxSQLiteDelegate).AssemblyQualifiedNameWithoutVersion();
                 break;
             case SqlSugar.DbType.MySqlConnector:
                 storeOptions.UseMySqlConnector(x=>
@@ -105,6 +89,5 @@ public static class TaskServiceCollectionExtensions
             default:
                 throw new NotImplementedException("不支持的DbType");
         }
-        storeOptions.SetProperty("quartz.jobStore.driverDelegateType", driverDelegateType);
     }
 }
