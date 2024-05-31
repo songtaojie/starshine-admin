@@ -7,6 +7,7 @@
 using Hx.Admin.Models;
 using Hx.Admin.Serilog;
 using Hx.Sdk.Core;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Context;
@@ -82,7 +83,8 @@ public static class SqlSugarServiceCollectionExtensions
 
             };
         });
-        services.AddHostedService<SqlSugarHostedService>();
+        //services.AddHostedService<SqlSugarHostedService>();
+        services.AddSingleton<IHostLifetime, SqlsugarHostLifetime>();
         return services;
     }
 }

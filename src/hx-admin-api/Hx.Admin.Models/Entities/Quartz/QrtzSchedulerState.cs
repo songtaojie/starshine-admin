@@ -17,18 +17,24 @@ namespace Hx.Admin.Models;
 /// </summary>
 [SugarTable("QRTZ_SCHEDULER_STATE", "系统简单触发器")]
 [Tenant(SqlSugarConst.Quartz_ConfigId)]
-public class QrtzSchedulerState
+public class QrtzSchedulerState : EntityBase
 {
+    /// <summary>
+    /// 自增id
+    /// </summary>
+    [SugarColumn(ColumnDescription = "自增id", IsIdentity = true, IsPrimaryKey = true)]
+    public override long Id { get; set; }
+
     /// <summary>
     /// 调度名字
     /// </summary>
-    [SugarColumn(ColumnDescription = "调度名字", ColumnName = "SCHED_NAME", Length = 120, IsNullable = false, IsPrimaryKey = true)]
+    [SugarColumn(ColumnDescription = "调度名字", ColumnName = "SCHED_NAME", Length = 120, IsNullable = false)]
     public string SchedulerName { get; set; }
 
     /// <summary>
     /// 触发器分组
     /// </summary>
-    [SugarColumn(ColumnDescription = "触发器分组", ColumnName = "INSTANCE_NAME", Length = 200, IsNullable = false, IsPrimaryKey = true)]
+    [SugarColumn(ColumnDescription = "触发器分组", ColumnName = "INSTANCE_NAME", Length = 200, IsNullable = false)]
     public string InstanceName { get; set; }
 
     /// <summary>

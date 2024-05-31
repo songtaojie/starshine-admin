@@ -23,18 +23,24 @@ namespace Hx.Admin.Models;
 [SugarIndex("IDX_QRTZ_FT_JG", nameof(SchedulerName), OrderByType.Asc, nameof(JobGroup), OrderByType.Asc)]
 [SugarIndex("IDX_QRTZ_FT_T_G", nameof(SchedulerName), OrderByType.Asc, nameof(TriggerName), OrderByType.Asc, nameof(TriggerGroup), OrderByType.Asc)]
 [SugarIndex("IDX_QRTZ_FT_TG", nameof(SchedulerName), OrderByType.Asc, nameof(TriggerGroup), OrderByType.Asc)]
-public class QrtzFiredTriggers
+public class QrtzFiredTriggers:EntityBase
 {
+    /// <summary>
+    /// 自增id
+    /// </summary>
+    [SugarColumn(ColumnDescription = "自增id", IsIdentity = true, IsPrimaryKey = true)]
+    public override long Id { get; set; }
+
     /// <summary>
     /// 调度名字
     /// </summary>
-    [SugarColumn(ColumnDescription = "调度名字", ColumnName = "SCHED_NAME", Length = 120, IsNullable = false, IsPrimaryKey = true)]
+    [SugarColumn(ColumnDescription = "调度名字", ColumnName = "SCHED_NAME", Length = 120, IsNullable = false)]
     public string SchedulerName { get; set; }
 
     /// <summary>
     /// 调度名字
     /// </summary>
-    [SugarColumn(ColumnDescription = "调度名字", ColumnName = "ENTRY_ID", Length = 140, IsNullable = false, IsPrimaryKey = true)]
+    [SugarColumn(ColumnDescription = "调度名字", ColumnName = "ENTRY_ID", Length = 140, IsNullable = false)]
     public string EntryId { get; set; }
 
     /// <summary>

@@ -247,7 +247,7 @@ public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
                     case 2:
                         sysLogAuditList.Add(new SysLogAudit
                         {
-                            Id = YitIdHelper.NextId(),
+                            Id = IdGenerater.GetNextId(),
                             AuditType = GetSqlAuditType(logType),
                             CreateTime = logEvent.Timestamp.DateTime,
                             CreatorId = creatorId,

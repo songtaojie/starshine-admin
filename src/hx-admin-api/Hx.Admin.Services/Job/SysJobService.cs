@@ -43,6 +43,7 @@ public class SysJobService : BaseService<QrtzJobDetails>, ISysJobService
         // 获取数据库所有通过脚本创建的作业
         try
         {
+            await Task.Delay(500);
             var allDbScriptJobs = await _rep.AsQueryable().Where(u => u.CreateType != JobCreateTypeEnum.BuiltIn).ToListAsync();
             foreach (var dbDetail in allDbScriptJobs)
             {

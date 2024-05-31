@@ -36,21 +36,21 @@ public static class TaskServiceCollectionExtensions
         if (dbConfig == null)
             throw new ArgumentNullException(nameof(dbConfig));
       
-        services.Configure<QuartzOptions,IServiceProvider>((quartzOptions, provider) =>
+        services.AddQuartz(quartzOptions =>
+        {
+            quartzOptions.UsePersistentStore(x =>
+            {
+                x.UseDatabase(dbConfig);
+                x.UseNewtonsoftJsonSerializer();
+                x.PerformSchemaValidation = false;
+            });
+        });
+        services.Configure<QuartzOptions, IServiceProvider>((quartzOptions, provider) =>
         {
             quartzOptions.ScanToBuilders();
             using var scope = provider.CreateScope();
             var sysJobService = scope.ServiceProvider.GetRequiredService<ISysJobService>();
             sysJobService.ScanDbJobToQuartz(quartzOptions);
-        });
-        services.AddQuartz(quartzOptions =>
-        {
-            quartzOptions.UsePersistentStore<DbJobStoreTX>(x =>
-            {
-                x.UseDatabase(dbConfig);
-                x.UseNewtonsoftJsonSerializer();
-                x.PerformSchemaValidation = true;
-            });
         });
         // ASP.NET Core hosting
         services.AddQuartzServer(options =>

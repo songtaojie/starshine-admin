@@ -22,27 +22,27 @@ namespace Hx.Admin.Models;
 [Tenant(SqlSugarConst.Quartz_ConfigId)]
 [SugarIndex("IDX_QRTZ_J_REQ_RECOVERY", nameof(SchedulerName), OrderByType.Asc, nameof(RequestsRecovery), OrderByType.Asc)]
 [SugarIndex("IDX_QRTZ_J_REQ_RECOVERY", nameof(SchedulerName), OrderByType.Asc, nameof(JobGroup), OrderByType.Asc)]
-public class QrtzJobDetails:EntityBase
+public class QrtzJobDetails:EntityBase<int>
 {
-    [SugarColumn(ColumnDescription = "自增id", IsIdentity =true)]
-    public override long Id { get; set; }
+    [SugarColumn(ColumnDescription = "自增id", IsIdentity =true,IsPrimaryKey =true)]
+    public override int Id { get; set; }
 
     /// <summary>
     /// 调度名字
     /// </summary>
-    [SugarColumn(ColumnDescription = "调度名字", ColumnName = "SCHED_NAME",Length =120,IsNullable =false, IsPrimaryKey = true)]
+    [SugarColumn(ColumnDescription = "调度名字", ColumnName = "SCHED_NAME",Length =120,IsNullable =false)]
     public string SchedulerName { get; set; }
 
     /// <summary>
     /// 任务名字
     /// </summary>
-    [SugarColumn(ColumnDescription = "任务名字", ColumnName = "JOB_NAME", Length = 200, IsNullable = false, IsPrimaryKey = true)]
+    [SugarColumn(ColumnDescription = "任务名字", ColumnName = "JOB_NAME", Length = 200, IsNullable = false)]
     public string JobName { get; set; }
 
     /// <summary>
     /// 任务分组
     /// </summary>
-    [SugarColumn(ColumnDescription = "任务分组", ColumnName = "JOB_GROUP", Length = 200, IsNullable = false, IsPrimaryKey = true)]
+    [SugarColumn(ColumnDescription = "任务分组", ColumnName = "JOB_GROUP", Length = 200, IsNullable = false)]
     public string JobGroup { get; set; }
 
     /// <summary>

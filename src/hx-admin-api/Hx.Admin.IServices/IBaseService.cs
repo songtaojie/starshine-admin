@@ -7,7 +7,13 @@ namespace Hx.Admin.IService;
 /// 实体操作基服务
 /// </summary>
 /// <typeparam name="TEntity"></typeparam>
-public interface IBaseService<TEntity> where TEntity : EntityBase, new()
+public interface IBaseService<TEntity> : IBaseService<TEntity,long>
+    where TEntity : EntityBase<long>, new()
+{
+   
+}
+
+public interface IBaseService<TEntity, TKey> where TEntity : EntityBase<TKey>, new()
 {
     #region 查询
     /// <summary>
@@ -32,7 +38,7 @@ public interface IBaseService<TEntity> where TEntity : EntityBase, new()
     /// </summary>
     /// <param name="entity">数据实体</param>
     /// <returns></returns>
-    Task<long> InsertAsync(TEntity entity);
+    Task<TKey?> InsertAsync(TEntity entity);
 
     /// <summary>
     /// 插入一条数据
@@ -40,7 +46,7 @@ public interface IBaseService<TEntity> where TEntity : EntityBase, new()
     /// <typeparam name="T"></typeparam>
     /// <param name="entity"></param>
     /// <returns></returns>
-    Task<long> InsertAsync<TModel>([NotNull] TModel model) where TModel : class, new();
+    Task<TKey?> InsertAsync<TModel>([NotNull] TModel model) where TModel : class, new();
 
     /// <summary>
     /// 插入集合

@@ -32,26 +32,26 @@ namespace Hx.Admin.Models;
 public class QrtzTriggers:EntityBase
 {
     /// <summary>
-    /// 
+    /// 自增id
     /// </summary>
-    [SugarColumn(IsIdentity =true)]
-    public override long Id { get => base.Id; set => base.Id = value; }
+    [SugarColumn(ColumnDescription = "自增id",IsIdentity =true,IsPrimaryKey =true)]
+    public override long Id { get; set; }
     /// <summary>
     /// 调度名字
     /// </summary>
-    [SugarColumn(ColumnDescription = "调度名字", ColumnName = "SCHED_NAME", Length = 120, IsNullable = false,IsPrimaryKey =true)]
+    [SugarColumn(ColumnDescription = "调度名字", ColumnName = "SCHED_NAME", Length = 120, IsNullable = false)]
     public string SchedulerName { get; set; }
 
     /// <summary>
     /// 触发器名字
     /// </summary>
-    [SugarColumn(ColumnDescription = "触发器名字", ColumnName = "TRIGGER_NAME", Length = 200, IsNullable = false, IsPrimaryKey = true)]
+    [SugarColumn(ColumnDescription = "触发器名字", ColumnName = "TRIGGER_NAME", Length = 200, IsNullable = false)]
     public string TriggerName { get; set; }
 
     /// <summary>
     /// 触发器分组
     /// </summary>
-    [SugarColumn(ColumnDescription = "触发器分组", ColumnName = "TRIGGER_GROUP", Length = 200, IsNullable = false, IsPrimaryKey = true)]
+    [SugarColumn(ColumnDescription = "触发器分组", ColumnName = "TRIGGER_GROUP", Length = 200, IsNullable = false)]
     public string TriggerGroup { get; set; }
 
     /// <summary>

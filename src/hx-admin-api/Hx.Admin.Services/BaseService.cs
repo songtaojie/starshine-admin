@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using Hx.Admin.IService;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
 namespace Hx.Admin.Core;
@@ -7,7 +8,16 @@ namespace Hx.Admin.Core;
 /// 实体操作基服务
 /// </summary>
 /// <typeparam name="TEntity"></typeparam>
-public abstract class BaseService<TEntity> where TEntity : EntityBase, new()
+public abstract class BaseService<TEntity>: BaseService<TEntity,long>
+    where TEntity : EntityBase<long>, new()
+{
+    public BaseService(ISqlSugarRepository<TEntity> rep):base(rep)
+    {
+    }
+}
+
+
+public abstract class BaseService<TEntity, TKey> where TEntity : EntityBase<TKey>, new()
 {
     protected readonly ISqlSugarRepository<TEntity> _rep;
 
@@ -15,7 +25,6 @@ public abstract class BaseService<TEntity> where TEntity : EntityBase, new()
     {
         _rep = rep;
     }
-
     #region 查询
     /// <summary>
     /// 根据Id获取模型数据
@@ -54,7 +63,7 @@ public abstract class BaseService<TEntity> where TEntity : EntityBase, new()
     /// </summary>
     /// <param name="model"></param>
     /// <returns></returns>
-    public virtual async Task<long> InsertAsync<TModel>([NotNull] TModel model) where TModel : class,new()
+    public virtual async Task<TKey?> InsertAsync<TModel>([NotNull] TModel model) where TModel : class, new()
     {
         return await InsertAsync(model.Adapt<TEntity>());
     }
@@ -64,7 +73,7 @@ public abstract class BaseService<TEntity> where TEntity : EntityBase, new()
     /// </summary>
     /// <param name="entity"></param>
     /// <returns></returns>
-    public virtual async Task<long> InsertAsync([NotNull] TEntity entity)
+    public virtual async Task<TKey?> InsertAsync([NotNull] TEntity entity)
     {
         if (await BeforeInsertAsync(entity))
         {
@@ -72,7 +81,7 @@ public abstract class BaseService<TEntity> where TEntity : EntityBase, new()
             await AfterInsertAsync(entity);
             return entity.Id;
         }
-        return 0;  
+        return default;
     }
 
     /// <summary>

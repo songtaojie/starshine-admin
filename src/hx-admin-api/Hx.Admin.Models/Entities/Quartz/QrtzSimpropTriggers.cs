@@ -20,26 +20,27 @@ namespace Hx.Admin.Models;
 public class QrtzSimpropTriggers:EntityBase
 {
     /// <summary>
-    /// 主键id
+    /// 自增id
     /// </summary>
-    [SugarColumn(ColumnDescription = "主键id", IsIdentity =true)]
+    [SugarColumn(ColumnDescription = "自增id", IsIdentity = true, IsPrimaryKey = true)]
     public override long Id { get; set; }
+
     /// <summary>
     /// 调度名字
     /// </summary>
-    [SugarColumn(ColumnDescription = "调度名字", ColumnName = "SCHED_NAME", Length = 120, IsNullable = false, IsPrimaryKey = true)]
+    [SugarColumn(ColumnDescription = "调度名字", ColumnName = "SCHED_NAME", Length = 120, IsNullable = false)]
     public string SchedulerName { get; set; }
 
     /// <summary>
     /// 触发器名字
     /// </summary>
-    [SugarColumn(ColumnDescription = "触发器名字", ColumnName = "TRIGGER_NAME", Length = 150, IsNullable = false, IsPrimaryKey = true)]
+    [SugarColumn(ColumnDescription = "触发器名字", ColumnName = "TRIGGER_NAME", Length = 150, IsNullable = false)]
     public string TriggerName { get; set; }
 
     /// <summary>
     /// 触发器分组
     /// </summary>
-    [SugarColumn(ColumnDescription = "触发器分组", ColumnName = "TRIGGER_GROUP", Length = 150, IsNullable = false, IsPrimaryKey = true)]
+    [SugarColumn(ColumnDescription = "触发器分组", ColumnName = "TRIGGER_GROUP", Length = 150, IsNullable = false)]
     public string TriggerGroup { get; set; }
 
     /// <summary>
