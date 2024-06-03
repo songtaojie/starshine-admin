@@ -4,7 +4,7 @@
 /// 系统访问日志表
 /// </summary>
 [SugarTable(null, "系统访问日志表")]
-public class SysLogVis : CreationEntityBase
+public class SysLogVis : CreationEntityBase<long>
 {
     /// <summary>
     /// 模块名称

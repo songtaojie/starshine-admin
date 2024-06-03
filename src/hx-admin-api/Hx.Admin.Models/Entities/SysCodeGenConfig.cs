@@ -6,7 +6,7 @@ namespace Hx.Admin.Models;
 /// 代码生成字段配置表
 /// </summary>
 [SugarTable(null, "代码生成字段配置表")]
-public class SysCodeGenConfig : AuditedEntityBase
+public class SysCodeGenConfig : AuditedEntityBase<long>
 {
     /// <summary>
     /// 代码生成主表Id

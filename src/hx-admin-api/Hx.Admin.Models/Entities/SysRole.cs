@@ -4,7 +4,7 @@
 /// 系统角色表
 /// </summary>
 [SugarTable(null, "系统角色表")]
-public class SysRole : AuditedEntityBase
+public class SysRole : AuditedEntityBase<long>
 {
     /// <summary>
     /// 名称

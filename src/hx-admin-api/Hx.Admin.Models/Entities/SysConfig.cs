@@ -4,7 +4,7 @@
 /// 系统参数配置表
 /// </summary>
 [SugarTable(null, "系统参数配置表")]
-public class SysConfig : AuditedEntityBase
+public class SysConfig : AuditedEntityBase<long>
 {
     /// <summary>
     /// 名称

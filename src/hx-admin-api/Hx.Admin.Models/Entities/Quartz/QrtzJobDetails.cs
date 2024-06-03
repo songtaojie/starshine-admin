@@ -20,84 +20,84 @@ namespace Hx.Admin.Models;
 /// </summary>
 [SugarTable("QRTZ_JOB_DETAILS", "系统作业信息表")]
 [Tenant(SqlSugarConst.Quartz_ConfigId)]
-[SugarIndex("IDX_QRTZ_J_REQ_RECOVERY", nameof(SchedulerName), OrderByType.Asc, nameof(RequestsRecovery), OrderByType.Asc)]
-[SugarIndex("IDX_QRTZ_J_REQ_RECOVERY", nameof(SchedulerName), OrderByType.Asc, nameof(JobGroup), OrderByType.Asc)]
-public class QrtzJobDetails:EntityBase<int>
+//[SugarIndex("IDX_QRTZ_J_REQ_RECOVERY", nameof(SchedulerName), OrderByType.Asc, nameof(RequestsRecovery), OrderByType.Asc)]
+//[SugarIndex("IDX_QRTZ_J_REQ_RECOVERY", nameof(SchedulerName), OrderByType.Asc, nameof(JobGroup), OrderByType.Asc)]
+public class QrtzJobDetails
 {
-    [SugarColumn(ColumnDescription = "自增id", IsIdentity =true,IsPrimaryKey =true)]
-    public override int Id { get; set; }
+    //[SugarColumn(ColumnDescription = "自增id", IsIdentity = true, IsPrimaryKey = true)]
+    //public override int Id { get; set; }
 
     /// <summary>
     /// 调度名字
     /// </summary>
-    [SugarColumn(ColumnDescription = "调度名字", ColumnName = "SCHED_NAME",Length =120,IsNullable =false)]
+    [SugarColumn(ColumnDescription = "调度名字", ColumnDataType = "NVARCHAR(120)", ColumnName = "SCHED_NAME",IsNullable =false,IsPrimaryKey =true)]
     public string SchedulerName { get; set; }
 
     /// <summary>
     /// 任务名字
     /// </summary>
-    [SugarColumn(ColumnDescription = "任务名字", ColumnName = "JOB_NAME", Length = 200, IsNullable = false)]
+    [SugarColumn(ColumnDescription = "任务名字", ColumnDataType = "NVARCHAR(200)", ColumnName = "JOB_NAME", IsNullable = false, IsPrimaryKey = true)]
     public string JobName { get; set; }
 
     /// <summary>
     /// 任务分组
     /// </summary>
-    [SugarColumn(ColumnDescription = "任务分组", ColumnName = "JOB_GROUP", Length = 200, IsNullable = false)]
+    [SugarColumn(ColumnDescription = "任务分组", ColumnDataType = "NVARCHAR(200)", ColumnName = "JOB_GROUP", IsNullable = false, IsPrimaryKey = true)]
     public string JobGroup { get; set; }
 
     /// <summary>
     /// 描述信息
     /// </summary>
-    [SugarColumn(ColumnDescription = "描述信息", ColumnName = "Description",  Length = 250,IsNullable =true)]
+    [SugarColumn(ColumnDescription = "描述信息", ColumnDataType = "NVARCHAR(250)", ColumnName = "DESCRIPTION",  IsNullable =true)]
     public string? Description { get; set; }
 
     /// <summary>
     /// 任务类名称
     /// </summary>
-    [SugarColumn(ColumnDescription = "任务类名称", ColumnName = "JOB_CLASS_NAME", IsNullable =false, Length = 250)]
+    [SugarColumn(ColumnDescription = "任务类名称", ColumnDataType = "NVARCHAR(250)", ColumnName = "JOB_CLASS_NAME", IsNullable =false)]
     public string JobClassName { get; set; }
 
     /// <summary>
     /// 是否持久化
     /// </summary>
-    [SugarColumn(ColumnDescription = "是否持久化", ColumnName = "IS_DURABLE")]
+    [SugarColumn(ColumnDescription = "是否持久化", ColumnDataType = "BIT", ColumnName = "IS_DURABLE")]
     public bool IsDurable { get; set; }
 
     /// <summary>
     /// 是否非并发
     /// </summary>
-    [SugarColumn(ColumnDescription = "是否非并发", ColumnName = "IS_NONCONCURRENT")]
+    [SugarColumn(ColumnDescription = "是否非并发", ColumnDataType = "BIT", ColumnName = "IS_NONCONCURRENT")]
     public bool IsNonConcurrent{ get; set; }
 
     /// <summary>
     /// 是否更新数据
     /// 指示作业执行完成时是否应重新存储作业数据
     /// </summary>
-    [SugarColumn(ColumnDescription = "是否更新数据", ColumnName = "IS_UPDATE_DATA")]
+    [SugarColumn(ColumnDescription = "是否更新数据", ColumnDataType = "BIT", ColumnName = "IS_UPDATE_DATA")]
     public bool IsUpdateData { get; set; }
 
     /// <summary>
     /// 请求恢复
     /// 指导是否工作 如果出现“恢复”或“故障转移”情况，是否应该重新执行。
     /// </summary>
-    [SugarColumn(ColumnDescription = "请求恢复", ColumnName = "REQUESTS_RECOVERY")]
+    [SugarColumn(ColumnDescription = "请求恢复", ColumnDataType = "BIT", ColumnName = "REQUESTS_RECOVERY")]
     public bool RequestsRecovery { get; set; }
 
     /// <summary>
     /// 数据
     /// </summary>
-    [SugarColumn(ColumnDescription = "数据", ColumnName = "JOB_DATA",ColumnDataType ="blob",IsNullable =true)]
+    [SugarColumn(ColumnDescription = "数据", ColumnName = "JOB_DATA",ColumnDataType ="BLOB",IsNullable =true)]
     public byte[] JobData { get; set; }
 
-    /// <summary>
-    /// 作业创建类型
-    /// </summary>
-    [SugarColumn(ColumnDescription = "作业创建类型")]
-    public JobCreateTypeEnum CreateType { get; set; } = JobCreateTypeEnum.BuiltIn;
+    ///// <summary>
+    ///// 作业创建类型
+    ///// </summary>
+    //[SugarColumn(ColumnDescription = "作业创建类型",ColumnName = "CREATE_TYPE", IsNullable =true)]
+    //public JobCreateTypeEnum? CreateType { get; set; } = JobCreateTypeEnum.BuiltIn;
 
-    /// <summary>
-    /// 脚本代码
-    /// </summary>
-    [SugarColumn(ColumnDescription = "脚本代码", IsNullable = true, ColumnDataType = StaticConfig.CodeFirst_BigString)]
-    public string? ScriptCode { get; set; }
+    ///// <summary>
+    ///// 脚本代码
+    ///// </summary>
+    //[SugarColumn(ColumnDescription = "脚本代码",ColumnName = "SCRIPT_CODE", IsNullable = true, ColumnDataType = StaticConfig.CodeFirst_BigString)]
+    //public string? ScriptCode { get; set; }
 }

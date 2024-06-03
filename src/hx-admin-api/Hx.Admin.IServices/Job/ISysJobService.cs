@@ -16,14 +16,14 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Hx.Admin.IServices;
-public interface ISysJobService : IBaseService<QrtzJobDetails>, IScopedDependency
+public interface ISysJobService : IScopedDependency//IBaseService<QrtzJobDetails,int>, IScopedDependency
 {
-    /// <summary>
-    /// 获取作业分页列表 ⏰
-    /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
-    Task<PagedListResult<PageJobDetailOutput>> PageJobDetail(PageJobDetailInput input);
+    ///// <summary>
+    ///// 获取作业分页列表 ⏰
+    ///// </summary>
+    ///// <param name="input"></param>
+    ///// <returns></returns>
+    //Task<PagedListResult<PageJobDetailOutput>> PageJobDetail(PageJobDetailInput input);
 
 
     /// <summary>

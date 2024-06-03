@@ -6,7 +6,7 @@ namespace Hx.Admin.Models;
 /// 代码生成表
 /// </summary>
 [SugarTable(null, "代码生成表")]
-public class SysCodeGen : AuditedEntityBase
+public class SysCodeGen : AuditedEntityBase<long>
 {
     /// <summary>
     /// 作者姓名

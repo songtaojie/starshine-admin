@@ -20,13 +20,13 @@ namespace Hx.Admin.Services;
 /// <summary>
 /// 系统作业任务服务 🧩
 /// </summary>
-public class SysJobService : BaseService<QrtzJobDetails>, ISysJobService
+public class SysJobService : ISysJobService//BaseService<QrtzJobDetails,int>, ISysJobService
 {
     private readonly ISchedulerFactory _schedulerFactory;
     private readonly IDynamicJobCompiler _dynamicJobCompiler;
     public SysJobService(ISqlSugarRepository<QrtzJobDetails> jobDetailRep,
         ISchedulerFactory schedulerFactory,
-        IDynamicJobCompiler dynamicJobCompiler) : base(jobDetailRep)
+        IDynamicJobCompiler dynamicJobCompiler) //: base(jobDetailRep)
     {
         _schedulerFactory = schedulerFactory;
         _dynamicJobCompiler = dynamicJobCompiler;
@@ -44,84 +44,85 @@ public class SysJobService : BaseService<QrtzJobDetails>, ISysJobService
         try
         {
             await Task.Delay(500);
-            var allDbScriptJobs = await _rep.AsQueryable().Where(u => u.CreateType != JobCreateTypeEnum.BuiltIn).ToListAsync();
-            foreach (var dbDetail in allDbScriptJobs)
-            {
-                // 动态创建作业
-                Type? jobType;
-                JobKey? jobKey = null;
-                switch (dbDetail.CreateType)
-                {
-                    case JobCreateTypeEnum.Script:
-                        jobType = _dynamicJobCompiler.BuildJob(dbDetail.ScriptCode!);
-                        if (jobType != null)
-                        {
-                            jobKey = new JobKey(dbDetail.JobName, dbDetail.JobGroup);
-                            quartzOptions.AddJob(jobType, jobBuilder =>
-                            {
+            return;
+            //var allDbScriptJobs = await _rep.AsQueryable().Where(u => u.CreateType != JobCreateTypeEnum.BuiltIn).ToListAsync();
+            //foreach (var dbDetail in allDbScriptJobs)
+            //{
+            //    // 动态创建作业
+            //    Type? jobType;
+            //    JobKey? jobKey = null;
+            //    switch (dbDetail.CreateType)
+            //    {
+            //        case JobCreateTypeEnum.Script:
+            //            jobType = _dynamicJobCompiler.BuildJob(dbDetail.ScriptCode!);
+            //            if (jobType != null)
+            //            {
+            //                jobKey = new JobKey(dbDetail.JobName, dbDetail.JobGroup);
+            //                quartzOptions.AddJob(jobType, jobBuilder =>
+            //                {
 
-                                jobBuilder.WithIdentity(jobKey)
-                                    .WithDescription(dbDetail.Description);
-                                jobBuilder.StoreDurably(dbDetail.IsDurable);
-                                jobBuilder.DisallowConcurrentExecution(!dbDetail.IsNonConcurrent);
-                            });
-                        }
-                        break;
-                    //case JobCreateTypeEnum.Http:
-                    //    jobType = typeof(HttpJob);
-                    //    break;
+            //                    jobBuilder.WithIdentity(jobKey)
+            //                        .WithDescription(dbDetail.Description);
+            //                    jobBuilder.StoreDurably(dbDetail.IsDurable);
+            //                    jobBuilder.DisallowConcurrentExecution(!dbDetail.IsNonConcurrent);
+            //                });
+            //            }
+            //            break;
+            //        //case JobCreateTypeEnum.Http:
+            //        //    jobType = typeof(HttpJob);
+            //        //    break;
 
-                    default:
-                        throw new NotSupportedException();
-                }
+            //        default:
+            //            throw new NotSupportedException();
+            //    }
 
-                // 获取作业的所有数据库的触发器加入到作业中
-                var dbTriggers = await _rep.Context.Queryable<QrtzTriggers>().Where(u => u.SchedulerName == dbDetail.SchedulerName && u.JobGroup == dbDetail.JobGroup && u.JobName == dbDetail.JobName).ToListAsync();
-                dbTriggers.ForEach(dbTrigger =>
-                {
-                    quartzOptions.AddTrigger(async triggerBuilder =>
-                    {
-                        triggerBuilder.ForJob(jobKey!)
-                                    .WithIdentity(dbTrigger.TriggerName, dbTrigger.TriggerGroup ?? dbTrigger.JobGroup)
-                                    .WithDescription(dbTrigger.Description);
-                        if (dbTrigger.StartTime > 0)
-                        {
-                            triggerBuilder.StartAt(new DateTimeOffset(dbTrigger.StartTime, TimeSpan.Zero));
-                        }
-                        if (dbTrigger.EndTime.HasValue && dbTrigger.EndTime > 0)
-                        {
-                            triggerBuilder.EndAt(new DateTimeOffset(dbTrigger.EndTime.Value, TimeSpan.Zero));
-                        }
-                        if (dbTrigger.TriggerType == "CRON")
-                        {
-                            var cronTrigger = await _rep.Context.Queryable<QrtzCronTriggers>().Where(u => u.TriggerGroup == dbTrigger.TriggerGroup && u.TriggerName == dbTrigger.TriggerName).FirstAsync();
-                            if (cronTrigger != null)
-                            {
-                                triggerBuilder.WithCronSchedule(cronTrigger.CronExpression);
-                            }
-                        }
-                        else
-                        {
-                            var simpleTrigger = await _rep.Context.Queryable<QrtzSimpleTriggers>().Where(u => u.TriggerGroup == dbTrigger.TriggerGroup && u.TriggerName == dbTrigger.TriggerName).FirstAsync();
-                            if (simpleTrigger != null)
-                            {
-                                triggerBuilder.WithSimpleSchedule(s =>
-                                {
-                                    s.WithInterval(TimeSpan.FromMilliseconds(simpleTrigger.RepeatInterval));
-                                    if (simpleTrigger.RepeatCount < 0)
-                                    {
-                                        s.RepeatForever();
-                                    }
-                                    else
-                                    {
-                                        s.WithRepeatCount(Convert.ToInt32(simpleTrigger.RepeatCount));
-                                    }
-                                });
-                            }
-                        }
-                    });
-                });
-            }
+            //    // 获取作业的所有数据库的触发器加入到作业中
+            //    var dbTriggers = await _rep.Context.Queryable<QrtzTriggers>().Where(u => u.SchedulerName == dbDetail.SchedulerName && u.JobGroup == dbDetail.JobGroup && u.JobName == dbDetail.JobName).ToListAsync();
+            //    dbTriggers.ForEach(dbTrigger =>
+            //    {
+            //        quartzOptions.AddTrigger(async triggerBuilder =>
+            //        {
+            //            triggerBuilder.ForJob(jobKey!)
+            //                        .WithIdentity(dbTrigger.TriggerName, dbTrigger.TriggerGroup ?? dbTrigger.JobGroup)
+            //                        .WithDescription(dbTrigger.Description);
+            //            if (dbTrigger.StartTime > 0)
+            //            {
+            //                triggerBuilder.StartAt(new DateTimeOffset(dbTrigger.StartTime, TimeSpan.Zero));
+            //            }
+            //            if (dbTrigger.EndTime.HasValue && dbTrigger.EndTime > 0)
+            //            {
+            //                triggerBuilder.EndAt(new DateTimeOffset(dbTrigger.EndTime.Value, TimeSpan.Zero));
+            //            }
+            //            if (dbTrigger.TriggerType == "CRON")
+            //            {
+            //                var cronTrigger = await _rep.Context.Queryable<QrtzCronTriggers>().Where(u => u.TriggerGroup == dbTrigger.TriggerGroup && u.TriggerName == dbTrigger.TriggerName).FirstAsync();
+            //                if (cronTrigger != null)
+            //                {
+            //                    triggerBuilder.WithCronSchedule(cronTrigger.CronExpression);
+            //                }
+            //            }
+            //            else
+            //            {
+            //                var simpleTrigger = await _rep.Context.Queryable<QrtzSimpleTriggers>().Where(u => u.TriggerGroup == dbTrigger.TriggerGroup && u.TriggerName == dbTrigger.TriggerName).FirstAsync();
+            //                if (simpleTrigger != null)
+            //                {
+            //                    triggerBuilder.WithSimpleSchedule(s =>
+            //                    {
+            //                        s.WithInterval(TimeSpan.FromMilliseconds(simpleTrigger.RepeatInterval));
+            //                        if (simpleTrigger.RepeatCount < 0)
+            //                        {
+            //                            s.RepeatForever();
+            //                        }
+            //                        else
+            //                        {
+            //                            s.WithRepeatCount(Convert.ToInt32(simpleTrigger.RepeatCount));
+            //                        }
+            //                    });
+            //                }
+            //            }
+            //        });
+            //    });
+            //}
         }
         catch (Exception ex) 
         {
@@ -129,84 +130,84 @@ public class SysJobService : BaseService<QrtzJobDetails>, ISysJobService
         }
     }
 
-    public async Task<PagedListResult<PageJobDetailOutput>> PageJobDetail(PageJobDetailInput input)
-    {
-        var jobDetails = await _rep.AsQueryable()
-            .WhereIF(!string.IsNullOrWhiteSpace(input.JobName), u => u.JobName.Contains(input.JobName))
-            .WhereIF(!string.IsNullOrWhiteSpace(input.Description), u => u.Description!.Contains(input.Description))
-            .Select<PageJobDetailOutput>()
-            .ToPagedListAsync(input.Page, input.PageSize);
+    //public async Task<PagedListResult<PageJobDetailOutput>> PageJobDetail(PageJobDetailInput input)
+    //{
+    //    var jobDetails = await _rep.AsQueryable()
+    //        .WhereIF(!string.IsNullOrWhiteSpace(input.JobName), u => u.JobName.Contains(input.JobName))
+    //        .WhereIF(!string.IsNullOrWhiteSpace(input.Description), u => u.Description!.Contains(input.Description))
+    //        .Select<PageJobDetailOutput>()
+    //        .ToPagedListAsync(input.Page, input.PageSize);
 
-        await _rep.Context.ThenMapperAsync(jobDetails.Items, async r =>
-        {
-            r.JobTriggers = await _rep.Context.Queryable<QrtzTriggers>()
-                .Where(u => u.SchedulerName == r.SchedulerName && u.JobGroup == r.JobGroup && u.JobName == r.JobName)
-                .Select<PageJobTriggersOutput>()
-                .ToListAsync();
-        });
+    //    await _rep.Context.ThenMapperAsync(jobDetails.Items, async r =>
+    //    {
+    //        r.JobTriggers = await _rep.Context.Queryable<QrtzTriggers>()
+    //            .Where(u => u.SchedulerName == r.SchedulerName && u.JobGroup == r.JobGroup && u.JobName == r.JobName)
+    //            .Select<PageJobTriggersOutput>()
+    //            .ToListAsync();
+    //    });
 
-        // 提取中括号里面的参数值
-        //var rgx = new Regex(@"(?i)(?<=\[)(.*)(?=\])");
-        //foreach (var job in jobDetails.Items)
-        //{
-        //    foreach (var jobTrigger in job.JobTriggers)
-        //    {
-        //        jobTrigger.Args = rgx.Match(jobTrigger.Args ?? "").Value;
-        //    }
-        //}
-        return jobDetails;
-    }
+    //    // 提取中括号里面的参数值
+    //    //var rgx = new Regex(@"(?i)(?<=\[)(.*)(?=\])");
+    //    //foreach (var job in jobDetails.Items)
+    //    //{
+    //    //    foreach (var jobTrigger in job.JobTriggers)
+    //    //    {
+    //    //        jobTrigger.Args = rgx.Match(jobTrigger.Args ?? "").Value;
+    //    //    }
+    //    //}
+    //    return jobDetails;
+    //}
 
-    /// <summary>
-    /// 添加作业 ⏰
-    /// </summary>
-    /// <returns></returns>
-    public async Task AddJobDetail(AddJobDetailInput input)
-    {
-        var isExist = await _rep.IsAnyAsync(u =>u.SchedulerName == input.SchedulerName && u.JobName == input.JobName && u.JobGroup == input.JobGroup);
-        if (isExist)
-            throw new UserFriendlyException();
+    ///// <summary>
+    ///// 添加作业 ⏰
+    ///// </summary>
+    ///// <returns></returns>
+    //public async Task AddJobDetail(AddJobDetailInput input)
+    //{
+    //    var isExist = await _rep.IsAnyAsync(u =>u.SchedulerName == input.SchedulerName && u.JobName == input.JobName && u.JobGroup == input.JobGroup);
+    //    if (isExist)
+    //        throw new UserFriendlyException();
 
-        // 动态创建作业
-        Type? jobType;
-        switch (input.CreateType)
-        {
-            case JobCreateTypeEnum.Script when string.IsNullOrEmpty(input.ScriptCode):
-                throw new UserFriendlyException("脚本代码不能为空");
-            case JobCreateTypeEnum.Script:
-                {
-                    jobType = _dynamicJobCompiler.BuildJob(input.ScriptCode);
-                    if (jobType == null)
-                        throw new UserFriendlyException("脚本代码中的作业类需要实现IJob接口");
-                    if (jobType.GetCustomAttributes(typeof(JobDetailAttribute),true).FirstOrDefault() is not JobDetailAttribute jobDetailAttribute)
-                        throw new UserFriendlyException("脚本代码中的作业类，需要定义 [JobDetail] 特性");
-                    if (jobDetailAttribute.JobId != input.JobName)
-                        throw new UserFriendlyException("作业编号需要与脚本代码中的作业类 [JobDetail('jobId')] 一致");
-                    break;
-                }
-            //case JobCreateTypeEnum.Http:
-            //    jobType = typeof(HttpJob);
-            //    break;
+    //    // 动态创建作业
+    //    Type? jobType;
+    //    switch (input.CreateType)
+    //    {
+    //        case JobCreateTypeEnum.Script when string.IsNullOrEmpty(input.ScriptCode):
+    //            throw new UserFriendlyException("脚本代码不能为空");
+    //        case JobCreateTypeEnum.Script:
+    //            {
+    //                jobType = _dynamicJobCompiler.BuildJob(input.ScriptCode);
+    //                if (jobType == null)
+    //                    throw new UserFriendlyException("脚本代码中的作业类需要实现IJob接口");
+    //                if (jobType.GetCustomAttributes(typeof(JobDetailAttribute),true).FirstOrDefault() is not JobDetailAttribute jobDetailAttribute)
+    //                    throw new UserFriendlyException("脚本代码中的作业类，需要定义 [JobDetail] 特性");
+    //                if (jobDetailAttribute.JobId != input.JobName)
+    //                    throw new UserFriendlyException("作业编号需要与脚本代码中的作业类 [JobDetail('jobId')] 一致");
+    //                break;
+    //            }
+    //        //case JobCreateTypeEnum.Http:
+    //        //    jobType = typeof(HttpJob);
+    //        //    break;
 
-            default:
-                throw new NotSupportedException();
-        }
-        var scheduler = await _schedulerFactory.GetScheduler();
-        var dbDetail = input.Adapt<QrtzJobDetails>();
-        JobBuilder jobBuilder = JobBuilder.Create(jobType);
-        var jobKey = new JobKey(dbDetail.JobName, dbDetail.JobGroup);
-        jobBuilder.WithIdentity(jobKey)
-                .WithDescription(dbDetail.Description)
-                .StoreDurably(dbDetail.IsDurable)
-                .DisallowConcurrentExecution(!dbDetail.IsNonConcurrent);
-        await scheduler.AddJob(jobBuilder.Build(),true);
-        // 延迟一下等待持久化写入，再执行其他字段的更新
-        await Task.Delay(500);
-        await _rep.Context.Updateable<QrtzJobDetails>()
-            .SetColumns(u => new QrtzJobDetails { CreateType = input.CreateType, ScriptCode = input.ScriptCode })
-            .Where(u => u.JobName == input.JobName)
-            .ExecuteCommandAsync();
-    }
+    //        default:
+    //            throw new NotSupportedException();
+    //    }
+    //    var scheduler = await _schedulerFactory.GetScheduler();
+    //    var dbDetail = input.Adapt<QrtzJobDetails>();
+    //    JobBuilder jobBuilder = JobBuilder.Create(jobType);
+    //    var jobKey = new JobKey(dbDetail.JobName, dbDetail.JobGroup);
+    //    jobBuilder.WithIdentity(jobKey)
+    //            .WithDescription(dbDetail.Description)
+    //            .StoreDurably(dbDetail.IsDurable)
+    //            .DisallowConcurrentExecution(!dbDetail.IsNonConcurrent);
+    //    await scheduler.AddJob(jobBuilder.Build(),true);
+    //    // 延迟一下等待持久化写入，再执行其他字段的更新
+    //    await Task.Delay(500);
+    //    //await _rep.Context.Updateable<QrtzJobDetails>()
+    //    //    .SetColumns(u => new QrtzJobDetails { CreateType = input.CreateType, ScriptCode = input.ScriptCode })
+    //    //    .Where(u => u.JobName == input.JobName)
+    //    //    .ExecuteCommandAsync();
+    //}
 
     ///// <summary>
     ///// 更新作业 ⏰

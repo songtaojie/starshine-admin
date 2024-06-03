@@ -4,7 +4,7 @@
 /// 系统作业集群表
 /// </summary>
 [SugarTable(null, "系统作业集群表")]
-public class SysJobCluster : EntityBase
+public class SysJobCluster : EntityBase<long>
 {
     /// <summary>
     /// 作业集群Id

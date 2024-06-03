@@ -4,7 +4,7 @@
 /// 系统用户角色表
 /// </summary>
 [SugarTable(null, "系统用户角色表")]
-public class SysUserRole : EntityBase
+public class SysUserRole : EntityBase<long>
 {
     /// <summary>
     /// 用户Id

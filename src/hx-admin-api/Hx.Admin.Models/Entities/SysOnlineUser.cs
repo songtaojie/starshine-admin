@@ -4,7 +4,7 @@
 /// 系统在线用户表
 /// </summary>
 [SugarTable(null, "系统在线用户表")]
-public class SysOnlineUser : EntityBase
+public class SysOnlineUser : EntityBase<long>
 {
     /// <summary>
     /// 连接Id

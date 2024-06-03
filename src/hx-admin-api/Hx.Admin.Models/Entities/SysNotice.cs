@@ -4,7 +4,7 @@
 /// 系统通知公告表
 /// </summary>
 [SugarTable(null, "系统通知公告表")]
-public class SysNotice : AuditedEntityBase
+public class SysNotice : AuditedEntityBase<long>
 {
     /// <summary>
     /// 标题

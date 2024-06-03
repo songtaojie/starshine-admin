@@ -5,7 +5,7 @@
 /// </summary>
 [SugarTable(null, "系统字典值表")]
 [SystemTable]
-public class SysDictData : AuditedEntityBase
+public class SysDictData : AuditedEntityBase<long>
 {
     /// <summary>
     /// 字典类型Id
