@@ -98,13 +98,13 @@ public class QrtzFiredTriggers//:EntityBase<int>
     /// <summary>
     /// 任务名字
     /// </summary>
-    [SugarColumn(ColumnDescription = "任务名字", ColumnName = "JOB_NAME", ColumnDataType = "NVARCHAR(200)")]
+    [SugarColumn(ColumnDescription = "任务名字", ColumnName = "JOB_NAME", ColumnDataType = "NVARCHAR(200)",IsNullable =true)]
     public string? JobName { get; set; }
 
     /// <summary>
     /// 任务分组
     /// </summary>
-    [SugarColumn(ColumnDescription = "任务分组", ColumnName = "JOB_GROUP", ColumnDataType = "NVARCHAR(200)")]
+    [SugarColumn(ColumnDescription = "任务分组", ColumnName = "JOB_GROUP", ColumnDataType = "NVARCHAR(200)", IsNullable = true)]
     public string? JobGroup { get; set; }
 
     /// <summary>

@@ -40,12 +40,12 @@ public class QrtzSchedulerState //: EntityBase<int>
     /// <summary>
     /// 下次触发时间
     /// </summary>
-    [SugarColumn(ColumnDescription = "下次触发时间", ColumnName = "LAST_CHECKIN_TIME", ColumnDataType = "BIGINT", IsNullable = true)]
-    public long? LastCheckinTime { get; set; }
+    [SugarColumn(ColumnDescription = "下次触发时间", ColumnName = "LAST_CHECKIN_TIME", ColumnDataType = "BIGINT")]
+    public long LastCheckinTime { get; set; }
 
     /// <summary>
     /// 上次触发时间
     /// </summary>
-    [SugarColumn(ColumnDescription = "上次触发时间", ColumnName = "CHECKIN_INTERVAL", ColumnDataType = "BIGINT",IsNullable =true)]
-    public long? CheckinInterval { get; set; }
+    [SugarColumn(ColumnDescription = "上次触发时间", ColumnName = "CHECKIN_INTERVAL", ColumnDataType = "BIGINT")]
+    public long CheckinInterval { get; set; }
 }
