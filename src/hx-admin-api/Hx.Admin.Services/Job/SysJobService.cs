@@ -20,16 +20,22 @@ namespace Hx.Admin.Services;
 /// <summary>
 /// 系统作业任务服务 🧩
 /// </summary>
-public class SysJobService : ISysJobService//BaseService<QrtzJobDetails,int>, ISysJobService
+public class SysJobService : BaseService<QrtzJobDetails,int>, ISysJobService
 {
     private readonly ISchedulerFactory _schedulerFactory;
     private readonly IDynamicJobCompiler _dynamicJobCompiler;
     public SysJobService(ISqlSugarRepository<QrtzJobDetails> jobDetailRep,
         ISchedulerFactory schedulerFactory,
-        IDynamicJobCompiler dynamicJobCompiler) //: base(jobDetailRep)
+        IDynamicJobCompiler dynamicJobCompiler) : base(jobDetailRep)
     {
         _schedulerFactory = schedulerFactory;
         _dynamicJobCompiler = dynamicJobCompiler;
+    }
+
+    public async Task AddTriggerRecord(AddTriggerRecordInput addTriggerRecordInput)
+    {
+        var qrtzTriggerRecord = addTriggerRecordInput.Adapt<QrtzTriggerRecord>();
+        await _rep.Context.Insertable<QrtzTriggerRecord>(qrtzTriggerRecord).ExecuteCommandAsync();
     }
 
     /// <summary>

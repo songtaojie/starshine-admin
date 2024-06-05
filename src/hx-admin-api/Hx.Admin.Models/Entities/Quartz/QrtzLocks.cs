@@ -22,12 +22,12 @@ public class QrtzLocks
     /// <summary>
     /// 调度名字
     /// </summary>
-    [SugarColumn(ColumnDescription = "调度名字", ColumnName = "SCHED_NAME", ColumnDataType = "NVARCHAR(120)", IsNullable = false, IsPrimaryKey = true)]
+    [SugarColumn(ColumnDescription = "调度名字", ColumnName = "SCHED_NAME", IsNullable = false, IsPrimaryKey = true)]
     public string SchedulerName { get; set; }
 
     /// <summary>
     /// 锁名称
     /// </summary>
-    [SugarColumn(ColumnDescription = "锁名称", ColumnName = "LOCK_NAME", ColumnDataType = "NVARCHAR(200)", IsNullable = false, IsPrimaryKey = true)]
+    [SugarColumn(ColumnDescription = "锁名称", ColumnName = "LOCK_NAME", IsNullable = false, IsPrimaryKey = true)]
     public string LockName { get; set; }
 }

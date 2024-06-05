@@ -27,8 +27,15 @@ public interface ISysJobService : IScopedDependency//IBaseService<QrtzJobDetails
 
 
     /// <summary>
+    /// 添加触发记录
+    /// </summary>
+    /// <param name="quartzOptions">动态编译的作业代码</param>
+    Task AddTriggerRecord(AddTriggerRecordInput addTriggerRecordInput);
+
+    /// <summary>
     /// 初始化DbJob
     /// </summary>
     /// <param name="quartzOptions">动态编译的作业代码</param>
     Task ScanDbJobToQuartz(QuartzOptions quartzOptions);
+
 }

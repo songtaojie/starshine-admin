@@ -7,14 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="AdoJobStore\StdAdoDelegate.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="AdoJobStore\StdAdoDelegate.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Quartz.Serialization.Json" Version="3.9.0" />
   </ItemGroup>
 

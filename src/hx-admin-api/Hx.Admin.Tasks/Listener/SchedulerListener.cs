@@ -13,11 +13,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Hx.Admin.Tasks;
-public class SampleSchedulerListener : SchedulerListenerSupport
+public class SchedulerListener : SchedulerListenerSupport
 {
-    private readonly ILogger<SampleSchedulerListener> logger;
+    private readonly ILogger<SchedulerListener> logger;
 
-    public SampleSchedulerListener(ILogger<SampleSchedulerListener> logger)
+    public SchedulerListener(ILogger<SchedulerListener> logger)
     {
         this.logger = logger;
     }

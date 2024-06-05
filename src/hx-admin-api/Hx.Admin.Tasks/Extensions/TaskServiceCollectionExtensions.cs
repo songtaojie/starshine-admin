@@ -20,6 +20,7 @@ using System.Runtime.Intrinsics.Arm;
 using SqlSugar;
 using Hx.Admin.Models;
 using Hx.Admin.IServices;
+using Hx.Admin.Tasks.Listener;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -38,12 +39,13 @@ public static class TaskServiceCollectionExtensions
       
         services.AddQuartz(quartzOptions =>
         {
-            quartzOptions.UsePersistentStore(x =>
+            quartzOptions.UsePersistentStore<DbJobStoreTX>(x =>
             {
                 x.UseDatabase(dbConfig);
                 x.UseNewtonsoftJsonSerializer();
                 x.PerformSchemaValidation = false;
             });
+            quartzOptions.AddTriggerListener<TriggerListener>();
         });
         services.Configure<QuartzOptions, IServiceProvider>((quartzOptions, provider) =>
         {
@@ -63,40 +65,31 @@ public static class TaskServiceCollectionExtensions
 
     private static void UseDatabase(this SchedulerBuilder.PersistentStoreOptions storeOptions,DbConnectionConfig dbCOnfig)
     {
-        Type? adoDelegateType = null;
         switch (dbCOnfig.DbType)
         { 
             case SqlSugar.DbType.MySql:
                 storeOptions.UseMySql(dbCOnfig.ConnectionString);
-                adoDelegateType = typeof(HxMySQLDelegate);
                 break;
             case SqlSugar.DbType.PostgreSQL:
                 storeOptions.UsePostgres(dbCOnfig.ConnectionString);
                 break;
             case SqlSugar.DbType.SqlServer:
                 storeOptions.UseSqlServer(dbCOnfig.ConnectionString);
-                adoDelegateType = typeof(HxSqlServerDelegate);
                 break;
             case SqlSugar.DbType.Sqlite:
                 storeOptions.UseMicrosoftSQLite(dbCOnfig.ConnectionString);
-                adoDelegateType = typeof(HxSQLiteDelegate);
                 break;
             case SqlSugar.DbType.MySqlConnector:
                 storeOptions.UseMySqlConnector(x=>
                 { 
                     x.ConnectionString = dbCOnfig.ConnectionString;
                 });
-                adoDelegateType = typeof(HxMySQLDelegate);
                 break;
             case SqlSugar.DbType.Oracle:
                 storeOptions.UseOracle(dbCOnfig.ConnectionString);
                 break;
             default:
                 throw new NotImplementedException("不支持的DbType");
-        }
-        if (adoDelegateType != null)
-        {
-            storeOptions.SetProperty("quartz.jobStore.driverDelegateType", adoDelegateType.AssemblyQualifiedNameWithoutVersion());
         }
     }
 }
