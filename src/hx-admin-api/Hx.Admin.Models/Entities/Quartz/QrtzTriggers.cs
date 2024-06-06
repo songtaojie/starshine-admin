@@ -69,7 +69,7 @@ public class QrtzTriggers:EntityBase<int>
     /// <summary>
     /// 描述信息
     /// </summary>
-    [SugarColumn(ColumnDescription = "描述信息", ColumnName = "Description", Length =250, IsNullable = true)]
+    [SugarColumn(ColumnDescription = "描述信息", ColumnName = "DESCRIPTION", Length =250, IsNullable = true)]
     public string? Description { get; set; }
 
     /// <summary>

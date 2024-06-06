@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Hx.Admin.Models.ViewModels.Job;
-public class AddTriggerRecordInput
+public class ListJobTriggerOutput
 {
     /// <summary>
     /// 调度名字
@@ -37,6 +37,11 @@ public class AddTriggerRecordInput
     /// 任务分组
     /// </summary>
     public string JobGroup { get; set; }
+
+    /// <summary>
+    /// 描述信息
+    /// </summary>
+    public string? Description { get; set; }
 
     /// <summary>
     /// 下次触发时间
@@ -78,7 +83,27 @@ public class AddTriggerRecordInput
     public string TriggerType { get; set; }
 
     /// <summary>
-    /// 本次执行耗时(毫秒)
+    /// 触发开始时间
     /// </summary>
-    public decimal ElapsedTime { get; set; }
+    public long StartTime { get; set; }
+
+    /// <summary>
+    /// 触发截止时间
+    /// </summary>
+    public long? EndTime { get; set; }
+
+    /// <summary>
+    /// 日历名字
+    /// </summary>
+    public string? CalenderName { get; set; }
+
+    /// <summary>
+    /// 失败的指令。
+    /// </summary>
+    public int? MisfireInstructions { get; set; }
+
+    /// <summary>
+    /// 数据
+    /// </summary>
+    public byte[] JobData { get; set; }
 }

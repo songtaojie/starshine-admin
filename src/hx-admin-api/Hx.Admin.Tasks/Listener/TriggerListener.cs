@@ -26,32 +26,37 @@ public class TriggerListener : TriggerListenerSupport
 
     public override string Name => "Trigger Listener";
 
-    public override async Task TriggerComplete(ITrigger trigger, IJobExecutionContext context, SchedulerInstruction triggerInstructionCode, CancellationToken cancellationToken = default)
+    public override Task TriggerComplete(ITrigger trigger, IJobExecutionContext context, SchedulerInstruction triggerInstructionCode, CancellationToken cancellationToken = default)
     {
-        try
+        var addTriggerRecordInput = new AddTriggerRecordInput
         {
-            using var scope = _serviceProvider.CreateScope();
-            var sysJobService = scope.ServiceProvider.GetRequiredService<ISysJobService>();
-            await sysJobService.AddTriggerRecord(new AddTriggerRecordInput
+            SchedulerName = context.Scheduler.SchedulerName,
+            JobGroup = context.JobDetail.Key.Group,
+            JobName = context.JobDetail.Key.Name,
+            TriggerGroup = trigger.Key.Group,
+            TriggerName = trigger.Key.Name,
+            PrevFireTime = trigger.GetPreviousFireTimeUtc()?.UtcTicks,
+            NextFireTime = trigger.GetNextFireTimeUtc()?.UtcTicks,
+            ElapsedTime = Convert.ToDecimal(context.JobRunTime.TotalMilliseconds),
+            Priority = trigger.Priority,
+            TriggerType = GetTriggerType(trigger.GetType().Name),
+            TriggerState = GetTriggerState(triggerInstructionCode)
+        };
+        Task.Run(async() =>
+        {
+            try
             {
-                SchedulerName = context.Scheduler.SchedulerName,
-                JobGroup = context.JobDetail.Key.Group,
-                JobName = context.JobDetail.Key.Name,
-                TriggerGroup = trigger.Key.Group,
-                TriggerName = trigger.Key.Name,
-                PrevFireTime = trigger.GetPreviousFireTimeUtc()?.UtcTicks,
-                NextFireTime = trigger.GetNextFireTimeUtc()?.UtcTicks,
-                ElapsedTime = Convert.ToInt64(context.JobRunTime.TotalMilliseconds),
-                Priority = trigger.Priority,
-                TriggerType = GetTriggerType(trigger.GetType().Name),
-                TriggerState = GetTriggerState(triggerInstructionCode)
-            });
-        }
-        catch (Exception ex) 
-        {
-            _logger.LogError(ex, "添加任务执行记录失败");
-        }
-        await base.TriggerComplete(trigger, context, triggerInstructionCode, cancellationToken);
+                using var scope = _serviceProvider.CreateScope();
+                var sysJobService = scope.ServiceProvider.GetRequiredService<ISysJobService>();
+                await sysJobService.AddTriggerRecord(addTriggerRecordInput);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "添加任务执行记录失败");
+            }
+        }, cancellationToken);
+        
+        return base.TriggerComplete(trigger, context, triggerInstructionCode, cancellationToken);
     }
 
     private string GetTriggerType(string triggerTypeName)
@@ -81,7 +86,7 @@ public class TriggerListener : TriggerListenerSupport
     {
         return triggerInstructionCode switch
         {
-            SchedulerInstruction.SetAllJobTriggersComplete or SchedulerInstruction.SetTriggerComplete => "COMPLETE",
+            SchedulerInstruction.NoInstruction or SchedulerInstruction.SetAllJobTriggersComplete or SchedulerInstruction.SetTriggerComplete => "COMPLETE",
             SchedulerInstruction.SetAllJobTriggersError or SchedulerInstruction.SetTriggerError => "ERROR",
             _ => string.Empty
         };

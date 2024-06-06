@@ -101,8 +101,8 @@ public class QrtzTriggerRecord : EntityBase<int>
     /// <summary>
     /// 本次执行耗时
     /// </summary>
-    [SugarColumn(ColumnDescription = "本次执行耗时")]
-    public long ElapsedTime { get; set; }
+    [SugarColumn(ColumnDescription = "本次执行耗时",Length =10,DecimalDigits =2)]
+    public decimal ElapsedTime { get; set; }
 
     /// <summary>
     /// 创建时间

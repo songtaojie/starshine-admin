@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Hx.Admin.Models.ViewModels.Job;
-public class AddTriggerRecordInput
+public class PageJobTriggerRecordOutput
 {
     /// <summary>
     /// 调度名字
@@ -78,7 +78,12 @@ public class AddTriggerRecordInput
     public string TriggerType { get; set; }
 
     /// <summary>
-    /// 本次执行耗时(毫秒)
+    /// 本次执行耗时
     /// </summary>
     public decimal ElapsedTime { get; set; }
+
+    /// <summary>
+    /// 创建时间
+    /// </summary>
+    public DateTime? CreatedTime { get; set; }
 }
