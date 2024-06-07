@@ -41,7 +41,7 @@ onMounted(async () => {
 const handleQuery = async () => {
 	state.loading = true;
 	var res = await getAPI(SysJobApi).getJobClusterList();
-	state.jobClusterList = res.data.result ?? [];
+	state.jobClusterList = res.data.data ?? [];
 	state.loading = false;
 };
 

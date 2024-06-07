@@ -3,7 +3,7 @@
     "LevelSwitches": { "controlSwitch": "Verbose" },
     "FilterSwitches": { "$filterSwitch": "Application = 'Sample'" },
     "MinimumLevel": {
-      "Default": "Debug", //最小日志记录级别
+      "Default": "Information", //最小日志记录级别
       "Override": {
         "Microsoft": "Information",
         "Microsoft.AspNetCore": "Warning",
@@ -13,7 +13,7 @@
         "Magicodes": "Warning",
         "DotNetCore.CAP": "Information",
         "Savorboard.CAP": "Information",
-        "Quartz": "Debug"
+        "Quartz": "Information"
       }
     },
     "WriteToDb": true,

@@ -6,7 +6,7 @@
 
   "AllowedHosts": "*",
   "AppSettings": {
-    "EnabledSwagger": false // 生产环境是否开启Swagger
+    "EnabledSwagger": true // 生产环境是否开启Swagger
   },
   "CorsAccessorSettings": {
     "WithExposedHeaders": [ "Content-Disposition", "X-Pagination", "access-token", "x-access-token" ], // 如果前端不代理且是axios请求
@@ -29,8 +29,8 @@
   "Email": {
     "Host": "smtp.163.com", // 主机
     "Port": 465, // 端口 465、994、25
-    "DefaultFromEmail": "zuohuaijun@163.com", // 默认发件者邮箱
-    "DefaultToEmail": "515096995@qq.com", // 默认接收人邮箱
+    "DefaultFromEmail": "stjworkemail@163.com", // 默认发件者邮箱
+    "DefaultToEmail": "jie797839@gmail.com", // 默认接收人邮箱
     "EnableSsl": true, // 启用SSL
     "UseDefaultCredentials": false, //是否使用默认凭据
     "UserName": "", // 邮箱账号

@@ -7,25 +7,24 @@ import { BasePageInput } from './base/base-page-input';
  * @interface AddJobDetailInput
  */
  export interface AddJobDetailInput {
-    
     /**
-     * 组名称
+     * 调度名字
      * @type {string}
      * @memberof AddJobDetailInput
      */
-    groupName?: string | null;
+    schedulerName: string;
     /**
-     * 作业类型FullName
+     * 作业分组
      * @type {string}
      * @memberof AddJobDetailInput
      */
-    jobType?: string | null;
+    jobGroup: string;
     /**
-     * 程序集Name
+     * 作业名字
      * @type {string}
      * @memberof AddJobDetailInput
      */
-    assemblyName?: string | null;
+    jobName: string;
     /**
      * 描述信息
      * @type {string}
@@ -33,29 +32,35 @@ import { BasePageInput } from './base/base-page-input';
      */
     description?: string | null;
     /**
-     * 是否并行执行
+     * 是否持久化
      * @type {boolean}
      * @memberof AddJobDetailInput
      */
-    concurrent?: boolean;
+    isDurable?: boolean;
+    /**
+     * 是否非并行执行
+     * @type {boolean}
+     * @memberof AddJobDetailInput
+     */
+    isNonConcurrent?: boolean;
     /**
      * 是否扫描特性触发器
      * @type {boolean}
      * @memberof AddJobDetailInput
      */
-    includeAnnotations?: boolean;
+    isUpdateData?: boolean;
+    /**
+     * 是否扫描特性触发器
+     * @type {boolean}
+     * @memberof AddJobDetailInput
+     */
+    requestsRecovery?: boolean;
     /**
      * 额外数据
      * @type {string}
      * @memberof AddJobDetailInput
      */
-    properties?: string | null;
-    /**
-     * 更新时间
-     * @type {Date}
-     * @memberof AddJobDetailInput
-     */
-    updatedTime?: Date | null;
+    jobData?: string | null;
     /**
      * 
      * @type {JobCreateTypeEnum}
@@ -68,12 +73,6 @@ import { BasePageInput } from './base/base-page-input';
      * @memberof AddJobDetailInput
      */
     scriptCode?: string | null;
-    /**
-     * 作业Id
-     * @type {string}
-     * @memberof AddJobDetailInput
-     */
-    jobId: string;
 }
 
 
@@ -98,11 +97,23 @@ import { BasePageInput } from './base/base-page-input';
  */
  export interface DeleteJobDetailInput {
     /**
-     * 作业Id
+     * 调度名字
      * @type {string}
-     * @memberof DeleteJobDetailInput
+     * @memberof AddJobDetailInput
      */
-    jobId?: string | null;
+    schedulerName: string;
+    /**
+     * 作业分组
+     * @type {string}
+     * @memberof AddJobDetailInput
+     */
+    jobGroup: string;
+    /**
+     * 作业名字
+     * @type {string}
+     * @memberof AddJobDetailInput
+     */
+    jobName: string;
 }
 
 
@@ -113,11 +124,23 @@ import { BasePageInput } from './base/base-page-input';
  */
  export interface JobDetailInput {
     /**
-     * 作业Id
+     * 调度名字
      * @type {string}
-     * @memberof JobDetailInput
+     * @memberof AddJobDetailInput
      */
-    jobId?: string | null;
+    schedulerName: string;
+    /**
+     * 作业分组
+     * @type {string}
+     * @memberof AddJobDetailInput
+     */
+    jobGroup: string;
+    /**
+     * 作业名字
+     * @type {string}
+     * @memberof AddJobDetailInput
+     */
+    jobName: string;
 }
 
 /**

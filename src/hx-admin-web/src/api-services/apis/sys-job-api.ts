@@ -22,7 +22,7 @@ export class SysJobApi extends BaseAPI {
      * @memberof SysJobApi
      */
     public async addJobDetail(data?: AddJobDetailInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        const api = `/api/sysJob/addJobDetail`;
+        const api = `/api/sys-job/addjobdetail`;
         return this.PostVoid({api,data,...options});
     }
     /**
@@ -34,7 +34,7 @@ export class SysJobApi extends BaseAPI {
      * @memberof SysJobApi
      */
     public async addJobTrigger(data?: AddJobTriggerInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        const api = `/api/sysJob/addJobTrigger`;
+        const api = `/api/sysJob/addjobtrigger`;
         return this.PostVoid({api,data,...options});
     }
     /**

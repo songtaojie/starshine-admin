@@ -22,7 +22,7 @@ public class AddJobDetailInput
     public string SchedulerName { get; set; }
 
     /// <summary>
-    /// 任务名字
+    /// 作业名字
     /// </summary>
     public string JobName { get; set; }
 

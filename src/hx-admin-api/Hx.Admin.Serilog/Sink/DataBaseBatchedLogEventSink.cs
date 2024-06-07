@@ -21,6 +21,9 @@ using UAParser;
 using Yitter.IdGenerator;
 
 namespace Hx.Admin.Serilog.Sink;
+/// <summary>
+/// 记录数据库的事件
+/// </summary>
 public class DataBaseBatchedLogEventSink : IBatchedLogEventSink
 {
     private readonly IServiceProvider _serviceProvider;

@@ -261,8 +261,8 @@ const handleQuery = async () => {
 	state.loading = true;
 	let params = Object.assign(state.queryParams, state.tableParams);
 	var res = await getAPI(SysJobApi).getJobDetailPage(params);
-	state.jobData = res.data.result?.items ?? [];
-	state.tableParams.total = res.data.result?.total;
+	state.jobData = res.data.data?.items ?? [];
+	state.tableParams.total = res.data.data?.total;
 	state.loading = false;
 };
 

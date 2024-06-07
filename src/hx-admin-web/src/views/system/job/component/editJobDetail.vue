@@ -12,13 +12,13 @@
 					<el-form :model="state.ruleForm" ref="ruleFormRef" size="default" label-width="130px">
 						<el-row :gutter="35">
 							<el-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12" class="mb20">
-								<el-form-item label="作业编号" prop="jobId" :rules="[{ required: true, message: '作业编号不能为空', trigger: 'blur' }]">
-									<el-input v-model="state.ruleForm.jobId" placeholder="作业编号" :disabled="isEdit" clearable />
+								<el-form-item label="作业编号" prop="jobName" :rules="[{ required: true, message: '作业编号不能为空', trigger: 'blur' }]">
+									<el-input v-model="state.ruleForm.jobName" placeholder="作业编号" :disabled="isEdit" clearable />
 								</el-form-item>
 							</el-col>
 							<el-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12" class="mb20">
-								<el-form-item label="组名称" prop="groupName" :rules="[{ required: true, message: '组名称不能为空', trigger: 'blur' }]">
-									<el-input v-model="state.ruleForm.groupName" placeholder="组名称" clearable />
+								<el-form-item label="组名称" prop="jobGroup" :rules="[{ required: true, message: '组名称不能为空', trigger: 'blur' }]">
+									<el-input v-model="state.ruleForm.jobGroup" placeholder="组名称" clearable />
 								</el-form-item>
 							</el-col>
 							<el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24" class="mb20">
@@ -32,9 +32,9 @@
 							</el-col>
 							<el-col :xs="24" :sm="12" :md="12" :lg="12" :xl="12" class="mb20">
 								<el-form-item label="执行方式" prop="concurrent">
-									<el-radio-group v-model="state.ruleForm.concurrent">
-										<el-radio :label="true">并行</el-radio>
-										<el-radio :label="false">串行</el-radio>
+									<el-radio-group v-model="state.ruleForm.isNonConcurrent">
+										<el-radio :label="true">串行</el-radio>
+										<el-radio :label="false">并行</el-radio>
 									</el-radio-group>
 								</el-form-item>
 							</el-col>
@@ -60,8 +60,8 @@
 								</el-form-item>
 							</el-col>
 							<el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24" class="mb20" v-if="!isHttpCreateType">
-								<el-form-item label="额外数据" prop="properties">
-									<el-input v-model="state.ruleForm.properties" placeholder="额外数据" clearable type="textarea" :autosize="{ minRows: 3, maxRows: 6 }" />
+								<el-form-item label="额外数据" prop="jobData">
+									<el-input v-model="state.ruleForm.jobData" placeholder="额外数据" clearable type="textarea" :autosize="{ minRows: 3, maxRows: 6 }" />
 								</el-form-item>
 							</el-col>
 							<el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24" class="mb20" v-if="isHttpCreateType">
@@ -186,7 +186,7 @@ const openDialog = (row: any) => {
 
 	// Http请求
 	if (state.ruleForm.createType === JobCreateTypeEnum.NUMBER_2) {
-		state.httpJobMessage = getHttpJobMessage(state.ruleForm.properties);
+		state.httpJobMessage = getHttpJobMessage(state.ruleForm.jobData);
 	}
 
 	// 延迟拿值防止取不到
@@ -231,7 +231,7 @@ const submit = () => {
 				EnsureSuccessStatusCode: true,
 			});
 			const prop = { HttpJob: httpJobPropValue };
-			state.ruleForm.properties = JSON.stringify(prop);
+			state.ruleForm.jobData = JSON.stringify(prop);
 		}
 
 		if (state.ruleForm.id != undefined && state.ruleForm.id > 0) {

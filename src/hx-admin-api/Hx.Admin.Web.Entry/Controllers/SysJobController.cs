@@ -31,7 +31,7 @@ public class SysJobController : AdminControllerBase
     /// <param name="input"></param>
     /// <returns></returns>
     [HttpGet]
-    public async Task<PagedListResult<PageJobDetailOutput>> GetPageJobDetail(PageJobDetailInput input)
+    public async Task<PagedListResult<PageJobDetailOutput>> GetJobDetailPage([FromQuery] PageJobDetailInput input)
     {
         return await _sysJobService.PageJobDetail(input);
     }
@@ -41,6 +41,7 @@ public class SysJobController : AdminControllerBase
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
+    [HttpPost]
     public async Task AddJobDetail(AddJobDetailInput input)
     {
         await _sysJobService.AddJobDetail(input);
@@ -51,6 +52,7 @@ public class SysJobController : AdminControllerBase
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
+    [HttpPost]
     public async Task UpdateJobDetail(UpdateJobDetailInput input)
     {
         await _sysJobService.UpdateJobDetail(input);
@@ -60,6 +62,7 @@ public class SysJobController : AdminControllerBase
     /// 删除作业 ⏰
     /// </summary>
     /// <returns></returns>
+    [HttpPost]
     public async Task DeleteJobDetail(DeleteJobDetailInput input)
     {
         await _sysJobService.DeleteJobDetail(input);
@@ -68,7 +71,8 @@ public class SysJobController : AdminControllerBase
     /// <summary>
     /// 获取触发器列表 ⏰
     /// </summary>
-    public async Task<List<ListJobTriggerOutput>> GetJobTriggerList(ListJobTriggerInput input)
+    [HttpGet]
+    public async Task<List<ListJobTriggerOutput>> GetJobTriggerList([FromQuery] ListJobTriggerInput input)
     { 
         return await _sysJobService.GetJobTriggerList(input);
     }
@@ -77,6 +81,7 @@ public class SysJobController : AdminControllerBase
     /// 添加触发器 ⏰
     /// </summary>
     /// <returns></returns>
+    [HttpPost]
     public async Task AddJobTrigger(AddJobTriggerInput input)
     {
         await _sysJobService.AddJobTrigger(input);
@@ -86,6 +91,7 @@ public class SysJobController : AdminControllerBase
     /// 更新触发器 ⏰
     /// </summary>
     /// <returns></returns>
+    [HttpPost]
     public async Task UpdateJobTrigger(UpdateJobTriggerInput input)
     {
         await _sysJobService.UpdateJobTrigger(input);
@@ -95,6 +101,7 @@ public class SysJobController : AdminControllerBase
     /// 删除触发器 ⏰
     /// </summary>
     /// <returns></returns>
+    [HttpDelete]
     public async Task DeleteJobTrigger(DeleteJobTriggerInput input)
     {
         await _sysJobService.DeleteJobTrigger(input);
@@ -104,6 +111,7 @@ public class SysJobController : AdminControllerBase
     /// 暂停所有作业 ⏰
     /// </summary>
     /// <returns></returns>
+    [HttpPost]
     public async Task PauseAllJob()
     {
         await _sysJobService.PauseAllJob();
@@ -113,6 +121,7 @@ public class SysJobController : AdminControllerBase
     /// 启动所有作业 ⏰
     /// </summary>
     /// <returns></returns>
+    [HttpPost]
     public async Task StartAllJob()
     {
         await _sysJobService.StartAllJob();
@@ -121,6 +130,7 @@ public class SysJobController : AdminControllerBase
     /// <summary>
     /// 暂停作业 ⏰
     /// </summary>
+    [HttpPost]
     public async Task PauseJob(JobDetailInput input)
     {
         await _sysJobService.PauseJob(input);
@@ -129,6 +139,7 @@ public class SysJobController : AdminControllerBase
     /// <summary>
     /// 启动作业 ⏰
     /// </summary>
+    [HttpPost]
     public async Task StartJob(JobDetailInput input)
     {
         await _sysJobService.StartJob(input);
@@ -137,6 +148,7 @@ public class SysJobController : AdminControllerBase
     /// <summary>
     /// 暂停触发器 ⏰
     /// </summary>
+    [HttpPost]
     public async Task PauseTrigger(JobTriggerInput input)
     {
         await _sysJobService.PauseTrigger(input);
@@ -145,6 +157,7 @@ public class SysJobController : AdminControllerBase
     /// <summary>
     /// 启动触发器 ⏰
     /// </summary>
+    [HttpPost]
     public async Task StartTrigger(JobTriggerInput input)
     {
         await _sysJobService.StartTrigger(input);
@@ -153,7 +166,8 @@ public class SysJobController : AdminControllerBase
     /// <summary>
     /// 获取作业触发器运行记录分页列表 ⏰
     /// </summary>
-    public async Task<PagedListResult<PageJobTriggerRecordOutput>> PageJobTriggerRecord(PageJobTriggerRecordInput input)
+    [HttpGet]
+    public async Task<PagedListResult<PageJobTriggerRecordOutput>> PageJobTriggerRecord([FromQuery]PageJobTriggerRecordInput input)
     {
         return await _sysJobService.PageJobTriggerRecord(input);
     }
