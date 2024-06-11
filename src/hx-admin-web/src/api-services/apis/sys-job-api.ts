@@ -34,7 +34,7 @@ export class SysJobApi extends BaseAPI {
      * @memberof SysJobApi
      */
     public async addJobTrigger(data?: AddJobTriggerInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        const api = `/api/sysJob/addjobtrigger`;
+        const api = `/api/sys-job/addjobtrigger`;
         return this.PostVoid({api,data,...options});
     }
     /**
@@ -45,7 +45,7 @@ export class SysJobApi extends BaseAPI {
      * @memberof SysJobApi
      */
     public async cancelJobSleep(options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        const api = `/api/sysJob/cancelSleep`;
+        const api = `/api/sys-job/cancelSleep`;
         return this.PostVoid({api,...options});
     }
     /**
@@ -57,7 +57,7 @@ export class SysJobApi extends BaseAPI {
      * @memberof SysJobApi
      */
     public async deleteJobDetail(data?: DeleteJobDetailInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        const api = `/api/sysJob/deleteJobDetail`;
+        const api = `/api/sys-job/deleteJobDetail`;
         return this.DeleteVoid({api,data,...options});
     }
     /**
@@ -69,7 +69,7 @@ export class SysJobApi extends BaseAPI {
      * @memberof SysJobApi
      */
     public async deleteJobTrigger(data?: DeleteJobTriggerInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        const api = `/api/sysJob/deleteJobTrigger`;
+        const api = `/api/sys-job/deleteJobTrigger`;
         return this.DeleteVoid({api,data,...options});
     }
     /**
@@ -80,7 +80,7 @@ export class SysJobApi extends BaseAPI {
      * @memberof SysJobApi
      */
     public async getJobClusterList(options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<Array<SysJobCluster>>>> {
-        const api = `/api/sysJob/jobClusterList`;
+        const api = `/api/sys-job/jobClusterList`;
         return this.GetAdminResult<Array<SysJobCluster>>({api,...options});
     }
     /**
@@ -92,7 +92,7 @@ export class SysJobApi extends BaseAPI {
      * @memberof SysJobApi
      */
     public async getJobTriggerList(jobId?: string, options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<Array<SysJobTrigger>>>> {
-        const api = `/api/sysJob/jobTriggerList`;
+        const api = `/api/sys-job/jobTriggerList`;
         const params = {jobId}
         return this.GetAdminResult<Array<SysJobTrigger>>({api,params,...options});
     }
@@ -105,7 +105,7 @@ export class SysJobApi extends BaseAPI {
      * @memberof SysJobApi
      */
     public async getJobDetailPage(params?: PageJobInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResultPagedListResult<JobOutput>>> {
-        const api = `/api/sysJob/pageJobDetail`;
+        const api = `/api/sys-job/getjobdetailpage`;
         return this.PageAdminResult<JobOutput>({api,params,...options});
     }
     /**
@@ -116,7 +116,7 @@ export class SysJobApi extends BaseAPI {
      * @memberof SysJobApi
      */
     public async pauseAllJob(options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        const api = `/api/sysJob/pauseAllJob`;
+        const api = `/api/sys-job/pauseAllJob`;
         return this.PostVoid({api,...options});
     }
     /**
@@ -128,7 +128,7 @@ export class SysJobApi extends BaseAPI {
      * @memberof SysJobApi
      */
     public async pauseJob(data?: JobDetailInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        const api = `/api/sysJob/pauseJob`;
+        const api = `/api/sys-job/pauseJob`;
         return this.PostVoid({api,data,...options});
     }
     /**
@@ -140,7 +140,7 @@ export class SysJobApi extends BaseAPI {
      * @memberof SysJobApi
      */
     public async pauseTrigger(data?: JobTriggerInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        const api = `/api/sysJob/pauseTrigger`;
+        const api = `/api/sys-job/pauseTrigger`;
         return this.PostVoid({api,data,...options});
     }
     /**
@@ -151,7 +151,7 @@ export class SysJobApi extends BaseAPI {
      * @memberof SysJobApi
      */
     public async persistAllJob(options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        const api = `/api/sysJob/persistAll`;
+        const api = `/api/sys-job/persistAll`;
         return this.PostVoid({api,...options});
     }
     /**
@@ -162,7 +162,7 @@ export class SysJobApi extends BaseAPI {
      * @memberof SysJobApi
      */
     public async startAllJob(options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        const api = `/api/sysJob/startAllJob`;
+        const api = `/api/sys-job/startAllJob`;
         return this.PostVoid({api,...options});
     }
     /**
@@ -174,7 +174,7 @@ export class SysJobApi extends BaseAPI {
      * @memberof SysJobApi
      */
     public async apiSysJobStartJobPost(data?: JobDetailInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        const api = `/api/sysJob/startJob`;
+        const api = `/api/sys-job/startJob`;
         return this.PostVoid({api,data,...options});
     }
     /**
@@ -186,7 +186,7 @@ export class SysJobApi extends BaseAPI {
      * @memberof SysJobApi
      */
     public async startTrigger(data?: JobTriggerInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        const api = `/api/sysJob/startTrigger`;
+        const api = `/api/sys-job/startTrigger`;
         return this.PostVoid({api,data,...options});
     }
     /**
@@ -198,7 +198,7 @@ export class SysJobApi extends BaseAPI {
      * @memberof SysJobApi
      */
     public async updateJobDetail(data?: UpdateJobDetailInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        const api = `/api/sysJob/updateJobDetail`;
+        const api = `/api/sys-job/updateJobDetail`;
         return this.PostVoid({api,data,...options});
     }
     /**
@@ -210,7 +210,7 @@ export class SysJobApi extends BaseAPI {
      * @memberof SysJobApi
      */
     public async updateJobTrigger(data?: UpdateJobTriggerInput, options?: AxiosRequestConfig) : Promise<AxiosResponse<void>> {
-        const api = `/api/sysJob/updateJobTrigger`;
+        const api = `/api/sys-job/updateJobTrigger`;
         return this.PostVoid({api,data,...options});
     }
 }

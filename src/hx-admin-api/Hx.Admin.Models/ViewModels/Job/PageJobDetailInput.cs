@@ -16,10 +16,10 @@ public class PageJobDetailInput:BasePageParam
     /// <summary>
     /// 作业名称
     /// </summary>
-    public string JobName { get; set; }
+    public string? JobName { get; set; }
 
     /// <summary>
     /// 描述信息
     /// </summary>
-    public string Description { get; set; }
+    public string? Description { get; set; }
 }

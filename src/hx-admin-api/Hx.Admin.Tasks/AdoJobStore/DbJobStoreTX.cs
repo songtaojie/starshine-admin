@@ -64,15 +64,4 @@ public class DbJobStoreTX : JobStoreTX
             _logger.LogError(ex, "更新JobDetails失败");
         }
     }
-
-    protected override async Task TriggeredJobComplete(ConnectionAndTransactionHolder conn, IOperableTrigger trigger, IJobDetail jobDetail, SchedulerInstruction triggerInstCode, CancellationToken cancellationToken = default)
-    {
-        await base.TriggeredJobComplete(conn, trigger, jobDetail, triggerInstCode, cancellationToken);
-        Console.WriteLine("触发job完成");
-    }
-
-
-    #region 执行脚本
- 
-    #endregion
 }

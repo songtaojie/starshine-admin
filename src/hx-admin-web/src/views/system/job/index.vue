@@ -2,8 +2,8 @@
 	<div class="sys-job-container">
 		<el-card shadow="hover" :body-style="{ paddingBottom: '0' }">
 			<el-form :model="state.queryParams" ref="queryForm" :inline="true">
-				<el-form-item label="作业编号" prop="jobId">
-					<el-input placeholder="作业编号" clearable @keyup.enter="handleQuery" v-model="state.queryParams.jobId" />
+				<el-form-item label="作业编号" prop="jobName">
+					<el-input placeholder="作业编号" clearable @keyup.enter="handleQuery" v-model="state.queryParams.jobName" />
 				</el-form-item>
 				<el-form-item label="描述信息" prop="description">
 					<el-input placeholder="描述信息" clearable @keyup.enter="handleQuery" v-model="state.queryParams.description" />
@@ -232,7 +232,7 @@ const state = reactive({
 	loading: false,
 	jobData: [] as Array<JobOutput>,
 	queryParams: {
-		jobId: undefined,
+		jobName: undefined,
 		description: undefined,
 	},
 	tableParams: {
@@ -268,7 +268,7 @@ const handleQuery = async () => {
 
 // 重置操作
 const resetQuery = () => {
-	state.queryParams.jobId = undefined;
+	state.queryParams.jobName = undefined;
 	state.queryParams.description = undefined;
 	handleQuery();
 };
@@ -293,7 +293,7 @@ const delJobDetail = (row: JobOutput) => {
 		type: 'warning',
 	})
 		.then(async () => {
-			await getAPI(SysJobApi).deleteJobDetail({ jobId: row.jobDetail?.jobId });
+			await getAPI(SysJobApi).deleteJobDetail({ schedulerName:"",jobGroup:"",jobName: row.jobDetail?.jobName });
 			handleQuery();
 			ElMessage.success('删除成功');
 		})
@@ -353,13 +353,13 @@ const pauseAllJob = async () => {
 
 // 启动某个作业
 const startJob = async (row: JobOutput) => {
-	await getAPI(SysJobApi).apiSysJobStartJobPost({ jobId: row.jobDetail?.jobId });
+	await getAPI(SysJobApi).apiSysJobStartJobPost({ jobName: row.jobDetail?.jobName });
 	ElMessage.success('启动作业');
 };
 
 // 暂停某个作业
 const pauseJob = async (row: JobOutput) => {
-	await getAPI(SysJobApi).pauseJob({ jobId: row.jobDetail?.jobId });
+	await getAPI(SysJobApi).pauseJob({ jobName: row.jobDetail?.jobName });
 	ElMessage.success('暂停作业');
 };
 

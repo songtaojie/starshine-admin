@@ -33,7 +33,6 @@ public class LogJob : IJob
     public async System.Threading.Tasks.Task Execute(IJobExecutionContext context)
     {
 
-        Console.WriteLine($"执行任务调度: {DateTime.Now}");
         await Task.CompletedTask;
         //using var serviceScope = _serviceProvider.CreateScope();
         //var logVisRep = serviceScope.ServiceProvider.GetRequiredService<ISqlSugarRepository<SysLogVis>>();

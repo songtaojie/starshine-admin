@@ -136,7 +136,7 @@ public class SysJobService : BaseService<QrtzJobDetails,int>, ISysJobService
     public async Task<PagedListResult<PageJobDetailOutput>> PageJobDetail(PageJobDetailInput input)
     {
         var jobDetails = await _rep.AsQueryable()
-            .WhereIF(!string.IsNullOrWhiteSpace(input.JobName), u => u.JobName.Contains(input.JobName))
+            .WhereIF(!string.IsNullOrWhiteSpace(input.JobName), u => u.JobName!.Contains(input.JobName))
             .WhereIF(!string.IsNullOrWhiteSpace(input.Description), u => u.Description!.Contains(input.Description))
             .Select<PageJobDetailOutput>()
             .ToPagedListAsync(input.Page, input.PageSize);
