@@ -4,15 +4,19 @@
 //
 // 电话/微信：song977601042
 
+
+using System;
+using System.Data;
+using System.Linq.Dynamic.Core;
+using System.Linq.Expressions;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Yitter.IdGenerator;
 using Hx.Admin.Models;
 using Hx.Sqlsugar;
 using Microsoft.Extensions.DependencyInjection;
 using Quartz;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Hx.Admin.Tasks;
 /// <summary>
@@ -30,7 +34,7 @@ public class LogJob : IJob
         _serviceProvider = serviceProvider;
     }
 
-    public async System.Threading.Tasks.Task Execute(IJobExecutionContext context)
+    public async Task Execute(IJobExecutionContext context)
     {
 
         await Task.CompletedTask;

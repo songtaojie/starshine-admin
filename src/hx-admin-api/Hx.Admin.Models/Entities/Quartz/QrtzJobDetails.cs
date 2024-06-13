@@ -22,7 +22,7 @@ namespace Hx.Admin.Models;
 [Tenant(SqlSugarConst.Quartz_ConfigId)]
 [SugarIndex("IDX_QRTZ_J_REQ_RECOVERY", nameof(SchedulerName), OrderByType.Asc, nameof(RequestsRecovery), OrderByType.Asc)]
 [SugarIndex("IDX_QRTZ_J_REQ_RECOVERY", nameof(SchedulerName), OrderByType.Asc, nameof(JobGroup), OrderByType.Asc)]
-public class QrtzJobDetails:EntityBase<int>
+public class QrtzJobDetails: EntityBase<int>
 {
     [SugarColumn(ColumnDescription = "自增id", IsIdentity = true, IsPrimaryKey = true)]
     public override int Id { get; set; }
@@ -100,4 +100,10 @@ public class QrtzJobDetails:EntityBase<int>
     /// </summary>
     [SugarColumn(ColumnDescription = "脚本代码", ColumnName = "SCRIPT_CODE", IsNullable = true, ColumnDataType = StaticConfig.CodeFirst_BigString)]
     public string? ScriptCode { get; set; }
+
+    /// <summary>
+    /// 更新时间
+    /// </summary>
+    [SugarColumn(ColumnDescription = "更新时间", ColumnName = "UPDATE_TIME", IsNullable = true)]
+    public long? UpdateTime { get; set; }
 }

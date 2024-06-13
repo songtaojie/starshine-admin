@@ -29,7 +29,7 @@ namespace Hx.Admin.Models;
 [SugarIndex("IDX_QRTZ_T_NFT_MISFIRE", nameof(SchedulerName), OrderByType.Asc, nameof(MisfireInstructions), OrderByType.Desc, nameof(NextFireTime), OrderByType.Desc)]
 [SugarIndex("IDX_QRTZ_T_NFT_ST_MISFIRE", nameof(SchedulerName), OrderByType.Asc, nameof(MisfireInstructions), OrderByType.Desc, nameof(NextFireTime), OrderByType.Desc, nameof(TriggerState), OrderByType.Desc)]
 [SugarIndex("IDX_QRTZ_T_NFT_ST_MISFIRE_GRP", nameof(SchedulerName), OrderByType.Asc, nameof(MisfireInstructions), OrderByType.Desc, nameof(NextFireTime), OrderByType.Desc, nameof(TriggerGroup), OrderByType.Desc, nameof(TriggerState), OrderByType.Desc)]
-public class QrtzTriggers:EntityBase<int>
+public class QrtzTriggers: EntityBase<int>
 {
     /// <summary>
     /// 自增id
@@ -145,4 +145,10 @@ public class QrtzTriggers:EntityBase<int>
     /// </summary>
     [SugarColumn(ColumnDescription = "数据", ColumnName = "JOB_DATA", ColumnDataType = "BLOB", IsNullable =true)]
     public byte[] JobData { get; set; }
+
+    /// <summary>
+    /// 更新时间
+    /// </summary>
+    [SugarColumn(ColumnDescription = "更新时间", ColumnName = "UPDATE_TIME", IsNullable = true)]
+    public long? UpdateTime { get; set; }
 }

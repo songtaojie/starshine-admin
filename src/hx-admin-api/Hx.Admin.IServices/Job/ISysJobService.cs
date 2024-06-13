@@ -116,4 +116,10 @@ public interface ISysJobService : IBaseService<QrtzJobDetails,int>, IScopedDepen
     /// 获取作业触发器运行记录分页列表 ⏰
     /// </summary>
     Task<PagedListResult<PageJobTriggerRecordOutput>> PageJobTriggerRecord(PageJobTriggerRecordInput input);
+
+    /// <summary>
+    /// 获取集群列表 ⏰
+    /// </summary>
+    /// <returns></returns>
+    Task<List<PageSchedulerStateOutput>> GetJobClusterList();
 }

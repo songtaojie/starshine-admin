@@ -22,12 +22,12 @@ public class PageJobDetailOutput
     public string SchedulerName { get; set; }
 
     /// <summary>
-    /// 任务名字
+    /// 作业名字
     /// </summary>
     public string JobName { get; set; }
 
     /// <summary>
-    /// 任务分组
+    /// 作业分组
     /// </summary>
     public string JobGroup { get; set; }
 
@@ -64,6 +64,11 @@ public class PageJobDetailOutput
     public bool RequestsRecovery { get; set; }
 
     /// <summary>
+    /// 数据
+    /// </summary>
+    public string JobData { get; set; }
+
+    /// <summary>
     /// 作业创建类型
     /// </summary>
     public JobCreateTypeEnum CreateType { get; set; }
@@ -73,6 +78,19 @@ public class PageJobDetailOutput
     /// </summary>
     public string? ScriptCode { get; set; }
 
+    /// <summary>
+    /// 更新时间
+    /// </summary>
+    public long? UpdateTime { get; set; }
+
+    /// <summary>
+    /// 更新日期
+    /// </summary>
+    public string UpdateTime_V => UpdateTime.HasValue ? $"{DateTimeUtil.GetDateTimeFromTicks(UpdateTime)?.ToString("yyyy-MM-dd HH:mm:ss")}" : string.Empty;
+
+    /// <summary>
+    /// 触发器
+    /// </summary>
     public IEnumerable<PageJobTriggersOutput> JobTriggers { get; set; }
 }
 
@@ -81,8 +99,8 @@ public class PageJobTriggersOutput
     /// <summary>
     /// 
     /// </summary>
-    [SugarColumn(IsIdentity = true)]
-    public long Id { get; set; }
+    public int Id { get; set; }
+
     /// <summary>
     /// 调度名字
     /// </summary>
@@ -116,12 +134,22 @@ public class PageJobTriggersOutput
     /// <summary>
     /// 下次触发时间
     /// </summary>
-    public long? NextFireTime { get; set; }
+    public long? NextFireTime {  private get; set; }
+
+    /// <summary>
+    /// 下次触发时间
+    /// </summary>
+    public DateTime? NextFireTime_V => DateTimeUtil.GetDateTimeFromTicks(NextFireTime);
 
     /// <summary>
     /// 上次触发时间
     /// </summary>
-    public long? PrevFireTime { get; set; }
+    public long? PrevFireTime { private get; set; }
+
+    /// <summary>
+    /// 上次触发时间
+    /// </summary>
+    public DateTime? PrevFireTime_V => DateTimeUtil.GetDateTimeFromTicks(PrevFireTime);
 
     /// <summary>
     /// 优先级
@@ -142,6 +170,29 @@ public class PageJobTriggersOutput
     /// </summary>
     public string TriggerState { get; set; }
 
+    /// <summary>
+    /// 触发器状态
+    /// </summary>
+    public string TriggerState_V
+    {
+        get
+        {
+            return TriggerState switch
+            {
+                "WAITING" => "等待",
+                "ACQUIRED" => "就绪",
+                "EXECUTING" => "执行中",
+                "COMPLETE" => "已完成",
+                "BLOCKED" => "阻塞",
+                "ERROR" => "错误",
+                "PAUSED" => "暂停",
+                "PAUSED_BLOCKED" => "暂停阻塞",
+                "DELETED" => "已删除",
+                _ => "未知作业触发器"
+            };
+        }
+    }
+
 
     /// <summary>
     /// 触发器类型
@@ -152,15 +203,40 @@ public class PageJobTriggersOutput
     /// </summary>
     public string TriggerType { get; set; }
 
+    public string TriggerType_V
+    {
+        get
+        {
+            return TriggerType switch
+            {
+                "SIMPLE" => "简单触发器",
+                "CRON" => "Cron触发器",
+                "CAL_INT" => "日历间隔触发器",
+                "BLOB" => "BLOB触发器",
+                _ => "未知作业触发器"
+            };
+        }
+    }
+
     /// <summary>
     /// 触发开始时间
     /// </summary>
     public long StartTime { get; set; }
 
     /// <summary>
+    ///触发开始时间
+    /// </summary>
+    public DateTime? StartTime_V => DateTimeUtil.GetDateTimeFromTicks(StartTime);
+
+    /// <summary>
     /// 触发截止时间
     /// </summary>
     public long? EndTime { get; set; }
+
+    /// <summary>
+    ///触发截止时间
+    /// </summary>
+    public DateTime? EndTime_V => DateTimeUtil.GetDateTimeFromTicks(EndTime);
 
     /// <summary>
     /// 日历名字
@@ -176,4 +252,6 @@ public class PageJobTriggersOutput
     /// 数据
     /// </summary>
     public byte[] JobData { get; set; }
+
+    public string JobData_V => 
 }

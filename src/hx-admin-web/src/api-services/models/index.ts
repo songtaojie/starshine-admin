@@ -44,7 +44,6 @@ export * from './enum-type-output';
 export * from './gen-auth-url-input';
 export * from './iaction-result';
 export * from './jtoken';
-export * from './job-output';
 export * from './sys-auth';
 export * from './message-input';
 export * from './page-online-user-input';

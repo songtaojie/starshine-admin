@@ -1,4 +1,6 @@
-﻿namespace Hx.Admin.Core;
+﻿using System.Globalization;
+
+namespace Hx.Admin.Core;
 
 public class DateTimeUtil
 {
@@ -46,6 +48,20 @@ public class DateTimeUtil
     public static long ToUnixTimestampByMilliseconds(DateTime dt)
     {
         return new DateTimeOffset(dt).ToUnixTimeMilliseconds();
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="ticks"></param>
+    /// <returns></returns>
+    public static DateTime? GetDateTimeFromTicks(long? ticks)
+    {
+        if (ticks.HasValue && ticks > 0)
+        {
+            return new DateTimeOffset(ticks.Value, TimeSpan.Zero).DateTime;
+        }
+        return null;
     }
 
     /// <summary>

@@ -202,17 +202,29 @@ export interface SysJobTrigger {
      */
     id?: number;
     /**
-     * 触发器Id
+     * 触发器编号
      * @type {string}
      * @memberof SysJobTrigger
      */
-    triggerId: string;
+    triggerName: string;
+    /**
+     * 触发器分组
+     * @type {string}
+     * @memberof SysJobTrigger
+     */
+    triggerGroup: string;
     /**
      * 作业Id
      * @type {string}
      * @memberof SysJobTrigger
      */
-    jobId: string;
+    jobName: string;
+    /**
+     * 作业组
+     * @type {string}
+     * @memberof SysJobTrigger
+     */
+    jobGroup: string;
     /**
      * 触发器类型FullName
      * @type {string}

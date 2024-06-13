@@ -10,6 +10,10 @@ using Hx.Admin.Models.ViewModels.Job;
 using Quartz;
 using Hx.Admin.Tasks;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
+using Qiniu.CDN;
+using Quartz.Impl.AdoJobStore;
+using Quartz.Spi;
 
 namespace Hx.Admin.Services;
 
@@ -65,9 +69,17 @@ public class SysJobService : BaseService<QrtzJobDetails,int>, ISysJobService
                             {
 
                                 jobBuilder.WithIdentity(jobKey)
-                                    .WithDescription(dbDetail.Description);
-                                jobBuilder.StoreDurably(dbDetail.IsDurable);
-                                jobBuilder.DisallowConcurrentExecution(!dbDetail.IsNonConcurrent);
+                                    .WithDescription(dbDetail.Description)
+                                    .StoreDurably(dbDetail.IsDurable)
+                                    .RequestRecovery(dbDetail.RequestsRecovery);
+                                if (dbDetail.JobData != null)
+                                {
+                                    var jobData = JsonSerializer.Deserialize<IDictionary<string, object>>(dbDetail.JobData);
+                                    if(jobData != null) jobBuilder.SetJobData(new JobDataMap(jobData));
+                                }
+                                jobBuilder.DisallowConcurrentExecution(dbDetail.IsNonConcurrent)
+                                        .PersistJobDataAfterExecution(dbDetail.IsUpdateData);
+
                             });
                         }
                         break;
@@ -95,6 +107,22 @@ public class SysJobService : BaseService<QrtzJobDetails,int>, ISysJobService
                         if (dbTrigger.EndTime.HasValue && dbTrigger.EndTime > 0)
                         {
                             triggerBuilder.EndAt(new DateTimeOffset(dbTrigger.EndTime.Value, TimeSpan.Zero));
+                        }
+                        IOperableTrigger? trigger = null;
+                        if (AdoConstants.TriggerTypeBlob.Equals(dbTrigger.TriggerType))
+                        {
+                            var blobTrigger = await _rep.Context.Queryable<QrtzBlobTriggers>()
+                                .Where(u => u.SchedulerName == dbTrigger.SchedulerName && u.TriggerGroup == dbTrigger.TriggerGroup && u.TriggerName == dbTrigger.TriggerName)
+                                .Select(u => new { u.BlobData })
+                                .FirstAsync();
+                            if (blobTrigger != null && blobTrigger.BlobData != null)
+                            {
+                                trigger = JsonSerializer.Deserialize<>
+                            }
+                        }
+                        else
+                        { 
+                            
                         }
                         if (dbTrigger.TriggerType == "CRON")
                         {
@@ -132,6 +160,12 @@ public class SysJobService : BaseService<QrtzJobDetails,int>, ISysJobService
             _logger.LogError(ex, "添加数据库任务调度失败");
         }
     }
+
+    private IDictionary<string, object>? GetJobData(byte[] jobData)
+    {
+        return JsonSerializer.Deserialize<IDictionary<string, object>>(jobData);
+    }
+
 
     public async Task<PagedListResult<PageJobDetailOutput>> PageJobDetail(PageJobDetailInput input)
     {
@@ -459,14 +493,15 @@ public class SysJobService : BaseService<QrtzJobDetails,int>, ISysJobService
         await scheduler.ResumeTrigger(new TriggerKey(input.TriggerName, input.TriggerGroup));
     }
 
-    ///// <summary>
-    ///// 获取集群列表 ⏰
-    ///// </summary>
-    //[DisplayName("获取集群列表")]
-    //public async Task<List<SysJobCluster>> GetJobClusterList()
-    //{
-    //    return await _sysJobClusterRep.GetListAsync();
-    //}
+    /// <summary>
+    /// 获取集群列表 ⏰
+    /// </summary>
+    public async Task<List<PageSchedulerStateOutput>> GetJobClusterList()
+    {
+        return await _rep.Context.Queryable<QrtzSchedulerState>()
+            .Select<PageSchedulerStateOutput>()
+            .ToListAsync();
+    }
 
     /// <summary>
     /// 获取作业触发器运行记录分页列表 ⏰

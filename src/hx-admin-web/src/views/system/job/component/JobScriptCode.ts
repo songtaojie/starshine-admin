@@ -1,10 +1,5 @@
 export const JobScriptCode = `#region using
 
-using Furion;
-using Furion.Logging;
-using Furion.RemoteRequest.Extensions;
-using Furion.Schedule;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Data;
 using System.Linq.Dynamic.Core;
@@ -13,15 +8,20 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Yitter.IdGenerator;
+using Hx.Admin.Models;
+using Hx.Sqlsugar;
+using Microsoft.Extensions.DependencyInjection;
+using Quartz;
 
 #endregion
 
-namespace Admin.NET.Core;
+namespace Hx.Admin.Tasks;
 
 /// <summary>
 /// 动态作业任务
 /// </summary>
-[JobDetail("你的作业编号")]
+[JobDetail("你的作业编号",Description = "作业的描述", GroupName = "default")]
+[DisallowConcurrentExecution]
 public class DynamicJob : IJob
 {
     private readonly IServiceProvider _serviceProvider;
@@ -31,18 +31,12 @@ public class DynamicJob : IJob
         _serviceProvider = serviceProvider;
     }
 
-    public async Task ExecuteAsync(JobExecutingContext context, CancellationToken stoppingToken)
+    public async Task Execute(IJobExecutionContext context)
     {
-        using var serviceScope = _serviceProvider.CreateScope();
-        
-        // 获取用户仓储
-        // var rep = serviceScope.ServiceProvider.GetService<SqlSugarRepository<SysUser>>();
 
         // 请求网址
         // var result = await "http://www.baidu.com".GetAsStringAsync();
         // Console.WriteLine(result);
-
-        // 日志
-        // Log.Information("日志消息");
+        await Task.CompletedTask;
     }
 }`;

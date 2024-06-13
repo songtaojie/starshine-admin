@@ -171,4 +171,13 @@ public class SysJobController : AdminControllerBase
     {
         return await _sysJobService.PageJobTriggerRecord(input);
     }
+
+    /// <summary>
+    /// 获取集群列表 ⏰
+    /// </summary>
+    [HttpGet]
+    public async Task<List<PageSchedulerStateOutput>> GetJobClusterList()
+    {
+        return await _sysJobService.GetJobClusterList();
+    }
 }

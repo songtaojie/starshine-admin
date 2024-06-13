@@ -80,7 +80,7 @@ export class SysJobApi extends BaseAPI {
      * @memberof SysJobApi
      */
     public async getJobClusterList(options?: AxiosRequestConfig) : Promise<AxiosResponse<AdminResult<Array<SysJobCluster>>>> {
-        const api = `/api/sys-job/jobClusterList`;
+        const api = `/api/sys-job/getjobclusterlist`;
         return this.GetAdminResult<Array<SysJobCluster>>({api,...options});
     }
     /**

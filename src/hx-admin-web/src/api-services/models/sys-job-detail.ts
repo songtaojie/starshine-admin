@@ -1,5 +1,6 @@
 import { JobCreateTypeEnum } from './enums/job-create-type-enum';
 import { BasePageInput } from './base/base-page-input';
+import { SysJobTrigger } from './sys-job-trigger';
 
 /**
  * 
@@ -242,4 +243,109 @@ export interface SysJobDetail {
      * @memberof SysJobDetail
      */
     scriptCode?: string | null;
+}
+
+
+/**
+ * 
+ * @export
+ * @interface JobOutput
+ */
+export interface JobOutput {
+    /**
+     * 雪花Id
+     * @type {number}
+     * @memberof SysJobDetail
+     */
+    id?: number;
+    /**
+     * 调度名字
+     * @type {string}
+     * @memberof SysJobDetail
+     */
+    schedulerName: string;
+    /**
+     * 作业Id
+     * @type {string}
+     * @memberof SysJobDetail
+     */
+    jobName: string;
+    /**
+     * 组名称
+     * @type {string}
+     * @memberof SysJobDetail
+     */
+    jobGroup: string;
+    /**
+     * 作业类型FullName
+     * @type {string}
+     * @memberof SysJobDetail
+     */
+    jobClassName?: string | null;
+    /**
+     * 描述信息
+     * @type {string}
+     * @memberof SysJobDetail
+     */
+    description?: string | null;
+    /**
+     * 是否持久化
+     * @type {boolean}
+     * @memberof SysJobDetail
+     */
+    isDurable?: boolean;
+    /**
+     * 是否并行执行
+     * @type {boolean}
+     * @memberof SysJobDetail
+     */
+    isNonConcurrent?: boolean;
+    /**
+     * 是否更新数据
+     * @type {boolean}
+     * @memberof SysJobDetail
+     */
+    isUpdateData?: boolean;
+    /**
+     * 请求恢复
+     * @type {boolean}
+     * @memberof SysJobDetail
+     */
+    requestsRecovery?: boolean;
+    /**
+     * 额外数据
+     * @type {string}
+     * @memberof SysJobDetail
+     */
+    jobData?: string | null;
+    /**
+     * 更新时间
+     * @type {Date}
+     * @memberof SysJobDetail
+     */
+    updateTime?: Number | null;
+    /**
+     * 更新时间
+     * @type {Date}
+     * @memberof SysJobDetail
+     */
+    updateTime_V?: String | null;
+    /**
+     * 
+     * @type {JobCreateTypeEnum}
+     * @memberof SysJobDetail
+     */
+    createType?: JobCreateTypeEnum;
+    /**
+     * 脚本代码
+     * @type {string}
+     * @memberof SysJobDetail
+     */
+    scriptCode?: string | null;
+    /**
+     * 触发器集合
+     * @type {Array<SysJobTrigger>}
+     * @memberof JobOutput
+     */
+    jobTriggers?: Array<SysJobTrigger> | null;
 }
