@@ -1,9 +1,11 @@
-using Starshine.Admin.Serilog.Filters;
+// MIT License
+//
+// Copyright (c) 2021-present songtaojie, Daming Co.,Ltd and Contributors
+//
+// 电话/微信：song977601042
+
 using Serilog;
-using Serilog.Context;
 using Serilog.Events;
-using Serilog.Templates;
-using System;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Error)
@@ -25,10 +27,10 @@ try
 }
 catch (Exception ex)
 {
-    Log.Fatal(ex, "锟斤拷锟斤拷锟斤拷锟届常锟斤拷停止");
+    Log.Fatal(ex, "程序因异常而停止");
 }
 finally
 {
-    // 确锟斤拷锟斤拷应锟矫筹拷锟斤拷锟剿筹拷之前刷锟铰猴拷停止锟节诧拷锟斤拷时锟斤拷/锟竭筹拷(锟斤拷锟斤拷Linux锟较的分段达拷锟斤拷)
+    // 确保在应用程序退出之前刷新和停止内部计时器/线程(避免Linux上的分段错误)
     Log.CloseAndFlush();
 }
