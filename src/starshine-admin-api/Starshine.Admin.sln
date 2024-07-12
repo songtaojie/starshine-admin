@@ -34,6 +34,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Starshine.Admin.Serilog", "
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5.Test", "5.Test", "{3F2D6728-F781-4345-A9AA-D3D2E91B130B}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Starshine.Sqlsugar", "..\..\..\..\Starshine\framework\Starshine.Sqlsugar\Starshine.Sqlsugar.csproj", "{DFA74A12-221A-4ED6-8021-B41D4E8E671B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,6 +74,10 @@ Global
 		{EE3BEB30-88F5-4317-BEFE-51D414BB88A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EE3BEB30-88F5-4317-BEFE-51D414BB88A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EE3BEB30-88F5-4317-BEFE-51D414BB88A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DFA74A12-221A-4ED6-8021-B41D4E8E671B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DFA74A12-221A-4ED6-8021-B41D4E8E671B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DFA74A12-221A-4ED6-8021-B41D4E8E671B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DFA74A12-221A-4ED6-8021-B41D4E8E671B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -85,6 +91,7 @@ Global
 		{DADF3147-7746-4879-8CD5-C96720DB5D20} = {9E3A5E25-BBFD-47E0-8064-4220622C82CA}
 		{4FCD5E19-0ACD-40D4-9C67-3E5D437AEFE2} = {5E9BC6A8-B239-43B7-89D3-C2A7129983FD}
 		{EE3BEB30-88F5-4317-BEFE-51D414BB88A7} = {748F6B23-6184-4F00-AE07-13F3CB2693FB}
+		{DFA74A12-221A-4ED6-8021-B41D4E8E671B} = {5E9BC6A8-B239-43B7-89D3-C2A7129983FD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5CD801D7-984A-4F5C-8FA2-211B7A5EA9F3}

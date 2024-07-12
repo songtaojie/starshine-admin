@@ -4,8 +4,10 @@
 /// 系统参数配置表
 /// </summary>
 [SugarTable(null, "系统参数配置表")]
-public class SysConfig : AuditedEntityBase<long>
+public class SysConfig : AuditedEntityBase
 {
+    [SugarColumn(ColumnDescription = "Id", IsPrimaryKey =true)]
+    public override long Id { get => base.Id; set => base.Id = value; }
     /// <summary>
     /// 名称
     /// </summary>

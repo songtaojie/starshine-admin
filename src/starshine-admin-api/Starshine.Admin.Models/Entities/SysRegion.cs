@@ -4,7 +4,7 @@
 /// 系统行政地区表
 /// </summary>
 [SugarTable(null, "系统行政地区表")]
-public class SysRegion : EntityBase<long>
+public class SysRegion : EntityBase
 {
     /// <summary>
     /// 父Id

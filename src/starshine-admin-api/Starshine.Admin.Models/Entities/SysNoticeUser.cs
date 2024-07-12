@@ -4,7 +4,7 @@
 /// 系统通知公告用户表
 /// </summary>
 [SugarTable(null, "系统通知公告用户表")]
-public class SysNoticeUser:EntityBase<long>
+public class SysNoticeUser:EntityBase
 {
     /// <summary>
     /// 通知公告Id

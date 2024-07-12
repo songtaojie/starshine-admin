@@ -4,7 +4,7 @@ namespace Starshine.Admin.Models;
 /// 系统文件表
 /// </summary>
 [SugarTable(null, "系统文件表")]
-public class SysFile : CreationEntityBase<long>
+public class SysFile : CreationEntityBase
 {
     /// <summary>
     /// 提供者

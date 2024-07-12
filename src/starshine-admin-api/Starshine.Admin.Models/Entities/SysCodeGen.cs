@@ -12,7 +12,7 @@ namespace Starshine.Admin.Models;
 /// 代码生成表
 /// </summary>
 [SugarTable(null, "代码生成表")]
-public class SysCodeGen : AuditedEntityBase<long>
+public class SysCodeGen : AuditedEntityBase
 {
     /// <summary>
     /// 作者姓名

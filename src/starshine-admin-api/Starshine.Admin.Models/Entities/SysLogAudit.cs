@@ -4,7 +4,7 @@
 /// 系统审计日志表
 /// </summary>
 [SugarTable(null, "系统审计日志表")]
-public class SysLogAudit : CreationEntityBase<long>
+public class SysLogAudit : CreationEntityBase
 {
     /// <summary>
     /// Sql

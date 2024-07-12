@@ -4,7 +4,7 @@
 /// 系统机构表
 /// </summary>
 [SugarTable(null, "系统机构表")]
-public class SysOrg : AuditedEntityBase<long>
+public class SysOrg : AuditedEntityBase
 {
     /// <summary>
     /// 父Id

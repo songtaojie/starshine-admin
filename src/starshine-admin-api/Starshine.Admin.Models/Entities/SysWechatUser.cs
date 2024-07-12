@@ -4,7 +4,7 @@
 /// 系统微信用户表
 /// </summary>
 [SugarTable(null, "系统微信用户表")]
-public class SysWechatUser : AuditedEntityBase<long>
+public class SysWechatUser : AuditedEntityBase
 {
     /// <summary>
     /// 系统用户Id

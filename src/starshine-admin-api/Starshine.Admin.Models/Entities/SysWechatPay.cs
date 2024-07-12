@@ -4,7 +4,7 @@
 /// 系统微信支付表
 /// </summary>
 [SugarTable(null, "系统微信支付表")]
-public class SysWechatPay : CreationEntityBase<long>
+public class SysWechatPay : CreationEntityBase
 {
     /// <summary>
     /// 微信商户号

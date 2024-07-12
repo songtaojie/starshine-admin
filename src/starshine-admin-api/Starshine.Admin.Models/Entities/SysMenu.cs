@@ -4,7 +4,7 @@
 /// 系统菜单表
 /// </summary>
 [SugarTable(null, "系统菜单表")]
-public class SysMenu : AuditedEntityBase<long>
+public class SysMenu : AuditedEntityBase
 {
     /// <summary>
     /// 父Id

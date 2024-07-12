@@ -45,11 +45,14 @@
     <PackageReference Include="Yitter.IdGenerator" Version="1.0.14" />
 	<PackageReference Include="Starshine" Version="1.0.1" />
 	<PackageReference Include="Starshine.Caching" Version="1.0.0" />
-	<PackageReference Include="Starshine.Sqlsugar" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="DataAnnotations\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\Starshine\framework\Starshine.Sqlsugar\Starshine.Sqlsugar.csproj" />
   </ItemGroup>
  
 </Project>
