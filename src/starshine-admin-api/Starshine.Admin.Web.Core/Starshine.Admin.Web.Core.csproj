@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Hx.Swagger" Version="1.0.0" />
+    <PackageReference Include="Starshine.Swagger" Version="1.0.0" />
     <PackageReference Include="System.Security.Cryptography.Pkcs" Version="7.0.2" />
   </ItemGroup>
 

@@ -2,30 +2,30 @@
   "$schema": "https://gitee.com/dotnetchina/Furion/raw/v4/schemas/v4/furion-schema.json",
 
   "SwaggerSettings": {
-    "DocumentTitle": "海星后台管理系统接口文档",
+    "DocumentTitle": "星海科技后台管理系统接口文档",
     "GroupOpenApiInfos": [
       {
         "Group": "Default",
-        "Title": "海星后台管理系统",
-        "Description": ".NET通用权限开发框架。<br/><a href='https://github.com/songtaojie/hx-admin'>https://github.com/songtaojie/hx-admin</a>",
+        "Title": "星海科技后台管理系统",
+        "Description": ".NET通用权限开发框架。<br/><a href='https://github.com/songtaojie/starshine-admin'>https://github.com/songtaojie/starshine-admin</a>",
         "Version": "1.0.0",
-        "TermsOfService": "https://github.com/songtaojie/hx-admin",
+        "TermsOfService": "https://github.com/songtaojie/starshine-admin",
         "Contact": {
           "Name": "songtaojie",
           "Email": "stjworkemail@163.com",
-          "Url": "https://github.com/songtaojie/hx-admin"
+          "Url": "https://github.com/songtaojie/starshine-admin"
         }
       },
       {
         "Group": "All Groups",
         "Title": "所有接口",
-        "Description": ".NET通用权限开发框架。前后端分离架构(.NET6/Vue3)。<br/><a href='https://github.com/songtaojie/hx-admin'>https://github.com/songtaojie/hx-admin</a>",
+        "Description": ".NET通用权限开发框架。前后端分离架构(.NET6/Vue3)。<br/><a href='https://github.com/songtaojie/starshine-admin'>https://github.com/songtaojie/starshine-admin</a>",
         "Version": "1.0.0",
-        "TermsOfService": "https://github.com/songtaojie/hx-admin",
+        "TermsOfService": "https://github.com/songtaojie/starshine-admin",
         "Contact": {
           "Name": "songtaojie",
           "Email": "stjworkemail@163.com",
-          "Url": "https://github.com/songtaojie/hx-admin"
+          "Url": "https://github.com/songtaojie/starshine-admin"
         }
       }
     ],
