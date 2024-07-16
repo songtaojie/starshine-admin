@@ -1,6 +1,6 @@
 <template>
-	<div ref="dragVerify" class="drag_verify" :style="dragVerifyStyle" @mousemove="dragMoving" @mouseup="dragFinish"
-		@mouseleave="dragFinish" @touchmove.prevent="dragMoving" @touchend.prevent="dragFinish">
+	<div ref="dragVerify" class="drag_verify" :style="dragVerifyStyle" @mousemove="dragMoving" @mouseup="dragMouseFinish"
+		@mouseleave="dragMouseFinish" @touchmove.prevent="dragTouching" @touchend.prevent="dragTouchFinish">
 
 		<div class="dv_progress_bar" :class="{goFirst2:isOk}" ref="progressBar" :style="progressBarStyle">
 
@@ -11,7 +11,7 @@
 			<slot name="textAfter" v-if="$slots.textAfter"></slot>
 		</div>
 
-		<div class="dv_handler dv_handler_bg" :class="{goFirst:isOk}" @mousedown="dragStart" @touchstart.prevent="dragStart"
+		<div class="dv_handler dv_handler_bg" :class="{goFirst:isOk}" @mousedown="dragMoveStart" @touchstart.prevent="dragTouchStart"
 			ref="handler" :style="handlerStyle">
 			<i :class="handlerIcon"></i>
 		</div>
@@ -83,7 +83,7 @@ export default {
 		}
 	},
 	mounted: function () {
-		const dragEl = this.$refs.dragVerify;
+		const dragEl = this.$refs.dragVerify  as HTMLElement;
 		dragEl.style.setProperty("--textColor", this.textColor);
 		dragEl.style.setProperty("--width", Math.floor(this.width / 2) + "px");
 		dragEl.style.setProperty("--pwidth", -Math.floor(this.width / 2) + "px");
@@ -130,80 +130,133 @@ export default {
 		return {
 			isMoving: false,
 			x: 0,
-			isOk: false
+			isOk: false,
+			internalState: {
+				isPassing:this.isPassing,
+				width:this.width,
+				height:this.height,
+				text:this.text,
+				successText:this.successText,
+				background:this.background,
+				progressBarBg:this.progressBarBg,
+				completedBg:this.completedBg,
+				circle:this.circle,
+				radius:this.radius,
+				handlerIcon:this.handlerIcon,
+				successIcon:this.successIcon,
+				handlerBg:this.handlerBg,
+				textSize:this.textSize,
+				textColor:this.textColor
+			}
 		};
 	},
 	methods: {
-		dragStart: function (e) {
+		dragMoveStart(e:MouseEvent) {
 			if (!this.isPassing) {
 				this.isMoving = true;
-				this.x = (e.pageX || e.touches[0].pageX)
+				this.x = e.pageX
 			}
 			this.$emit("handlerMove");
 		},
-		dragMoving: function (e) {
-			if (this.isMoving && !this.isPassing) {
-				var _x = (e.pageX || e.touches[0].pageX) - this.x;
-				var handler = this.$refs.handler;
-				if (_x > 0 && _x <= this.width - this.height) {
-					handler.style.left = _x + "px";
-					this.$refs.progressBar.style.width = _x + this.height / 2 + "px";
-				} else if (_x > this.width - this.height) {
-					handler.style.left = this.width - this.height + "px";
-					this.$refs.progressBar.style.width =
-						this.width - this.height / 2 + "px";
-					this.passVerify();
-				}
+		dragTouchStart(e:TouchEvent) {
+			if (!this.isPassing) {
+				this.isMoving = true;
+				this.x = e.touches[0].pageX
+			}
+			this.$emit("handlerMove");
+		},
+		dragMovingExec:function(_x:number){
+			var handler = this.$refs.handler as HTMLElement;
+			var progressBarRef = this.$refs.progressBar as HTMLElement;
+			if (_x > 0 && _x <= this.width - this.height) {
+				handler.style.left = _x + "px";
+				progressBarRef.style.width = _x + this.height / 2 + "px";
+			} else if (_x > this.width - this.height) {
+				handler.style.left = this.width - this.height + "px";
+				progressBarRef.style.width = this.width - this.height / 2 + "px";
+				this.passVerify();
 			}
 		},
-		dragFinish: function (e) {
+		dragMoving: function (e:MouseEvent) {
 			if (this.isMoving && !this.isPassing) {
-				var _x = (e.pageX || e.changedTouches[0].pageX) - this.x;
-				if (_x < this.width - this.height) {
-					this.isOk = true;
-					var that = this;
-					setTimeout(function () {
-						that.$refs.handler.style.left = "0";
-						that.$refs.progressBar.style.width = "0";
-						that.isOk = false;
-					}, 500);
-					this.$emit("passfail");
-				} else {
-					var handler = this.$refs.handler;
-					handler.style.left = this.width - this.height + "px";
-					this.$refs.progressBar.style.width =
-						this.width - this.height / 2 + "px";
-					this.passVerify();
-				}
-				this.isMoving = false;
+				var _x = e.pageX - this.x;
+				this.dragMovingExec(_x)
+			}
+		},
+		dragTouching: function (e:TouchEvent) {
+			if (this.isMoving && !this.isPassing) {
+				var _x = e.touches[0].pageX - this.x;
+				this.dragMovingExec(_x)
+			}
+		},
+		dragFinish:function(_x:number) {
+			if (_x < this.width - this.height) {
+				this.isOk = true;
+				var that = this;
+				var handlerRef = that.$refs.handler as HTMLElement;
+				var progressBarRef = that.$refs.progressBar as HTMLElement;
+				setTimeout(function () {
+					handlerRef.style.left = "0";
+					progressBarRef.style.width = "0";
+					that.isOk = false;
+				}, 500);
+				this.$emit("passfail");
+			} else {
+				var handlerRef = this.$refs.handler as HTMLElement;
+				var progressBarRef = this.$refs.progressBar as HTMLElement;
+				handlerRef.style.left = this.width - this.height + "px";
+				progressBarRef.style.width =
+					this.width - this.height / 2 + "px";
+				this.passVerify();
+			}
+			this.isMoving = false;
+		},
+		dragMouseFinish: function (e:MouseEvent) {
+			if (this.isMoving && !this.isPassing) {
+				var _x = e.pageX - this.x;
+				this.dragFinish(_x)
+			}
+		},
+		dragTouchFinish: function (e:TouchEvent) {
+			if (this.isMoving && !this.isPassing) {
+				var _x = e.changedTouches[0].pageX - this.x;
+				this.dragFinish(_x)
 			}
 		},
 		passVerify: function () {
 			this.$emit("update:isPassing", true);
 			this.isMoving = false;
-			var handler = this.$refs.handler;
-			handler.children[0].className = this.successIcon;
-			this.$refs.progressBar.style.background = this.completedBg;
-			this.$refs.message.style["-webkit-text-fill-color"] = "unset";
-			this.$refs.message.style.animation = "slidetounlock2 3s infinite";
-			this.$refs.message.style.color = "#fff";
+			var handlerRef = this.$refs.handler as HTMLElement;
+			if(this.successIcon !== undefined)
+				handlerRef.children[0].className = this.successIcon;
+			var progressBarRef = this.$refs.progressBar as HTMLElement;
+			progressBarRef.style.background = this.completedBg;
+			var messageRef = this.$refs.message as HTMLElement;
+			messageRef.style["-webkit-text-fill-color"] = "unset";
+			messageRef.style.animation = "slidetounlock2 3s infinite";
+			messageRef.style.color = "#fff";
 			this.$emit("passcallback");
 		},
 		reset: function () {
-			const oriData = this.$options.data();
-			for (const key in oriData) {
-				if (Object.prototype.hasOwnProperty.call(oriData, key)) {
-					this[key] = oriData[key]
+			if(this.$options.data) {
+				const oriData = this.internalState;
+				for (const key in oriData) {
+					if (Object.prototype.hasOwnProperty.call(oriData, key)) {
+						this[key] = oriData[key]
+					}
 				}
 			}
-			var handler = this.$refs.handler;
-			var message = this.$refs.message;
-			handler.style.left = "0";
-			this.$refs.progressBar.style.width = "0";
-			handler.children[0].className = this.handlerIcon;
-			message.style["-webkit-text-fill-color"] = "transparent";
-			message.style.animation = "slidetounlock 3s infinite";
-			message.style.color = this.background;
+			
+			var handlerRef = this.$refs.handler as HTMLElement;
+			var messageRef = this.$refs.message as HTMLElement;
+			var progressBarRef = this.$refs.progressBar as HTMLElement;
+			handlerRef.style.left = "0";
+			progressBarRef.style.width = "0";
+			if(this.handlerIcon !== undefined)
+				handlerRef.children[0].className = this.handlerIcon;
+			messageRef.style["-webkit-text-fill-color"] = "transparent";
+			messageRef.style.animation = "slidetounlock 3s infinite";
+			messageRef.style.color = this.background;
 		}
 	}
 };

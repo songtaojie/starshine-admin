@@ -24,6 +24,8 @@
 </template>
 
 <script  lang="ts">
+import { StyleValue } from 'vue';
+
 export default {
 	name: "dragVerify",
 	props: {
@@ -143,7 +145,7 @@ export default {
 				borderRadius: this.circle ? this.height / 2 + "px" : this.radius
 			};
 		},
-		dragVerifyImgStyle: function () {
+		dragVerifyImgStyle: function ():StyleValue {
 			return {
 				width: this.width + "px",
 				height: this.width + "px",
