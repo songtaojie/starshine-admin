@@ -81,17 +81,10 @@ cnpm run build
 
 - 查看开发文档：<a href="https://lyt-top.gitee.io/vue-next-admin-doc-preview" target="_blank">vue-next-admin-doc</a>
 
-#### 💯 学习交流加 QQ 群
-
-> 1 - 4 交流群已满，请加 vue-next-admin 交流群 5
-
-群号：556254895
-
-其它交流群请查看文档首页 [vueNextAdmin 解疑问](https://lyt-top.gitee.io/vue-next-admin-doc-preview/)
 
 #### 💒 集成后端
 
-- <a target="_blank" href="https://gitee.com/zuohuaijun/Admin.NET">@zuohuaijun Admin.NET</a>
+- <a target="_blank" href="https://github.com/songtaojie/starshine-admin">@songtaojie starshine-admin</a>
 - <a target="_blank" href="https://github.com/PandaGoAdmin/PandaX">@熊猫 PandaGoAdmin</a>
 - <a target="_blank" href="https://toscode.gitee.com/GionConnection/gopro_free">@甜蜜蜜 GoPro 平台</a>
 - <a target="_blank" href="https://gitee.com/GionConnection/niupi-free">@甜蜜蜜 NiuPi 平台</a>

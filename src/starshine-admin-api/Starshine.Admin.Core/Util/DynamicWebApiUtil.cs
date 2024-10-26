@@ -5,6 +5,7 @@
 // 电话/微信：song977601042
 
 using Microsoft.AspNetCore.Mvc;
+using Starshine.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,8 +39,8 @@ public static class DynamicWebApiUtil
             if (type.Assembly.GetName().Name.StartsWith("Microsoft.AspNetCore.OData")) return false;
 
             if (!type.IsPublic || type.IsPrimitive || type.IsValueType || type.IsAbstract || type.IsInterface || type.IsGenericType) return false;
-
-            if (!typeof(Controller).IsAssignableFrom(type) && typeof(ControllerBase).IsAssignableFrom(type)) return true;
+            if(typeof(ControllerBase).IsAssignableFrom(type))return true;
+            if (typeof(Controller).IsAssignableFrom(type) && type.HasAttribute<ApiControllerAttribute>()) return true;
 
             return false;
         }

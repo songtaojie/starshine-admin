@@ -51,8 +51,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\Starshine\framework\Starshine.Sqlsugar\Starshine.Sqlsugar.csproj" />
-    <ProjectReference Include="..\..\..\..\..\Starshine\framework\Starshine\Starshine.csproj" />
+    <ProjectReference Include="..\..\..\..\Starshine\framework\Starshine.Sqlsugar\Starshine.Sqlsugar.csproj" />
+    <ProjectReference Include="..\..\..\..\Starshine\framework\Starshine\Starshine.csproj" />
   </ItemGroup>
  
 </Project>

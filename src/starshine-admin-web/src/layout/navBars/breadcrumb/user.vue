@@ -170,7 +170,7 @@ const onHandleCommandClick = (path: string) => {
 			})
 			.catch(() => {});
 	} else if (path === 'wareHouse') {
-		window.open('https://gitee.com/zuohuaijun/Admin.NET');
+		window.open('https://github.com/songtaojie/starshine-admin');
 	} else {
 		router.push(path);
 	}

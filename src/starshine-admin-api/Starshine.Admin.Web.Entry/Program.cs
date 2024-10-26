@@ -17,6 +17,7 @@ try
    
     Log.Information("Starting web application");
     var builder = WebApplication.CreateBuilder(args);
+    Log.Logger.Information("√¸¡Ó––≤Œ ˝£∫", string.Join(",", args));
     builder.ConfigureStarshineWebApp();
     builder.Services.AddAdminCoreService(builder.Configuration);
     builder.Logging.ClearProviders();

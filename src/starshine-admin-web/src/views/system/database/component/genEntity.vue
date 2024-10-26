@@ -29,8 +29,8 @@
 					<el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24" class="mb20">
 						<el-form-item label="存放位置" prop="position">
 							<el-select v-model="state.ruleForm.position" clearable class="w100">
-								<el-option label="Admin.NET.Application" value="Admin.NET.Application" />
-								<el-option label="Admin.NET.Core" value="Admin.NET.Core" />
+								<el-option label="Starshine.Admin.Models" value="Starshine.Admin.Models" />
+								<el-option label="Starshine.Admin.Services" value="Starshine.Admin.Services" />
 							</el-select>
 						</el-form-item>
 					</el-col>
@@ -62,7 +62,7 @@ const state = reactive({
 
 onMounted(async () => {
 	let resDicData = await getAPI(SysDictTypeApi).apiSysDictTypeDataListGet('code_gen_base_class');
-	state.codeGenBaseClassName = resDicData.data.result;
+	state.codeGenBaseClassName = resDicData.data.data;
 });
 
 // 打开弹窗
@@ -70,7 +70,7 @@ const openDialog = (row: any) => {
 	state.ruleForm.configId = row.configId;
 	state.ruleForm.tableName = row.tableName;
 	state.ruleForm.baseClassName = 'EntityBase';
-	state.ruleForm.position = 'Admin.NET.Application';
+	state.ruleForm.position = 'Starshine.Admin.Services';
 	state.isShowDialog = true;
 };
 

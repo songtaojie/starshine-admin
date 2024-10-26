@@ -151,7 +151,7 @@ const handleCurrentChange = (val: number) => {
 // 打开表增加页面
 const openAddDialog = () => {
 	state.editMenuTitle = '增加';
-	EditCodeGenRef.value?.openDialog({ nameSpace: 'Admin.NET.Application', authorName: 'Admin.NET', generateType: '200' });
+	EditCodeGenRef.value?.openDialog({ nameSpace: 'Starshine.Admin.Models', authorName: '星海科技', generateType: '200' });
 };
 
 // 打开表编辑页面

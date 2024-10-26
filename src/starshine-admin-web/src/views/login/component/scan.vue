@@ -20,7 +20,7 @@ const initQrcode = () => {
 	nextTick(() => {
 		(<HTMLElement>qrcodeRef.value).innerHTML = '';
 		new QRCode(qrcodeRef.value, {
-			text: `https://gitee.com/zuohuaijun/Admin.NET`,
+			text: `https://github.com/songtaojie/starshine-admin`,
 			width: 260,
 			height: 260,
 			colorDark: '#000000',

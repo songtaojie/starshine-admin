@@ -10,7 +10,7 @@
 			<div class="upgrade-content">
 				{{ getThemeConfig.globalTitle }} {{ $t('message.upgrade.msg') }}
 				<div class="mt5">
-					<el-link type="primary" class="font12" href="https://gitee.com/zuohuaijun/Admin.NET/tree/next/Web/CHANGELOG.md" target="_black"> CHANGELOG.md </el-link>
+					<el-link type="primary" class="font12" href="https://github.com/songtaojie/starshine-admin" target="_black"> CHANGELOG.md </el-link>
 				</div>
 				<!-- <div class="upgrade-content-desc mt5">{{ $t("message.upgrade.desc") }}</div> -->
 			</div>

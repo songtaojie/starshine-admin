@@ -11,6 +11,7 @@ using SqlSugar;
 using System;
 using Starshine;
 using Starshine.Common;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection;
 public static class SqlSugarServiceCollectionExtensions
@@ -81,7 +82,7 @@ public static class SqlSugarServiceCollectionExtensions
 
             };
         });
-        //services.AddHostedService<SqlSugarHostedService>();
+        services.AddHostedService<SqlSugarHostedService>();
         services.AddSingleton<IHostLifetime, SqlsugarHostLifetime>();
         return services;
     }

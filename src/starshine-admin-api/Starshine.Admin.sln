@@ -34,11 +34,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Starshine.Admin.Serilog", "
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5.Test", "5.Test", "{3F2D6728-F781-4345-A9AA-D3D2E91B130B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Starshine.Sqlsugar", "..\..\..\..\Starshine\framework\Starshine.Sqlsugar\Starshine.Sqlsugar.csproj", "{DFA74A12-221A-4ED6-8021-B41D4E8E671B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Starshine.Sqlsugar", "..\..\..\Starshine\framework\Starshine.Sqlsugar\Starshine.Sqlsugar.csproj", "{DFA74A12-221A-4ED6-8021-B41D4E8E671B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Starshine", "..\..\..\..\Starshine\framework\Starshine\Starshine.csproj", "{17149CF9-D8DB-4991-A2EE-7BE2D37F82BE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Starshine", "..\..\..\Starshine\framework\Starshine\Starshine.csproj", "{17149CF9-D8DB-4991-A2EE-7BE2D37F82BE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Starshine.Swagger", "..\..\..\..\Starshine\framework\Starshine.Swagger\Starshine.Swagger.csproj", "{FFF48F9A-55AB-442E-BD50-7272B7270F97}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Starshine.Swagger", "..\..\..\Starshine\framework\Starshine.Swagger\Starshine.Swagger.csproj", "{FFF48F9A-55AB-442E-BD50-7272B7270F97}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
