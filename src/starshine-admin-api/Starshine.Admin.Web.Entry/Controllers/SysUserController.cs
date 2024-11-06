@@ -97,7 +97,7 @@ public class SysUserController : AdminControllerBase
     /// <param name="input"></param>
     /// <returns></returns>
     [HttpPost]
-    public async Task<int> SetStatus(UserInput input)
+    public async Task<int> SetStatus(SetUserStatusInput input)
     {
         return await _service.SetStatus(input);
     }

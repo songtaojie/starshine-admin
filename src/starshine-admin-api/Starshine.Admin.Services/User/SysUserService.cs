@@ -72,8 +72,7 @@ public class SysUserService : BaseService<SysUser>, ISysUserService
         var user = input.Adapt<SysUser>();
         user.Password = CryptogramUtil.Encrypt(password);
         await _rep.InsertAsync(user);
-        input.Id = user.Id;
-        await UpdateRoleAndExtOrg(input);
+        await UpdateRoleAndExtOrg(input, user.Id);
         return user.Id;
     }
 
@@ -82,11 +81,11 @@ public class SysUserService : BaseService<SysUser>, ISysUserService
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    private async Task UpdateRoleAndExtOrg(AddUserInput input)
+    private async Task UpdateRoleAndExtOrg(AddUserInput input,long userId)
     {
-        await GrantRole(new UserRoleInput { UserId = input.Id, RoleIdList = input.RoleIdList });
+        await GrantRole(new UserRoleInput { UserId = userId, RoleIdList = input.RoleIdList });
 
-        await _sysUserExtOrgService.UpdateUserExtOrg(input.Id, input.ExtOrgIdList);
+        await _sysUserExtOrgService.UpdateUserExtOrg(userId, input.ExtOrgIdList);
     }
 
     /// <summary>
@@ -103,7 +102,7 @@ public class SysUserService : BaseService<SysUser>, ISysUserService
         await _rep.Context.Updateable(input.Adapt<SysUser>()).IgnoreColumns(true)
             .IgnoreColumns(u => new { u.AccountType, u.Password, u.Status }).ExecuteCommandAsync();
 
-        await UpdateRoleAndExtOrg(input);
+        await UpdateRoleAndExtOrg(input, input.Id);
     }
 
     /// <summary>
@@ -161,7 +160,7 @@ public class SysUserService : BaseService<SysUser>, ISysUserService
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    public async Task<int> SetStatus(UserInput input)
+    public async Task<int> SetStatus(SetUserStatusInput input)
     {
         var user = await FirstOrDefaultAsync(u => u.Id == input.Id);
         if (user.AccountType == AccountTypeEnum.SuperAdmin)

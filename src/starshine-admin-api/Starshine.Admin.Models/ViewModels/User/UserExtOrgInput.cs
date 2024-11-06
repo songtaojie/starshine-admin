@@ -15,12 +15,12 @@ public class UserExtOrgInput : BaseIdParam
     /// <summary>
     /// 工号
     /// </summary>
-    public string JobNum { get; set; }
+    public string? JobNum { get; set; }
 
     /// <summary>
     /// 职级
     /// </summary>
-    public string PosLevel { get; set; }
+    public string? PosLevel { get; set; }
 
     /// <summary>
     /// 入职日期

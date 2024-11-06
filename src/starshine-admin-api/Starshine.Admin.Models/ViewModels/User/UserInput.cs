@@ -1,32 +1,5 @@
 ﻿namespace Starshine.Admin.Models.ViewModels.User;
 
-public class UserInput : BaseIdParam
-{
-    /// <summary>
-    /// 状态
-    /// </summary>
-    public StatusEnum Status { get; set; }
-}
-
-
-
-public class AddUserInput : SysUser
-{
-    /// <summary>
-    /// 角色集合
-    /// </summary>
-    public List<long> RoleIdList { get; set; }
-
-    /// <summary>
-    /// 扩展机构集合
-    /// </summary>
-    public List<SysUserExtOrg> ExtOrgIdList { get; set; }
-}
-
-public class UpdateUserInput : AddUserInput
-{
-}
-
 public class DeleteUserInput : BaseIdParam
 {
     /// <summary>

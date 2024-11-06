@@ -55,7 +55,7 @@ public interface ISysUserService : IBaseService<SysUser>, IScopedDependency
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    Task<int> SetStatus(UserInput input);
+    Task<int> SetStatus(SetUserStatusInput input);
 
     /// <summary>
     /// 授权用户角色

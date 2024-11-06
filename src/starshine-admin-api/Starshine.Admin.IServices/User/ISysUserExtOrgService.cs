@@ -1,4 +1,5 @@
 ﻿using Starshine.Admin.Models;
+using Starshine.Admin.Models.ViewModels.Menu;
 using Starshine.DependencyInjection;
 
 namespace Starshine.Admin.IService;
@@ -22,7 +23,7 @@ public interface ISysUserExtOrgService : IBaseService<SysUserExtOrg>, IScopedDep
     /// <param name="userId"></param>
     /// <param name="extOrgList"></param>
     /// <returns></returns>
-    Task UpdateUserExtOrg(long userId, List<SysUserExtOrg> extOrgList);
+    Task UpdateUserExtOrg(long userId, List<UserExtOrgInput> extOrgList);
 
     /// <summary>
     /// 根据机构Id集合删除扩展机构

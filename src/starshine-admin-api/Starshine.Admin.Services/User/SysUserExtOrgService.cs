@@ -1,5 +1,6 @@
 ﻿using Starshine.Admin.IService;
 using Starshine.Admin.Models;
+using Starshine.Admin.Models.ViewModels.Menu;
 
 namespace Starshine.Admin.Core.Service;
 
@@ -29,16 +30,17 @@ public class SysUserExtOrgService : BaseService<SysUserExtOrg>, ISysUserExtOrgSe
     /// <param name="userId"></param>
     /// <param name="extOrgList"></param>
     /// <returns></returns>
-    public async Task UpdateUserExtOrg(long userId, List<SysUserExtOrg> extOrgList)
+    public async Task UpdateUserExtOrg(long userId, List<UserExtOrgInput> extOrgList)
     {
         await _rep.DeleteAsync(u => u.UserId == userId);
 
         if (extOrgList == null || extOrgList.Count < 1) return;
-        extOrgList.ForEach(u =>
+        var sysUserExtOrgList = extOrgList.Adapt<List<SysUserExtOrg>>();
+        sysUserExtOrgList.ForEach(u =>
         {
             u.UserId = userId;
         });
-        await _rep.InsertRangeAsync(extOrgList);
+        await _rep.InsertRangeAsync(sysUserExtOrgList);
     }
 
     /// <summary>
