@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Starshine.Admin.IServices\Starshine.Admin.IServices.csproj" />
-    <ProjectReference Include="..\Starshine.Admin.Tasks\Starshine.Admin.Tasks.csproj" />
   </ItemGroup>
 
 </Project>

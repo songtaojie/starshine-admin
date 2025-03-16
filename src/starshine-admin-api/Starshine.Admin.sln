@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Starshine.Admin.Core", "Starshine.Admin.Core\Starshine.Admin.Core.csproj", "{3AD1A3ED-ED11-479D-BE32-6589D98A9ADC}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Starshine.Admin.Web.Core", "Starshine.Admin.Web.Core\Starshine.Admin.Web.Core.csproj", "{8A42A864-A69E-40F7-975E-F2FA36E7DFEE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Starshine.Admin.Web.Entry", "Starshine.Admin.Web.Entry\Starshine.Admin.Web.Entry.csproj", "{11EA630B-4600-4236-A117-CE6C6CD67586}"
@@ -20,10 +18,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Starshine.Admin.Services", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Starshine.Admin.Models", "Starshine.Admin.Models\Starshine.Admin.Models.csproj", "{DADF3147-7746-4879-8CD5-C96720DB5D20}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1.Core", "1.Core", "{5E9BC6A8-B239-43B7-89D3-C2A7129983FD}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Starshine.Admin.Tasks", "Starshine.Admin.Tasks\Starshine.Admin.Tasks.csproj", "{4FCD5E19-0ACD-40D4-9C67-3E5D437AEFE2}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3.Services", "3.Services", "{16F9C8C8-F542-4B2F-AEC0-6AAE7C56BEC8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2.Models", "2.Models", "{9E3A5E25-BBFD-47E0-8064-4220622C82CA}"
@@ -34,22 +28,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Starshine.Admin.Serilog", "
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5.Test", "5.Test", "{3F2D6728-F781-4345-A9AA-D3D2E91B130B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Starshine.Sqlsugar", "..\..\..\Starshine\framework\Starshine.Sqlsugar\Starshine.Sqlsugar.csproj", "{DFA74A12-221A-4ED6-8021-B41D4E8E671B}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Starshine", "..\..\..\Starshine\framework\Starshine\Starshine.csproj", "{17149CF9-D8DB-4991-A2EE-7BE2D37F82BE}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Starshine.Swagger", "..\..\..\Starshine\framework\Starshine.Swagger\Starshine.Swagger.csproj", "{FFF48F9A-55AB-442E-BD50-7272B7270F97}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{3AD1A3ED-ED11-479D-BE32-6589D98A9ADC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3AD1A3ED-ED11-479D-BE32-6589D98A9ADC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3AD1A3ED-ED11-479D-BE32-6589D98A9ADC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3AD1A3ED-ED11-479D-BE32-6589D98A9ADC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8A42A864-A69E-40F7-975E-F2FA36E7DFEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8A42A864-A69E-40F7-975E-F2FA36E7DFEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8A42A864-A69E-40F7-975E-F2FA36E7DFEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -70,42 +54,21 @@ Global
 		{DADF3147-7746-4879-8CD5-C96720DB5D20}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DADF3147-7746-4879-8CD5-C96720DB5D20}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DADF3147-7746-4879-8CD5-C96720DB5D20}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4FCD5E19-0ACD-40D4-9C67-3E5D437AEFE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4FCD5E19-0ACD-40D4-9C67-3E5D437AEFE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4FCD5E19-0ACD-40D4-9C67-3E5D437AEFE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4FCD5E19-0ACD-40D4-9C67-3E5D437AEFE2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EE3BEB30-88F5-4317-BEFE-51D414BB88A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EE3BEB30-88F5-4317-BEFE-51D414BB88A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EE3BEB30-88F5-4317-BEFE-51D414BB88A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EE3BEB30-88F5-4317-BEFE-51D414BB88A7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DFA74A12-221A-4ED6-8021-B41D4E8E671B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DFA74A12-221A-4ED6-8021-B41D4E8E671B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DFA74A12-221A-4ED6-8021-B41D4E8E671B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DFA74A12-221A-4ED6-8021-B41D4E8E671B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{17149CF9-D8DB-4991-A2EE-7BE2D37F82BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{17149CF9-D8DB-4991-A2EE-7BE2D37F82BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{17149CF9-D8DB-4991-A2EE-7BE2D37F82BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{17149CF9-D8DB-4991-A2EE-7BE2D37F82BE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FFF48F9A-55AB-442E-BD50-7272B7270F97}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FFF48F9A-55AB-442E-BD50-7272B7270F97}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FFF48F9A-55AB-442E-BD50-7272B7270F97}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FFF48F9A-55AB-442E-BD50-7272B7270F97}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{3AD1A3ED-ED11-479D-BE32-6589D98A9ADC} = {5E9BC6A8-B239-43B7-89D3-C2A7129983FD}
 		{8A42A864-A69E-40F7-975E-F2FA36E7DFEE} = {748F6B23-6184-4F00-AE07-13F3CB2693FB}
 		{11EA630B-4600-4236-A117-CE6C6CD67586} = {748F6B23-6184-4F00-AE07-13F3CB2693FB}
 		{910B98B0-B93D-48FF-96BB-A816C77A8BFE} = {16F9C8C8-F542-4B2F-AEC0-6AAE7C56BEC8}
 		{5B948214-6608-4957-B5B0-3A37A5F461E6} = {16F9C8C8-F542-4B2F-AEC0-6AAE7C56BEC8}
 		{DADF3147-7746-4879-8CD5-C96720DB5D20} = {9E3A5E25-BBFD-47E0-8064-4220622C82CA}
-		{4FCD5E19-0ACD-40D4-9C67-3E5D437AEFE2} = {5E9BC6A8-B239-43B7-89D3-C2A7129983FD}
 		{EE3BEB30-88F5-4317-BEFE-51D414BB88A7} = {748F6B23-6184-4F00-AE07-13F3CB2693FB}
-		{DFA74A12-221A-4ED6-8021-B41D4E8E671B} = {5E9BC6A8-B239-43B7-89D3-C2A7129983FD}
-		{17149CF9-D8DB-4991-A2EE-7BE2D37F82BE} = {5E9BC6A8-B239-43B7-89D3-C2A7129983FD}
-		{FFF48F9A-55AB-442E-BD50-7272B7270F97} = {5E9BC6A8-B239-43B7-89D3-C2A7129983FD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5CD801D7-984A-4F5C-8FA2-211B7A5EA9F3}

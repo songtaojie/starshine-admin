@@ -19,7 +19,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Starshine.Admin.Serilog\Starshine.Admin.Serilog.csproj" />
     <ProjectReference Include="..\Starshine.Admin.Services\Starshine.Admin.Services.csproj" />
-    <ProjectReference Include="..\Starshine.Admin.Tasks\Starshine.Admin.Tasks.csproj" />
   </ItemGroup>
 
 </Project>
