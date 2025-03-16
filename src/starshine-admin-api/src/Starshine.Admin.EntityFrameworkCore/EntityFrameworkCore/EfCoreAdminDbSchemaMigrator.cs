@@ -7,12 +7,12 @@ using Volo.Abp.DependencyInjection;
 
 namespace Starshine.Admin.EntityFrameworkCore;
 
-public class EntityFrameworkCoreAdminDbSchemaMigrator
+public class EfCoreAdminDbSchemaMigrator
     : IAdminDbSchemaMigrator, ITransientDependency
 {
     private readonly IServiceProvider _serviceProvider;
 
-    public EntityFrameworkCoreAdminDbSchemaMigrator(
+    public EfCoreAdminDbSchemaMigrator(
         IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
@@ -27,7 +27,7 @@ public class EntityFrameworkCoreAdminDbSchemaMigrator
          */
 
         await _serviceProvider
-            .GetRequiredService<AdminDbContext>()
+            .GetRequiredService<StarshineAdminDbContext>()
             .Database
             .MigrateAsync();
     }

@@ -18,8 +18,8 @@ namespace Starshine.Admin.EntityFrameworkCore;
 [ReplaceDbContext(typeof(IIdentityDbContext))]
 [ReplaceDbContext(typeof(ITenantManagementDbContext))]
 [ConnectionStringName("Default")]
-public class AdminDbContext :
-    AbpDbContext<AdminDbContext>,
+public class StarshineAdminDbContext :
+    AbpDbContext<StarshineAdminDbContext>,
     IIdentityDbContext,
     ITenantManagementDbContext
 {
@@ -53,7 +53,7 @@ public class AdminDbContext :
 
     #endregion
 
-    public AdminDbContext(DbContextOptions<AdminDbContext> options)
+    public StarshineAdminDbContext(DbContextOptions<StarshineAdminDbContext> options)
         : base(options)
     {
 

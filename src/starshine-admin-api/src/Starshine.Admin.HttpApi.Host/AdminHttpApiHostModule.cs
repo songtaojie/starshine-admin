@@ -12,8 +12,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Starshine.Admin.EntityFrameworkCore;
 using Starshine.Admin.MultiTenancy;
-using Volo.Abp.AspNetCore.Mvc.UI.Theme.Basic;
-using Volo.Abp.AspNetCore.Mvc.UI.Theme.Basic.Bundling;
 using Microsoft.OpenApi.Models;
 using OpenIddict.Validation.AspNetCore;
 using Volo.Abp;
@@ -25,12 +23,11 @@ using Volo.Abp.AspNetCore.Mvc.UI.Bundling;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.Shared;
 using Volo.Abp.AspNetCore.Serilog;
 using Volo.Abp.Autofac;
-using Volo.Abp.Localization;
 using Volo.Abp.Modularity;
 using Volo.Abp.Security.Claims;
-using Volo.Abp.Swashbuckle;
 using Volo.Abp.UI.Navigation.Urls;
 using Volo.Abp.VirtualFileSystem;
+using Starshine.Abp.Swashbuckle;
 
 namespace Starshine.Admin;
 
@@ -43,7 +40,7 @@ namespace Starshine.Admin;
     typeof(AbpAspNetCoreMvcUiBasicThemeModule),
     typeof(AbpAccountWebOpenIddictModule),
     typeof(AbpAspNetCoreSerilogModule),
-    typeof(AbpSwashbuckleModule)
+    typeof(StarshineSwashbuckleModule)
 )]
 public class AdminHttpApiHostModule : AbpModule
 {
@@ -71,7 +68,7 @@ public class AdminHttpApiHostModule : AbpModule
         ConfigureConventionalControllers();
         ConfigureVirtualFileSystem(context);
         ConfigureCors(context, configuration);
-        ConfigureSwaggerServices(context, configuration);
+        //ConfigureSwaggerServices(context, configuration);
     }
 
     private void ConfigureAuthentication(ServiceConfigurationContext context)
@@ -141,21 +138,21 @@ public class AdminHttpApiHostModule : AbpModule
         });
     }
 
-    private static void ConfigureSwaggerServices(ServiceConfigurationContext context, IConfiguration configuration)
-    {
-        context.Services.AddAbpSwaggerGenWithOAuth(
-            configuration["AuthServer:Authority"]!,
-            new Dictionary<string, string>
-            {
-                    {"Admin", "Admin API"}
-            },
-            options =>
-            {
-                options.SwaggerDoc("v1", new OpenApiInfo { Title = "Admin API", Version = "v1" });
-                options.DocInclusionPredicate((docName, description) => true);
-                options.CustomSchemaIds(type => type.FullName);
-            });
-    }
+    //private static void ConfigureSwaggerServices(ServiceConfigurationContext context, IConfiguration configuration)
+    //{
+    //    context.Services.AddAbpSwaggerGenWithOAuth(
+    //        configuration["AuthServer:Authority"]!,
+    //        new Dictionary<string, string>
+    //        {
+    //                {"Admin", "Admin API"}
+    //        },
+    //        options =>
+    //        {
+    //            options.SwaggerDoc("v1", new OpenApiInfo { Title = "Admin API", Version = "v1" });
+    //            options.DocInclusionPredicate((docName, description) => true);
+    //            options.CustomSchemaIds(type => type.FullName);
+    //        });
+    //}
 
     private void ConfigureCors(ServiceConfigurationContext context, IConfiguration configuration)
     {
@@ -195,7 +192,7 @@ public class AdminHttpApiHostModule : AbpModule
         }
 
         app.UseCorrelationId();
-        app.MapAbpStaticAssets();
+        //app.MapAbpStaticAssets();
         app.UseRouting();
         app.UseCors();
         app.UseAuthentication();
@@ -209,15 +206,15 @@ public class AdminHttpApiHostModule : AbpModule
         app.UseDynamicClaims();
         app.UseAuthorization();
 
-        app.UseSwagger();
-        app.UseAbpSwaggerUI(c =>
-        {
-            c.SwaggerEndpoint("/swagger/v1/swagger.json", "Admin API");
+        //app.UseSwagger();
+        //app.UseSwaggerUI(c =>
+        //{
+        //    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Admin API");
 
-            var configuration = context.ServiceProvider.GetRequiredService<IConfiguration>();
-            c.OAuthClientId(configuration["AuthServer:SwaggerClientId"]);
-            c.OAuthScopes("Admin");
-        });
+        //    var configuration = context.ServiceProvider.GetRequiredService<IConfiguration>();
+        //    c.OAuthClientId(configuration["AuthServer:SwaggerClientId"]);
+        //    c.OAuthScopes("Admin");
+        //});
 
         app.UseAuditing();
         app.UseAbpSerilogEnrichers();

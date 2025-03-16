@@ -68,7 +68,7 @@ public class AdminEntityFrameworkCoreTestModule : AbpModule
         var connection = new AbpUnitTestSqliteConnection("Data Source=:memory:");
         connection.Open();
 
-        var options = new DbContextOptionsBuilder<AdminDbContext>()
+        var options = new DbContextOptionsBuilder<StarshineAdminDbContext>()
             .UseSqlite(connection)
             .Options;
 
