@@ -1,26 +1,17 @@
-using Volo.Abp.AspNetCore.Mvc.UI.Theme.Basic.Bundling;
-using Volo.Abp.AspNetCore.Mvc.UI.Theme.Basic;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Starshine.Admin.EntityFrameworkCore;
 using Starshine.Admin.MultiTenancy;
-using Microsoft.OpenApi.Models;
-using OpenIddict.Validation.AspNetCore;
 using Volo.Abp;
 using Volo.Abp.Account;
-using Volo.Abp.Account.Web;
 using Volo.Abp.AspNetCore.MultiTenancy;
 using Volo.Abp.AspNetCore.Mvc;
-using Volo.Abp.AspNetCore.Mvc.UI.Bundling;
-using Volo.Abp.AspNetCore.Mvc.UI.Theme.Shared;
 using Volo.Abp.AspNetCore.Serilog;
 using Volo.Abp.Autofac;
 using Volo.Abp.Modularity;
@@ -37,8 +28,8 @@ namespace Starshine.Admin;
     typeof(AbpAspNetCoreMultiTenancyModule),
     typeof(AdminApplicationModule),
     typeof(AdminEntityFrameworkCoreModule),
-    typeof(AbpAspNetCoreMvcUiBasicThemeModule),
-    typeof(AbpAccountWebOpenIddictModule),
+    //typeof(AbpAspNetCoreMvcUiBasicThemeModule),
+    //typeof(AbpAccountWebOpenIddictModule),
     typeof(AbpAspNetCoreSerilogModule),
     typeof(StarshineSwashbuckleModule)
 )]
@@ -48,12 +39,12 @@ public class AdminHttpApiHostModule : AbpModule
     {
         PreConfigure<OpenIddictBuilder>(builder =>
         {
-            builder.AddValidation(options =>
-            {
-                options.AddAudiences("Admin");
-                options.UseLocalServer();
-                options.UseAspNetCore();
-            });
+            //builder.AddValidation(options =>
+            //{
+            //    options.AddAudiences("Admin");
+            //    options.UseLocalServer();
+            //    options.UseAspNetCore();
+            //});
         });
     }
 
@@ -73,7 +64,7 @@ public class AdminHttpApiHostModule : AbpModule
 
     private void ConfigureAuthentication(ServiceConfigurationContext context)
     {
-        context.Services.ForwardIdentityAuthenticationForBearer(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
+        //context.Services.ForwardIdentityAuthenticationForBearer(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
         context.Services.Configure<AbpClaimsPrincipalFactoryOptions>(options =>
         {
             options.IsDynamicClaimsEnabled = true;
@@ -82,16 +73,16 @@ public class AdminHttpApiHostModule : AbpModule
 
     private void ConfigureBundles()
     {
-        Configure<AbpBundlingOptions>(options =>
-        {
-            options.StyleBundles.Configure(
-                BasicThemeBundles.Styles.Global,
-                bundle =>
-                {
-                    bundle.AddFiles("/global-styles.css");
-                }
-            );
-        });
+        //Configure<AbpBundlingOptions>(options =>
+        //{
+        //    options.StyleBundles.Configure(
+        //        BasicThemeBundles.Styles.Global,
+        //        bundle =>
+        //        {
+        //            bundle.AddFiles("/global-styles.css");
+        //        }
+        //    );
+        //});
     }
 
     private void ConfigureUrls(IConfiguration configuration)
@@ -186,17 +177,17 @@ public class AdminHttpApiHostModule : AbpModule
 
         app.UseAbpRequestLocalization();
 
-        if (!env.IsDevelopment())
-        {
-            app.UseErrorPage();
-        }
+        //if (!env.IsDevelopment())
+        //{
+        //    app.UseErrorPage();
+        //}
 
         app.UseCorrelationId();
         //app.MapAbpStaticAssets();
         app.UseRouting();
         app.UseCors();
         app.UseAuthentication();
-        app.UseAbpOpenIddictValidation();
+        //app.UseAbpOpenIddictValidation();
 
         if (MultiTenancyConsts.IsEnabled)
         {
