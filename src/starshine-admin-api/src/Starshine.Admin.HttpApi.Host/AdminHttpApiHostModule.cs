@@ -52,14 +52,15 @@ public class AdminHttpApiHostModule : AbpModule
     {
         var configuration = context.Services.GetConfiguration();
         var hostingEnvironment = context.Services.GetHostingEnvironment();
-
+        Configure<AbpAspNetCoreMvcOptions>(options =>
+        {
+            options.ConventionalControllers.ConventionalControllerSettings = false;
+        });
         ConfigureAuthentication(context);
-        ConfigureBundles();
         ConfigureUrls(configuration);
         ConfigureConventionalControllers();
         ConfigureVirtualFileSystem(context);
         ConfigureCors(context, configuration);
-        //ConfigureSwaggerServices(context, configuration);
     }
 
     private void ConfigureAuthentication(ServiceConfigurationContext context)
@@ -69,20 +70,6 @@ public class AdminHttpApiHostModule : AbpModule
         {
             options.IsDynamicClaimsEnabled = true;
         });
-    }
-
-    private void ConfigureBundles()
-    {
-        //Configure<AbpBundlingOptions>(options =>
-        //{
-        //    options.StyleBundles.Configure(
-        //        BasicThemeBundles.Styles.Global,
-        //        bundle =>
-        //        {
-        //            bundle.AddFiles("/global-styles.css");
-        //        }
-        //    );
-        //});
     }
 
     private void ConfigureUrls(IConfiguration configuration)
@@ -128,22 +115,6 @@ public class AdminHttpApiHostModule : AbpModule
             options.ConventionalControllers.Create(typeof(AdminApplicationModule).Assembly);
         });
     }
-
-    //private static void ConfigureSwaggerServices(ServiceConfigurationContext context, IConfiguration configuration)
-    //{
-    //    context.Services.AddAbpSwaggerGenWithOAuth(
-    //        configuration["AuthServer:Authority"]!,
-    //        new Dictionary<string, string>
-    //        {
-    //                {"Admin", "Admin API"}
-    //        },
-    //        options =>
-    //        {
-    //            options.SwaggerDoc("v1", new OpenApiInfo { Title = "Admin API", Version = "v1" });
-    //            options.DocInclusionPredicate((docName, description) => true);
-    //            options.CustomSchemaIds(type => type.FullName);
-    //        });
-    //}
 
     private void ConfigureCors(ServiceConfigurationContext context, IConfiguration configuration)
     {
