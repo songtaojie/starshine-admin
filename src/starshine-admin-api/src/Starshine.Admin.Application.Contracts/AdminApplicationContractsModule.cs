@@ -11,7 +11,7 @@ namespace Starshine.Admin;
 
 [DependsOn(
     typeof(AdminDomainSharedModule),
-    typeof(AbpAccountApplicationContractsModule),
+    //typeof(AbpAccountApplicationContractsModule),
     typeof(AbpFeatureManagementApplicationContractsModule),
     typeof(AbpIdentityApplicationContractsModule),
     typeof(AbpPermissionManagementApplicationContractsModule),

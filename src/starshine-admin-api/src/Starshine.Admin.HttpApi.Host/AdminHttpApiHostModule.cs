@@ -52,10 +52,10 @@ public class AdminHttpApiHostModule : AbpModule
     {
         var configuration = context.Services.GetConfiguration();
         var hostingEnvironment = context.Services.GetHostingEnvironment();
-        Configure<AbpAspNetCoreMvcOptions>(options =>
-        {
-            options.ConventionalControllers.ConventionalControllerSettings = false;
-        });
+        //Configure<AbpAspNetCoreMvcOptions>(options =>
+        //{
+        //    options.ConventionalControllers.ConventionalControllerSettings = false;
+        //});
         ConfigureAuthentication(context);
         ConfigureUrls(configuration);
         ConfigureConventionalControllers();
