@@ -1,4 +1,4 @@
-﻿using Starshine.Admin.Account;
+﻿using Starshine.Admin;
 using System.Threading.Tasks;
 using Volo.Abp.UI.Navigation.Urls;
 
@@ -8,6 +8,6 @@ public static class AppUrlProviderAccountExtensions
 {
     public static Task<string> GetResetPasswordUrlAsync(this IAppUrlProvider appUrlProvider, string appName)
     {
-        return appUrlProvider.GetUrlAsync(appName, AccountUrlNames.PasswordReset);
+        return appUrlProvider.GetUrlAsync(appName, AdminConsts.PasswordReset);
     }
 }

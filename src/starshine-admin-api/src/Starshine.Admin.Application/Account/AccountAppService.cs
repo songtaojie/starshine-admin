@@ -1,22 +1,18 @@
-﻿using AutoMapper.Internal.Mappers;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Starshine.Admin.Dtos;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp.Application.Services;
-using Volo.Abp.Guids;
 using Volo.Abp.Identity;
-using Volo.Abp.Localization;
-using Volo.Abp.MultiTenancy;
 using Volo.Abp.Settings;
 using Volo.Abp;
+using Starshine.Abp.Account.Emailing;
+using Starshine.Admin.Localization;
+using Volo.Abp.ObjectExtending;
 
 namespace Starshine.Admin.Account
 {
+    //[RemoteService(IsEnabled = false)]
     public class AccountAppService : ApplicationService, IAccountAppService
     {
         protected IIdentityRoleRepository RoleRepository { get; }
@@ -38,7 +34,7 @@ namespace Starshine.Admin.Account
             UserManager = userManager;
             IdentityOptions = identityOptions;
 
-            LocalizationResource = typeof(AccountResource);
+            LocalizationResource = typeof(AdminResource);
         }
 
         public virtual async Task<IdentityUserDto> RegisterAsync(RegisterInput input)
@@ -103,7 +99,7 @@ namespace Starshine.Admin.Account
 
         protected virtual async Task CheckSelfRegistrationAsync()
         {
-            if (!await SettingProvider.IsTrueAsync(AccountSettingNames.IsSelfRegistrationEnabled))
+            if (!await SettingProvider.IsTrueAsync(AdminConsts.IsSelfRegistrationEnabled))
             {
                 throw new UserFriendlyException(L["SelfRegistrationDisabledMessage"]);
             }

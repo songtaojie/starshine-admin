@@ -19,6 +19,9 @@ using Volo.Abp.Security.Claims;
 using Volo.Abp.UI.Navigation.Urls;
 using Volo.Abp.VirtualFileSystem;
 using Starshine.Abp.Swashbuckle;
+using Starshine.Admin.Consts;
+using Volo.Abp.AspNetCore.Mvc.Conventions;
+using Volo.Abp.AspNetCore.Mvc.ApiExploring;
 
 namespace Starshine.Admin;
 
@@ -45,6 +48,14 @@ public class AdminHttpApiHostModule : AbpModule
             //    options.UseLocalServer();
             //    options.UseAspNetCore();
             //});
+        });
+        //动态Api-改进在pre中配置，启动更快
+        PreConfigure<AbpAspNetCoreMvcOptions>(options =>
+        {
+            options.ConventionalControllers.Create(typeof(AdminApplicationModule).Assembly, opts =>
+            {
+                opts.TypePredicate = type => { return false; };
+            });
         });
     }
 
@@ -80,7 +91,7 @@ public class AdminHttpApiHostModule : AbpModule
             options.RedirectAllowedUrls.AddRange(configuration["App:RedirectAllowedUrls"]?.Split(',') ?? Array.Empty<string>());
 
             options.Applications["Angular"].RootUrl = configuration["App:ClientUrl"];
-            options.Applications["Angular"].Urls[AccountUrlNames.PasswordReset] = "account/reset-password";
+            options.Applications["Angular"].Urls[AdminConsts.PasswordReset] = "account/reset-password";
         });
     }
 

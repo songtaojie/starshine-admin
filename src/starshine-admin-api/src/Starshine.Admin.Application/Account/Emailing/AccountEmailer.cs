@@ -19,14 +19,14 @@ public class AccountEmailer : IAccountEmailer, ITransientDependency
 {
     protected ITemplateRenderer TemplateRenderer { get; }
     protected IEmailSender EmailSender { get; }
-    protected IStringLocalizer<StarshineAdminResource> StringLocalizer { get; }
+    protected IStringLocalizer<AdminResource> StringLocalizer { get; }
     protected IAppUrlProvider AppUrlProvider { get; }
     protected ICurrentTenant CurrentTenant { get; }
 
     public AccountEmailer(
         IEmailSender emailSender,
         ITemplateRenderer templateRenderer,
-        IStringLocalizer<StarshineAdminResource> stringLocalizer,
+        IStringLocalizer<AdminResource> stringLocalizer,
         IAppUrlProvider appUrlProvider,
         ICurrentTenant currentTenant)
     {

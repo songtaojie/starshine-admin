@@ -12,9 +12,9 @@ public class AccountEmailTemplateDefinitionProvider : TemplateDefinitionProvider
         context.Add(
             new TemplateDefinition(
                 AccountEmailTemplates.PasswordResetLink,
-                displayName: LocalizableString.Create<StarshineAdminResource>($"TextTemplate:{AccountEmailTemplates.PasswordResetLink}"),
+                displayName: LocalizableString.Create<AdminResource>($"TextTemplate:{AccountEmailTemplates.PasswordResetLink}"),
                 layout: StandardEmailTemplates.Layout,
-                localizationResource: typeof(StarshineAdminResource)
+                localizationResource: typeof(AdminResource)
             ).WithVirtualFilePath("/Volo/Abp/Account/Emailing/Templates/PasswordResetLink.tpl", true)
         );
     }

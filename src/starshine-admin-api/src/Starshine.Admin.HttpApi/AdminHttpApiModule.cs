@@ -1,6 +1,7 @@
 ﻿using Localization.Resources.AbpUi;
+using Microsoft.Extensions.DependencyInjection;
 using Starshine.Admin.Localization;
-using Volo.Abp.Account;
+using Volo.Abp.AspNetCore.Mvc;
 using Volo.Abp.FeatureManagement;
 using Volo.Abp.Identity;
 using Volo.Abp.Localization;
@@ -13,7 +14,6 @@ namespace Starshine.Admin;
 
 [DependsOn(
     typeof(AdminApplicationContractsModule),
-    typeof(AbpAccountHttpApiModule),
     typeof(AbpIdentityHttpApiModule),
     typeof(AbpPermissionManagementHttpApiModule),
     typeof(AbpTenantManagementHttpApiModule),
@@ -22,6 +22,13 @@ namespace Starshine.Admin;
     )]
 public class AdminHttpApiModule : AbpModule
 {
+    public override void PreConfigureServices(ServiceConfigurationContext context)
+    {
+        PreConfigure<IMvcBuilder>(mvcBuilder =>
+        {
+            mvcBuilder.AddApplicationPartIfNotExists(typeof(AdminHttpApiModule).Assembly);
+        });
+    }
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
         ConfigureLocalization();
