@@ -3,7 +3,7 @@
 dotnet ef migrations add InitialDb --project ./src/Starshine.Admin.EntityFrameworkCore/Starshine.Admin.EntityFrameworkCore.csproj --startup-project ./src/Starshine.Admin.HttpApi.Host/Starshine.Admin.HttpApi.Host.csproj --context StarshineAdminDbContext
 
 //2. 根据迁移生成SQL脚本：dotnet ef migrations script <from> <to>
-dotnet ef migrations script 0 InitialDb --output ./Starshine.Admin.EntityFrameworkCore/Migrations/Scripts/InitialDb.sql --project ./Starshine.Admin.EntityFrameworkCore/Starshine.Admin.EntityFrameworkCore.csproj --startup-project ./src/Starshine.Admin.HttpApi.Host/Starshine.Admin.HttpApi.Host.csproj --context StarshineAdminDbContext
+dotnet ef migrations script 0 InitialDb --output ./src/Starshine.Admin.EntityFrameworkCore/Migrations/Scripts/InitialDb.sql --project ./src/Starshine.Admin.EntityFrameworkCore/Starshine.Admin.EntityFrameworkCore.csproj --startup-project ./src/Starshine.Admin.HttpApi.Host/Starshine.Admin.HttpApi.Host.csproj --context StarshineAdminDbContext
 //3. 列出可用的迁移：dotnet ef migrations list
 //4. 删除上一次迁移：
 dotnet ef migrations remove --project ./Tmc.TravelControl.Infrastructure/Tmc.TravelControl.Infrastructure.csproj --startup-project ./Tmc.Obt.Api/Tmc.Obt.Api.csproj --context StarshineAdminDbContext

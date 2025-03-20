@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
-using Volo.Abp.Uow;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -13,9 +12,7 @@ using Volo.Abp.PermissionManagement.EntityFrameworkCore;
 using Volo.Abp.SettingManagement.EntityFrameworkCore;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore.Sqlite;
-using System.IO;
-using Microsoft.Extensions.Configuration;
-using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace Starshine.Admin.EntityFrameworkCore;
 
@@ -46,49 +43,17 @@ public class AdminEntityFrameworkCoreModule : AbpModule
     {
         context.Services.AddAbpDbContext<StarshineAdminDbContext>(options =>
         {
-                /* Remove "includeAllEntities: true" to create
-                 * default repositories only for aggregate roots */
             options.AddDefaultRepositories(includeAllEntities: true);
         });
-
+        var configuration = context.Services.GetConfiguration();
         Configure<AbpDbContextOptions>(options =>
         {
-                /* The main point to change your DBMS.
-                 * See also AdminMigrationsDbContextFactory for EF Core tooling. */
-            //options.UseNpgsql();
-            options.UseSqlite();
+            options.UseDynamicSql(configuration);
+            options.Configure(dbContext =>
+            {
+                dbContext.DbContextOptions.UseSnakeCaseNamingConvention();
+            });
         });
 
-    }
-
-    public string? GetDefaultConnectionString(IConfiguration configuration)
-    {
-        var connectionString = configuration.GetConnectionString("Default");
-        if (string.IsNullOrEmpty(connectionString)) return connectionString;
-
-        // 动态替换解决方案根路径  
-        if (connectionString.Contains("%SOLUTIONROOT%"))
-        {
-            var slnPath = GetSolutionDirectoryPath();
-            connectionString = connectionString.Replace("%SOLUTIONROOT%", slnPath);
-        }
-        return connectionString;
-    }
-
-    private string? GetSolutionDirectoryPath()
-    {
-        var currentDirectory = new DirectoryInfo(Directory.GetCurrentDirectory());
-
-        while (Directory.GetParent(currentDirectory.FullName) != null)
-        {
-            currentDirectory = Directory.GetParent(currentDirectory.FullName);
-            if (currentDirectory == null) return null;
-            if (Directory.GetFiles(currentDirectory.FullName).FirstOrDefault(f => f.EndsWith(".sln")) != null)
-            {
-                return currentDirectory.FullName;
-            }
-        }
-
-        return null;
     }
 }

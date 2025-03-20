@@ -20,7 +20,8 @@ public class AdminDbContextFactory : IDesignTimeDbContextFactory<StarshineAdminD
         
         var builder = new DbContextOptionsBuilder<StarshineAdminDbContext>()
             //.UseNpgsql(configuration.GetConnectionString("Default"))
-            .UseSqlite(GetDefaultConnectionString());
+            .UseDynamicSql(BuildConfiguration())
+            .UseSnakeCaseNamingConvention();
 
         return new StarshineAdminDbContext(builder.Options);
     }
@@ -34,35 +35,5 @@ public class AdminDbContextFactory : IDesignTimeDbContextFactory<StarshineAdminD
         return builder.Build();
     }
 
-    public string? GetDefaultConnectionString()
-    {
-        var configuration = BuildConfiguration();
-        var connectionString = configuration.GetConnectionString("Default");
-        if (string.IsNullOrEmpty(connectionString)) return connectionString;
-
-        // 动态替换解决方案根路径  
-        if (connectionString.Contains("%SOLUTIONROOT%"))
-        {
-            var slnPath = GetSolutionDirectoryPath();
-            connectionString = connectionString.Replace("%SOLUTIONROOT%", slnPath);
-        }
-        return connectionString;
-    }
-
-    private string? GetSolutionDirectoryPath()
-    {
-        var currentDirectory = new DirectoryInfo(Directory.GetCurrentDirectory());
-
-        while (Directory.GetParent(currentDirectory.FullName) != null)
-        {
-            currentDirectory = Directory.GetParent(currentDirectory.FullName);
-            if (currentDirectory == null) return null;
-            if (Directory.GetFiles(currentDirectory.FullName).FirstOrDefault(f => f.EndsWith(".sln")) != null)
-            {
-                return currentDirectory.FullName;
-            }
-        }
-
-        return null;
-    }
+   
 }
