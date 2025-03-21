@@ -72,7 +72,7 @@ public class AdminEntityFrameworkCoreTestModule : AbpModule
             .UseSqlite(connection)
             .Options;
 
-        using (var context = new AdminDbContext(options))
+        using (var context = new StarshineAdminDbContext(options))
         {
             context.GetService<IRelationalDatabaseCreator>().CreateTables();
         }
