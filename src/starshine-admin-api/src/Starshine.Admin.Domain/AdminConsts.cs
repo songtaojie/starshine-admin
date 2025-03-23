@@ -8,10 +8,6 @@ public static class AdminConsts
 
     public const string PasswordReset = "Starshine.Account.PasswordReset";
 
-    public const string IsSelfRegistrationEnabled = "Starshine.Account.IsSelfRegistrationEnabled";
-
-    public const string EnableLocalLogin = "Starshine.Account.EnableLocalLogin";
-
     public const string AcountRemoteServiceName = "AbpAccount";
 
     public const string AcountModuleName = "account";

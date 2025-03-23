@@ -149,7 +149,11 @@ public class AdminDbMigrationService : ITransientDependency
     private bool MigrationsFolderExists()
     {
         var dbMigrationsProjectFolder = GetEntityFrameworkCoreProjectFolderPath();
-        return dbMigrationsProjectFolder != null && Directory.Exists(Path.Combine(dbMigrationsProjectFolder, "Migrations"));
+        if (dbMigrationsProjectFolder != null && Directory.Exists(Path.Combine(dbMigrationsProjectFolder, "Migrations")))
+        {
+            return Directory.GetFiles(Path.Combine(dbMigrationsProjectFolder, "Migrations"), "*.cs").Length > 0;
+        }
+        return false;
     }
 
     private void AddInitialMigration()

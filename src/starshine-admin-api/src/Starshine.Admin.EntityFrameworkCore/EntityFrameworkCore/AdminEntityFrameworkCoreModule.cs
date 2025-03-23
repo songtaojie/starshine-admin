@@ -13,6 +13,7 @@ using Volo.Abp.SettingManagement.EntityFrameworkCore;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Starshine.Admin.EntityFrameworkCore;
 
@@ -48,10 +49,10 @@ public class AdminEntityFrameworkCoreModule : AbpModule
         var configuration = context.Services.GetConfiguration();
         Configure<AbpDbContextOptions>(options =>
         {
-            options.UseDynamicSql(configuration);
             options.Configure(dbContext =>
             {
                 dbContext.DbContextOptions.UseSnakeCaseNamingConvention();
+                dbContext.UseDynamicSql(configuration);
             });
         });
 

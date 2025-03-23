@@ -9,6 +9,8 @@ using Volo.Abp;
 using Starshine.Abp.Account.Emailing;
 using Starshine.Admin.Localization;
 using Volo.Abp.ObjectExtending;
+using Starshine.Admin.Application.Contracts.Account;
+using Starshine.Admin.Application.Contracts.Account.Settings;
 
 namespace Starshine.Admin.Account
 {
@@ -99,10 +101,13 @@ namespace Starshine.Admin.Account
 
         protected virtual async Task CheckSelfRegistrationAsync()
         {
-            if (!await SettingProvider.IsTrueAsync(AdminConsts.IsSelfRegistrationEnabled))
+            if (!await SettingProvider.IsTrueAsync(AccountSettingNames.IsSelfRegistrationEnabled))
             {
                 throw new UserFriendlyException(L["SelfRegistrationDisabledMessage"]);
             }
         }
+
+        #region 登录
+        #endregion
     }
 }

@@ -9,7 +9,6 @@ using Microsoft.Extensions.Hosting;
 using Starshine.Admin.EntityFrameworkCore;
 using Starshine.Admin.MultiTenancy;
 using Volo.Abp;
-using Volo.Abp.Account;
 using Volo.Abp.AspNetCore.MultiTenancy;
 using Volo.Abp.AspNetCore.Mvc;
 using Volo.Abp.AspNetCore.Serilog;
@@ -19,9 +18,8 @@ using Volo.Abp.Security.Claims;
 using Volo.Abp.UI.Navigation.Urls;
 using Volo.Abp.VirtualFileSystem;
 using Starshine.Abp.Swashbuckle;
-using Starshine.Admin.Consts;
-using Volo.Abp.AspNetCore.Mvc.Conventions;
-using Volo.Abp.AspNetCore.Mvc.ApiExploring;
+using Volo.Abp.OpenIddict;
+using Volo.Abp.Identity.AspNetCore;
 
 namespace Starshine.Admin;
 
@@ -31,9 +29,9 @@ namespace Starshine.Admin;
     typeof(AbpAspNetCoreMultiTenancyModule),
     typeof(AdminApplicationModule),
     typeof(AdminEntityFrameworkCoreModule),
-    //typeof(AbpAspNetCoreMvcUiBasicThemeModule),
-    //typeof(AbpAccountWebOpenIddictModule),
+    typeof(AbpOpenIddictAspNetCoreModule),
     typeof(AbpAspNetCoreSerilogModule),
+    typeof(AbpIdentityAspNetCoreModule),
     typeof(StarshineSwashbuckleModule)
 )]
 public class AdminHttpApiHostModule : AbpModule
@@ -50,31 +48,26 @@ public class AdminHttpApiHostModule : AbpModule
             //});
         });
         //动态Api-改进在pre中配置，启动更快
-        PreConfigure<AbpAspNetCoreMvcOptions>(options =>
-        {
-            options.ConventionalControllers.Create(typeof(AdminApplicationModule).Assembly, opts =>
-            {
-                opts.TypePredicate = type => { return false; };
-            });
-        });
+        //PreConfigure<AbpAspNetCoreMvcOptions>(options =>
+        //{
+        //    options.ConventionalControllers.Create(typeof(AdminApplicationModule).Assembly, opts =>
+        //    {
+        //        opts.TypePredicate = type => { return false; };
+        //    });
+        //});
     }
 
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
         var configuration = context.Services.GetConfiguration();
         var hostingEnvironment = context.Services.GetHostingEnvironment();
-        //Configure<AbpAspNetCoreMvcOptions>(options =>
-        //{
-        //    options.ConventionalControllers.ConventionalControllerSettings = false;
-        //});
         ConfigureAuthentication(context);
         ConfigureUrls(configuration);
-        ConfigureConventionalControllers();
         ConfigureVirtualFileSystem(context);
         ConfigureCors(context, configuration);
     }
 
-    private void ConfigureAuthentication(ServiceConfigurationContext context)
+    private static void ConfigureAuthentication(ServiceConfigurationContext context)
     {
         //context.Services.ForwardIdentityAuthenticationForBearer(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
         context.Services.Configure<AbpClaimsPrincipalFactoryOptions>(options =>
@@ -119,14 +112,6 @@ public class AdminHttpApiHostModule : AbpModule
         }
     }
 
-    private void ConfigureConventionalControllers()
-    {
-        Configure<AbpAspNetCoreMvcOptions>(options =>
-        {
-            options.ConventionalControllers.Create(typeof(AdminApplicationModule).Assembly);
-        });
-    }
-
     private void ConfigureCors(ServiceConfigurationContext context, IConfiguration configuration)
     {
         context.Services.AddCors(options =>
@@ -169,7 +154,7 @@ public class AdminHttpApiHostModule : AbpModule
         app.UseRouting();
         app.UseCors();
         app.UseAuthentication();
-        //app.UseAbpOpenIddictValidation();
+        app.UseAbpOpenIddictValidation();
 
         if (MultiTenancyConsts.IsEnabled)
         {
@@ -178,16 +163,6 @@ public class AdminHttpApiHostModule : AbpModule
         app.UseUnitOfWork();
         app.UseDynamicClaims();
         app.UseAuthorization();
-
-        //app.UseSwagger();
-        //app.UseSwaggerUI(c =>
-        //{
-        //    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Admin API");
-
-        //    var configuration = context.ServiceProvider.GetRequiredService<IConfiguration>();
-        //    c.OAuthClientId(configuration["AuthServer:SwaggerClientId"]);
-        //    c.OAuthScopes("Admin");
-        //});
 
         app.UseAuditing();
         app.UseAbpSerilogEnrichers();

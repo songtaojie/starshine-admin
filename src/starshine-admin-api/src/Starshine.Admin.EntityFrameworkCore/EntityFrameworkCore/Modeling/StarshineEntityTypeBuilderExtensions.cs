@@ -1,24 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System;
+using Volo.Abp;
 using Volo.Abp.Auditing;
 using Volo.Abp.Data;
 using Volo.Abp.Domain.Entities;
+using Volo.Abp.Domain.Entities.Auditing;
+using Volo.Abp.EntityFrameworkCore.Modeling;
 using Volo.Abp.EntityFrameworkCore.ValueComparers;
 using Volo.Abp.EntityFrameworkCore.ValueConverters;
 using Volo.Abp.MultiTenancy;
 using Volo.Abp.ObjectExtending;
-using Volo.Abp;
-using Microsoft.EntityFrameworkCore;
 
 namespace Starshine.Admin.EntityFrameworkCore.Modeling
 {
+   
     internal static class StarshineEntityTypeBuilderExtensions
     {
-        public static void ConfigureByConvention(this EntityTypeBuilder b)
+        public static void ConfigureStarshineByConvention(this EntityTypeBuilder b)
         {
             b.TryConfigureConcurrencyStamp();
             b.TryConfigureExtraProperties();
@@ -46,7 +45,8 @@ namespace Starshine.Admin.EntityFrameworkCore.Modeling
             {
                 b.Property(nameof(IHasConcurrencyStamp.ConcurrencyStamp))
                     .IsConcurrencyToken()
-                    .HasMaxLength(ConcurrencyStampConsts.MaxLength);
+                    .HasMaxLength(ConcurrencyStampConsts.MaxLength)
+                    .HasColumnName(nameof(IHasConcurrencyStamp.ConcurrencyStamp).ToSnakeCase());
             }
         }
 
@@ -64,6 +64,7 @@ namespace Starshine.Admin.EntityFrameworkCore.Modeling
             }
 
             b.Property<ExtraPropertyDictionary>(nameof(IHasExtraProperties.ExtraProperties))
+                .HasColumnName(nameof(IHasExtraProperties.ExtraProperties).ToSnakeCase())
                 .HasConversion(new ExtraPropertiesValueConverter(b.Metadata.ClrType))
                 .Metadata.SetValueComparer(new ExtraPropertyDictionaryValueComparer());
 
@@ -101,7 +102,8 @@ namespace Starshine.Admin.EntityFrameworkCore.Modeling
             {
                 b.Property(nameof(ISoftDelete.IsDeleted))
                     .IsRequired()
-                    .HasDefaultValue(false);
+                    .HasDefaultValue(false)
+                    .HasColumnName(nameof(ISoftDelete.IsDeleted).ToSnakeCase());
             }
         }
 
@@ -118,7 +120,8 @@ namespace Starshine.Admin.EntityFrameworkCore.Modeling
                 b.TryConfigureSoftDelete();
 
                 b.Property(nameof(IHasDeletionTime.DeletionTime))
-                    .IsRequired(false);
+                    .IsRequired(false)
+                    .HasColumnName(nameof(IHasDeletionTime.DeletionTime).ToSnakeCase());
             }
         }
 
@@ -133,7 +136,8 @@ namespace Starshine.Admin.EntityFrameworkCore.Modeling
             if (b.Metadata.ClrType.IsAssignableTo<IMayHaveCreator>())
             {
                 b.Property(nameof(IMayHaveCreator.CreatorId))
-                    .IsRequired(false);
+                    .IsRequired(false)
+                    .HasColumnName(nameof(IMayHaveCreator.CreatorId).ToSnakeCase());
             }
         }
 
@@ -148,7 +152,8 @@ namespace Starshine.Admin.EntityFrameworkCore.Modeling
             if (b.Metadata.ClrType.IsAssignableTo<IMustHaveCreator>())
             {
                 b.Property(nameof(IMustHaveCreator.CreatorId))
-                    .IsRequired();
+                    .IsRequired()
+                    .HasColumnName(nameof(IMustHaveCreator.CreatorId).ToSnakeCase());
             }
         }
 
@@ -165,7 +170,8 @@ namespace Starshine.Admin.EntityFrameworkCore.Modeling
                 b.TryConfigureDeletionTime();
 
                 b.Property(nameof(IDeletionAuditedObject.DeleterId))
-                    .IsRequired(false);
+                    .IsRequired(false)
+                    .HasColumnName(nameof(IDeletionAuditedObject.DeleterId).ToSnakeCase());
             }
         }
 
@@ -180,7 +186,8 @@ namespace Starshine.Admin.EntityFrameworkCore.Modeling
             if (b.Metadata.ClrType.IsAssignableTo<IHasCreationTime>())
             {
                 b.Property(nameof(IHasCreationTime.CreationTime))
-                    .IsRequired();
+                    .IsRequired()
+                    .HasColumnName(nameof(IHasCreationTime.CreationTime).ToSnakeCase());
             }
         }
 
@@ -210,7 +217,8 @@ namespace Starshine.Admin.EntityFrameworkCore.Modeling
             if (b.Metadata.ClrType.IsAssignableTo<IHasModificationTime>())
             {
                 b.Property(nameof(IHasModificationTime.LastModificationTime))
-                    .IsRequired(false);
+                    .IsRequired(false)
+                    .HasColumnName(nameof(IHasModificationTime.LastModificationTime).ToSnakeCase());
             }
         }
 
@@ -227,7 +235,8 @@ namespace Starshine.Admin.EntityFrameworkCore.Modeling
                 b.TryConfigureLastModificationTime();
 
                 b.Property(nameof(IModificationAuditedObject.LastModifierId))
-                    .IsRequired(false);
+                    .IsRequired(false)
+                    .HasColumnName(nameof(IModificationAuditedObject.LastModifierId).ToSnakeCase());
             }
         }
 
@@ -272,7 +281,8 @@ namespace Starshine.Admin.EntityFrameworkCore.Modeling
             if (b.Metadata.ClrType.IsAssignableTo<IMultiTenant>())
             {
                 b.Property(nameof(IMultiTenant.TenantId))
-                    .IsRequired(false);
+                    .IsRequired(false)
+                    .HasColumnName(nameof(IMultiTenant.TenantId).ToSnakeCase());
             }
         }
 
@@ -299,6 +309,8 @@ namespace Starshine.Admin.EntityFrameworkCore.Modeling
             b.As<EntityTypeBuilder>().TryConfigureExtraProperties();
             b.As<EntityTypeBuilder>().TryConfigureConcurrencyStamp();
         }
+
+        //TODO: Add other interfaces (IAuditedObject<TUser>...)
     }
 
 }

@@ -24,9 +24,8 @@ namespace Starshine.Admin.EntityFrameworkCore.Modeling
 
             builder.Entity<BackgroundJobRecord>(b =>
             {
-                b.ToTable(AbpBackgroundJobsDbProperties.DbTablePrefix + "BackgroundJobs", AbpBackgroundJobsDbProperties.DbSchema);
-
-                b.ConfigureByConvention();
+                b.ToStarshineTable(nameof(BackgroundJobRecord))
+                    .ConfigureStarshineByConvention();
 
                 b.Property(x => x.JobName).IsRequired().HasMaxLength(BackgroundJobRecordConsts.MaxJobNameLength);
                 b.Property(x => x.JobArgs).IsRequired().HasMaxLength(BackgroundJobRecordConsts.MaxJobArgsLength);
@@ -35,9 +34,7 @@ namespace Starshine.Admin.EntityFrameworkCore.Modeling
                 b.Property(x => x.LastTryTime);
                 b.Property(x => x.IsAbandoned).HasDefaultValue(false);
                 b.Property(x => x.Priority).HasDefaultValue(BackgroundJobPriority.Normal).HasSentinel(BackgroundJobPriority.Normal);
-
                 b.HasIndex(x => new { x.IsAbandoned, x.NextTryTime });
-
                 b.ApplyObjectExtensionMappings();
             });
 

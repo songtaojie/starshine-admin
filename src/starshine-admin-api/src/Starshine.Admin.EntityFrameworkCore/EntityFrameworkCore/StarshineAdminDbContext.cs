@@ -1,43 +1,44 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Volo.Abp.AuditLogging.EntityFrameworkCore;
-using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
+using Starshine.Admin.EntityFrameworkCore.Modeling;
+using Volo.Abp.AuditLogging;
+using Volo.Abp.BackgroundJobs;
 using Volo.Abp.Data;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.EntityFrameworkCore;
-using Volo.Abp.FeatureManagement.EntityFrameworkCore;
+using Volo.Abp.FeatureManagement;
 using Volo.Abp.Identity;
-using Volo.Abp.Identity.EntityFrameworkCore;
-using Volo.Abp.OpenIddict.EntityFrameworkCore;
-using Volo.Abp.PermissionManagement.EntityFrameworkCore;
-using Volo.Abp.SettingManagement.EntityFrameworkCore;
+using Volo.Abp.OpenIddict.Applications;
+using Volo.Abp.OpenIddict.Authorizations;
+using Volo.Abp.OpenIddict.Scopes;
+using Volo.Abp.OpenIddict.Tokens;
+using Volo.Abp.PermissionManagement;
+using Volo.Abp.SettingManagement;
 using Volo.Abp.TenantManagement;
-using Volo.Abp.TenantManagement.EntityFrameworkCore;
 
 namespace Starshine.Admin.EntityFrameworkCore;
 
-[ReplaceDbContext(typeof(IIdentityDbContext))]
-[ReplaceDbContext(typeof(ITenantManagementDbContext))]
-[ConnectionStringName("Default")]
-public class StarshineAdminDbContext :
-    AbpDbContext<StarshineAdminDbContext>,
-    IIdentityDbContext,
-    ITenantManagementDbContext
+[ReplaceDbContext(typeof(Volo.Abp.Identity.EntityFrameworkCore.IIdentityDbContext))]
+[ReplaceDbContext(typeof(Volo.Abp.TenantManagement.EntityFrameworkCore.ITenantManagementDbContext))]
+[ReplaceDbContext(typeof(Volo.Abp.SettingManagement.EntityFrameworkCore.ISettingManagementDbContext))]
+[ReplaceDbContext(typeof(Volo.Abp.FeatureManagement.EntityFrameworkCore.IFeatureManagementDbContext))]
+[ReplaceDbContext(typeof(Volo.Abp.PermissionManagement.EntityFrameworkCore.IPermissionManagementDbContext))]
+[ReplaceDbContext(typeof(Volo.Abp.OpenIddict.EntityFrameworkCore.IOpenIddictDbContext))]
+[ReplaceDbContext(typeof(Volo.Abp.AuditLogging.EntityFrameworkCore.IAuditLoggingDbContext))]
+[ReplaceDbContext(typeof(Volo.Abp.BackgroundJobs.EntityFrameworkCore.IBackgroundJobsDbContext))]
+[ConnectionStringName(ConnectionStrings.DefaultConnectionStringName)]
+public class StarshineAdminDbContext(DbContextOptions<StarshineAdminDbContext> options) : AbpDbContext<StarshineAdminDbContext>(options),
+    Volo.Abp.Identity.EntityFrameworkCore.IIdentityDbContext,
+    Volo.Abp.TenantManagement.EntityFrameworkCore.ITenantManagementDbContext,
+    Volo.Abp.SettingManagement.EntityFrameworkCore.ISettingManagementDbContext,
+    Volo.Abp.FeatureManagement.EntityFrameworkCore.IFeatureManagementDbContext,
+    Volo.Abp.PermissionManagement.EntityFrameworkCore.IPermissionManagementDbContext,
+    Volo.Abp.OpenIddict.EntityFrameworkCore.IOpenIddictDbContext,
+    Volo.Abp.AuditLogging.EntityFrameworkCore.IAuditLoggingDbContext,
+    Volo.Abp.BackgroundJobs.EntityFrameworkCore.IBackgroundJobsDbContext
 {
     /* Add DbSet properties for your Aggregate Roots / Entities here. */
 
-    #region Entities from the modules
-
-    /* Notice: We only implemented IIdentityDbContext and ITenantManagementDbContext
-     * and replaced them for this DbContext. This allows you to perform JOIN
-     * queries for the entities of these modules over the repositories easily. You
-     * typically don't need that for other modules. But, if you need, you can
-     * implement the DbContext interface of the needed module and use ReplaceDbContext
-     * attribute just like IIdentityDbContext and ITenantManagementDbContext.
-     *
-     * More info: Replacing a DbContext of a module ensures that the related module
-     * uses this DbContext on runtime. Otherwise, it will use its own DbContext class.
-     */
-
+    #region IIdentityDbContext
     //Identity
     public DbSet<IdentityUser> Users { get; set; }
     public DbSet<IdentityRole> Roles { get; set; }
@@ -47,24 +48,63 @@ public class StarshineAdminDbContext :
     public DbSet<IdentityLinkUser> LinkUsers { get; set; }
     public DbSet<IdentityUserDelegation> UserDelegations { get; set; }
     public DbSet<IdentitySession> Sessions { get; set; }
+    #endregion
+
+    #region ITenantManagementDbContext
     // Tenant Management
     public DbSet<Tenant> Tenants { get; set; }
     public DbSet<TenantConnectionString> TenantConnectionStrings { get; set; }
+    #endregion
+
+
+    #region ISettingManagementDbContext
+    public DbSet<Setting> Settings { get; set; }
+    public DbSet<SettingDefinitionRecord> SettingDefinitionRecords { get; set; }
 
     #endregion
 
-    public StarshineAdminDbContext(DbContextOptions<StarshineAdminDbContext> options)
-        : base(options)
-    {
+    #region IFeatureManagementDbContext
+    public DbSet<FeatureGroupDefinitionRecord> FeatureGroups { get; set; }
 
-    }
+    public DbSet<FeatureDefinitionRecord> Features { get; set; }
+
+    public DbSet<FeatureValue> FeatureValues { get; set; }
+
+    #endregion
+
+    #region IPermissionManagementDbContext
+
+    public DbSet<PermissionGroupDefinitionRecord> PermissionGroups { get; set; }
+
+    public DbSet<PermissionDefinitionRecord> Permissions { get; set; }
+
+    public DbSet<PermissionGrant> PermissionGrants { get; set; }
+
+
+    #endregion
+
+    #region IOpenIddictDbContext
+    public DbSet<OpenIddictApplication> Applications { get; set; }
+
+    public DbSet<OpenIddictAuthorization> Authorizations { get; set; }
+
+    public DbSet<OpenIddictScope> Scopes { get; set; }
+
+    public DbSet<OpenIddictToken> Tokens { get; set; }
+    #endregion
+
+    #region IAuditLoggingDbContext
+    public DbSet<AuditLog> AuditLogs { get; set; }
+    #endregion
+
+    #region IBackgroundJobsDbContext
+    public DbSet<BackgroundJobRecord> BackgroundJobs { get; set; }
+
+    #endregion
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-
-        /* Include modules to your migration db context */
-
         builder.ConfigurePermissionManagement();
         builder.ConfigureSettingManagement();
         builder.ConfigureBackgroundJobs();
@@ -73,14 +113,5 @@ public class StarshineAdminDbContext :
         builder.ConfigureOpenIddict();
         builder.ConfigureFeatureManagement();
         builder.ConfigureTenantManagement();
-
-        /* Configure your own tables/entities inside here */
-
-        //builder.Entity<YourEntity>(b =>
-        //{
-        //    b.ToTable(AdminConsts.DbTablePrefix + "YourEntities", AdminConsts.DbSchema);
-        //    b.ConfigureByConvention(); //auto configure for the base class props
-        //    //...
-        //});
     }
 }

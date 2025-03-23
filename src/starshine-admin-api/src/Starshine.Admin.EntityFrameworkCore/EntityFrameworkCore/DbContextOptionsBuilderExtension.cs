@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp.Data;
 using Volo.Abp.EntityFrameworkCore;
+using Volo.Abp.EntityFrameworkCore.DependencyInjection;
 
 namespace Starshine.Admin.EntityFrameworkCore
 {
@@ -40,13 +43,13 @@ namespace Starshine.Admin.EntityFrameworkCore
             switch (dbType?.ToLower())
             {
                 case "mysql":
-                    optionsBuilder.UseMySql(ServerVersion.AutoDetect(connectionString));
+                    optionsBuilder.UseMySql(ServerVersion.AutoDetect(connectionString),opt => opt.ConfigureMigrations());
                     break;
                 case "npgsql":
-                    optionsBuilder.UseNpgsql(connectionString);
+                    optionsBuilder.UseNpgsql(connectionString,opt => opt.ConfigureMigrations());
                     break;
                 default:
-                    optionsBuilder.UseSqlite(connectionString);
+                    optionsBuilder.UseSqlite(connectionString, opt => opt.ConfigureMigrations());
                     break;
             }
             return optionsBuilder;
@@ -55,27 +58,43 @@ namespace Starshine.Admin.EntityFrameworkCore
         /// <summary>
         /// 动态选择数据库
         /// </summary>
-        /// <param name="options"></param>
+        /// <param name="context"></param>
         /// <param name="configuration"></param>
         /// <exception cref="ArgumentException"></exception>
-        public static AbpDbContextOptions UseDynamicSql(this AbpDbContextOptions options, IConfiguration configuration)
+        public static AbpDbContextConfigurationContext UseDynamicSql(this AbpDbContextConfigurationContext context, IConfiguration configuration)
         {
             var dbType = configuration.GetConnectionString("DbType");
             switch (dbType?.ToLower())
             {
                 case "mysql":
-                    options.UseMySQL();
+                    context.UseMySQL(opt => opt.ConfigureMigrations());
                     break;
                 case "postgresql":
-                    options.UseNpgsql();
+                    context.UseNpgsql(opt => opt.ConfigureMigrations());
                     break;
                 default:
-                    options.UseSqlite();
+                    context.UseSqlite(opt => opt.ConfigureMigrations());
                     break;
             }
-            return options;
+            return context;
         }
 
-        
+        private static NpgsqlDbContextOptionsBuilder ConfigureMigrations(this NpgsqlDbContextOptionsBuilder builder)
+        {
+            return builder.MigrationsAssembly(typeof(StarshineAdminDbContext).Assembly.FullName)
+                .MigrationsHistoryTable("ef_migrations_history",AbpCommonDbProperties.DbSchema);
+        }
+
+        private static MySqlDbContextOptionsBuilder ConfigureMigrations(this MySqlDbContextOptionsBuilder builder)
+        {
+            return builder.MigrationsAssembly(typeof(StarshineAdminDbContext).Assembly.FullName)
+                .MigrationsHistoryTable("ef_migrations_history", AbpCommonDbProperties.DbSchema);
+        }
+
+        private static SqliteDbContextOptionsBuilder ConfigureMigrations(this SqliteDbContextOptionsBuilder builder)
+        {
+            return builder.MigrationsAssembly(typeof(StarshineAdminDbContext).Assembly.FullName)
+                .MigrationsHistoryTable("ef_migrations_history", AbpCommonDbProperties.DbSchema);
+        }
     }
 }

@@ -7,7 +7,7 @@ using Starshine.Admin.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Identity;
 
-namespace Starshine.Admin.Account
+namespace Starshine.Admin.Application.Contracts.Account
 {
     public interface IAccountAppService : IApplicationService
     {

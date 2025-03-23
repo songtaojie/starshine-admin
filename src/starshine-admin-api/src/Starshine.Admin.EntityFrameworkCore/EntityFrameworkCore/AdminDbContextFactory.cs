@@ -19,7 +19,6 @@ public class AdminDbContextFactory : IDesignTimeDbContextFactory<StarshineAdminD
         AdminEfCoreEntityExtensionMappings.Configure();
         
         var builder = new DbContextOptionsBuilder<StarshineAdminDbContext>()
-            //.UseNpgsql(configuration.GetConnectionString("Default"))
             .UseDynamicSql(BuildConfiguration())
             .UseSnakeCaseNamingConvention();
 
