@@ -2,24 +2,24 @@
 using Volo.Abp.ObjectExtending;
 using Volo.Abp.Validation;
 
-namespace Starshine.Admin.Dtos;
+namespace Starshine.Admin.Application.Contracts.Dtos.Profiles;
 
-public class UpdateProfileDto : ExtensibleObject
+public class UpdateProfileInput : ExtensibleObject
 {
     [DynamicStringLength(typeof(IdentityUserConsts), nameof(IdentityUserConsts.MaxUserNameLength))]
-    public string UserName { get; set; }
+    public string? UserName { get; set; }
 
     [DynamicStringLength(typeof(IdentityUserConsts), nameof(IdentityUserConsts.MaxEmailLength))]
-    public string Email { get; set; }
+    public string? Email { get; set; }
 
     [DynamicStringLength(typeof(IdentityUserConsts), nameof(IdentityUserConsts.MaxNameLength))]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [DynamicStringLength(typeof(IdentityUserConsts), nameof(IdentityUserConsts.MaxSurnameLength))]
-    public string Surname { get; set; }
+    public string? Surname { get; set; }
 
     [DynamicStringLength(typeof(IdentityUserConsts), nameof(IdentityUserConsts.MaxPhoneNumberLength))]
-    public string PhoneNumber { get; set; }
+    public string? PhoneNumber { get; set; }
 
-    public string ConcurrencyStamp { get; set; }
+    public string? ConcurrencyStamp { get; set; }
 }

@@ -23,8 +23,7 @@ namespace Starshine.Admin.Controllers
     public class AccountController(IAccountAppService accountAppService, 
         ISettingProvider settingProvider,
         IIdentityUserAppService identityUserAppService,
-        IOptions<IdentityOptions> identityOptions,
-        SignInManager<IdentityUser> SignInManager) : AbpControllerBase
+        IOptions<IdentityOptions> identityOptions) : AbpControllerBase
     {
         #region 登录
         [HttpPost]
@@ -66,54 +65,7 @@ namespace Starshine.Admin.Controllers
             return GetAbpLoginResult(signInResult);
         }
 
-        protected virtual async Task CheckLocalLoginAsync()
-        {
-            if (!await settingProvider.IsTrueAsync(AccountSettingNames.EnableLocalLogin))
-            {
-                throw new UserFriendlyException(L["LocalLoginDisabledMessage"]);
-            }
-        }
-
-        protected virtual void ValidateLoginInfo(UserLoginInput login)
-        {
-            if (login == null)
-            {
-                throw new ArgumentException(nameof(login));
-            }
-
-            if (login.UserNameOrEmailAddress.IsNullOrEmpty())
-            {
-                throw new ArgumentNullException(nameof(login.UserNameOrEmailAddress));
-            }
-
-            if (login.Password.IsNullOrEmpty())
-            {
-                throw new ArgumentNullException(nameof(login.Password));
-            }
-        }
-
-        protected virtual async Task ReplaceEmailToUsernameOfInputIfNeeds(UserLoginInput login)
-        {
-            if (!ValidationHelper.IsValidEmailAddress(login.UserNameOrEmailAddress))
-            {
-                return;
-            }
-
-            var userByUsername = await identityUserAppService.FindByUsernameAsync(login.UserNameOrEmailAddress);
-            if (userByUsername != null)
-            {
-                return;
-            }
-
-            var userByEmail = await identityUserAppService.FindByEmailAsync(login.UserNameOrEmailAddress);
-            if (userByEmail == null)
-            {
-                return;
-            }
-
-            login.UserNameOrEmailAddress = userByEmail.UserName;
-        }
-
+       
         #endregion
 
 
