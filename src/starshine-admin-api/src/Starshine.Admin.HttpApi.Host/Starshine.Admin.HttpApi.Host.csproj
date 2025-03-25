@@ -24,6 +24,7 @@
         <ProjectReference Include="..\Starshine.Admin.Application\Starshine.Admin.Application.csproj" />
         <ProjectReference Include="..\Starshine.Admin.EntityFrameworkCore\Starshine.Admin.EntityFrameworkCore.csproj" />
         <ProjectReference Include="..\Starshine.Admin.HttpApi\Starshine.Admin.HttpApi.csproj" />
+        <ProjectReference Include="..\Starshine.Admin.Web\Starshine.Admin.Web.csproj" />
     </ItemGroup>
 
   <ItemGroup>

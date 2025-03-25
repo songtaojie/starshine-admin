@@ -20,6 +20,7 @@ using Volo.Abp.VirtualFileSystem;
 using Starshine.Abp.Swashbuckle;
 using Volo.Abp.OpenIddict;
 using Volo.Abp.Identity.AspNetCore;
+using Starshine.Admin.Web;
 
 namespace Starshine.Admin;
 
@@ -32,7 +33,8 @@ namespace Starshine.Admin;
     typeof(AbpOpenIddictAspNetCoreModule),
     typeof(AbpAspNetCoreSerilogModule),
     typeof(AbpIdentityAspNetCoreModule),
-    typeof(StarshineSwashbuckleModule)
+    typeof(StarshineSwashbuckleModule),
+    typeof(StarshineAdminWebModule)
 )]
 public class AdminHttpApiHostModule : AbpModule
 {
@@ -40,12 +42,12 @@ public class AdminHttpApiHostModule : AbpModule
     {
         PreConfigure<OpenIddictBuilder>(builder =>
         {
-            //builder.AddValidation(options =>
-            //{
-            //    options.AddAudiences("Admin");
-            //    options.UseLocalServer();
-            //    options.UseAspNetCore();
-            //});
+            builder.AddValidation(options =>
+            {
+                options.AddAudiences("Admin");
+                options.UseLocalServer();
+                options.UseAspNetCore();
+            });
         });
         //动态Api-改进在pre中配置，启动更快
         //PreConfigure<AbpAspNetCoreMvcOptions>(options =>

@@ -19,6 +19,7 @@ using Volo.Abp.UI.Navigation;
 using Volo.Abp.VirtualFileSystem;
 using Starshine.Admin.Localization;
 using Starshine.Admin.Consts;
+using Volo.Abp.OpenIddict;
 
 namespace Starshine.Admin.Web;
 
@@ -26,7 +27,7 @@ namespace Starshine.Admin.Web;
     typeof(AdminApplicationContractsModule),
     typeof(AbpIdentityAspNetCoreModule),
     typeof(AbpAutoMapperModule),
-    typeof(AbpAspNetCoreMvcUiThemeSharedModule),
+    typeof(AbpOpenIddictAspNetCoreModule),
     typeof(AbpExceptionHandlingModule)
     )]
 public class StarshineAdminWebModule : AbpModule

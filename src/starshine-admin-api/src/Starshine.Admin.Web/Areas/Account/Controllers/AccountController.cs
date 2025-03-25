@@ -53,7 +53,7 @@ public class AccountController : AbpControllerBase
     }
 
     [HttpPost]
-    [Route("login")]
+    [Route("login2")]
     public virtual async Task<UserLoginOutput> Login(UserLoginInput login)
     {
         await CheckLocalLoginAsync();
@@ -88,7 +88,7 @@ public class AccountController : AbpControllerBase
             }
         }
 
-        return GetAbpLoginResult(signInResult);
+        return GetUserLoginResult(signInResult);
     }
 
     [HttpGet]
@@ -128,7 +128,7 @@ public class AccountController : AbpControllerBase
         }
 
         await IdentityOptions.SetAsync();
-        return GetAbpLoginResult(await SignInManager.CheckPasswordSignInAsync(identityUser, login.Password, true));
+        return GetUserLoginResult(await SignInManager.CheckPasswordSignInAsync(identityUser, login.Password, true));
     }
 
     protected virtual async Task ReplaceEmailToUsernameOfInputIfNeeds(UserLoginInput login)
@@ -153,7 +153,7 @@ public class AccountController : AbpControllerBase
         login.UserNameOrEmailAddress = userByEmail.UserName;
     }
 
-    private static UserLoginOutput GetAbpLoginResult(SignInResult result)
+    private static UserLoginOutput GetUserLoginResult(SignInResult result)
     {
         if (result.IsLockedOut)
         {
