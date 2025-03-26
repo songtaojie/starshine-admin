@@ -10,7 +10,6 @@ using Starshine.Admin.EntityFrameworkCore;
 using Starshine.Admin.MultiTenancy;
 using Volo.Abp;
 using Volo.Abp.AspNetCore.MultiTenancy;
-using Volo.Abp.AspNetCore.Mvc;
 using Volo.Abp.AspNetCore.Serilog;
 using Volo.Abp.Autofac;
 using Volo.Abp.Modularity;
@@ -21,6 +20,7 @@ using Starshine.Abp.Swashbuckle;
 using Volo.Abp.OpenIddict;
 using Volo.Abp.Identity.AspNetCore;
 using Starshine.Admin.Web;
+using OpenIddict.Validation.AspNetCore;
 
 namespace Starshine.Admin;
 
@@ -71,7 +71,7 @@ public class AdminHttpApiHostModule : AbpModule
 
     private static void ConfigureAuthentication(ServiceConfigurationContext context)
     {
-        //context.Services.ForwardIdentityAuthenticationForBearer(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
+        context.Services.ForwardIdentityAuthenticationForBearer(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
         context.Services.Configure<AbpClaimsPrincipalFactoryOptions>(options =>
         {
             options.IsDynamicClaimsEnabled = true;
@@ -152,7 +152,7 @@ public class AdminHttpApiHostModule : AbpModule
         //}
 
         app.UseCorrelationId();
-        //app.MapAbpStaticAssets();
+        app.UseStaticFiles();
         app.UseRouting();
         app.UseCors();
         app.UseAuthentication();
