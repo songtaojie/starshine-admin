@@ -10,8 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Starshine.Admin.Application.Contracts.Account;
-using Starshine.Admin.Application.Contracts.Account.Settings;
 using Starshine.Admin.Dtos;
+using Starshine.Admin.Settings;
 using Volo.Abp;
 using Volo.Abp.Auditing;
 using Volo.Abp.Identity;
@@ -201,8 +201,8 @@ public class RegisterModel : AccountPageModel
 
     protected virtual async Task<bool> CheckSelfRegistrationAsync()
     {
-        EnableLocalRegister = await SettingProvider.IsTrueAsync(AccountSettingNames.EnableLocalLogin) &&
-                              await SettingProvider.IsTrueAsync(AccountSettingNames.IsSelfRegistrationEnabled);
+        EnableLocalRegister = await SettingProvider.IsTrueAsync(AdminSettingNames.EnableLocalLogin) &&
+                              await SettingProvider.IsTrueAsync(AdminSettingNames.IsSelfRegistrationEnabled);
 
         if (IsExternalLogin)
         {

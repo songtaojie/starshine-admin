@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Starshine.Admin.Application.Contracts.Account.Settings;
+using Starshine.Admin.Application;
+using Starshine.Admin.Settings;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -73,7 +74,7 @@ public class LoginModel : AccountPageModel
 
         ExternalProviders = await GetExternalProviders();
 
-        EnableLocalLogin = await SettingProvider.IsTrueAsync(AccountSettingNames.EnableLocalLogin);
+        EnableLocalLogin = await SettingProvider.IsTrueAsync(AdminSettingNames.EnableLocalLogin);
 
         if (IsExternalLoginOnly)
         {
@@ -91,7 +92,7 @@ public class LoginModel : AccountPageModel
 
         ExternalProviders = await GetExternalProviders();
 
-        EnableLocalLogin = await SettingProvider.IsTrueAsync(AccountSettingNames.EnableLocalLogin);
+        EnableLocalLogin = await SettingProvider.IsTrueAsync(AdminSettingNames.EnableLocalLogin);
 
         await ReplaceEmailToUsernameOfInputIfNeeds();
 
@@ -308,7 +309,7 @@ public class LoginModel : AccountPageModel
 
     protected virtual async Task CheckLocalLoginAsync()
     {
-        if (!await SettingProvider.IsTrueAsync(AccountSettingNames.EnableLocalLogin))
+        if (!await SettingProvider.IsTrueAsync(AdminSettingNames.EnableLocalLogin))
         {
             throw new UserFriendlyException(L["LocalLoginDisabledMessage"]);
         }

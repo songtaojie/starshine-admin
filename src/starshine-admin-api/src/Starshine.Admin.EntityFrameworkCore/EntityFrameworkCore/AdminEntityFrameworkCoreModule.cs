@@ -14,6 +14,8 @@ using Volo.Abp.TenantManagement.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Volo.Abp.Auditing;
+using Volo.Abp.SecurityLog;
 
 namespace Starshine.Admin.EntityFrameworkCore;
 
@@ -55,6 +57,6 @@ public class AdminEntityFrameworkCoreModule : AbpModule
                 dbContext.UseDynamicSql(configuration);
             });
         });
-
+        
     }
 }

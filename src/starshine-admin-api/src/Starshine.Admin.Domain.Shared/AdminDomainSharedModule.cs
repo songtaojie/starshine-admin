@@ -43,9 +43,9 @@ public class AdminDomainSharedModule : AbpModule
         Configure<AbpLocalizationOptions>(options =>
         {
             options.Resources
-                .Add<AdminResource>("en")
+                .Add<AdminResource>("zh-Hans")
                 .AddBaseTypes(typeof(AbpValidationResource))
-                .AddVirtualJson("/Localization/Admin");
+                .AddVirtualJson("/Localization/Resources");
 
             options.DefaultResourceType = typeof(AdminResource);
         });

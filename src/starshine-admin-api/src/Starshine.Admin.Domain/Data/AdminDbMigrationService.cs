@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using Volo.Abp.Data;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.Identity;
@@ -23,12 +24,13 @@ public class AdminDbMigrationService : ITransientDependency
     private readonly IEnumerable<IAdminDbSchemaMigrator> _dbSchemaMigrators;
     private readonly ITenantRepository _tenantRepository;
     private readonly ICurrentTenant _currentTenant;
-
+    private readonly AbpDataSeedOptions _Options;
     public AdminDbMigrationService(
         IDataSeeder dataSeeder,
         IEnumerable<IAdminDbSchemaMigrator> dbSchemaMigrators,
         ITenantRepository tenantRepository,
-        ICurrentTenant currentTenant)
+        ICurrentTenant currentTenant,
+        IOptions<AbpDataSeedOptions> options)
     {
         _dataSeeder = dataSeeder;
         _dbSchemaMigrators = dbSchemaMigrators;
@@ -36,6 +38,7 @@ public class AdminDbMigrationService : ITransientDependency
         _currentTenant = currentTenant;
 
         Logger = NullLogger<AdminDbMigrationService>.Instance;
+        _Options = options.Value;
     }
 
     public async Task MigrateAsync()

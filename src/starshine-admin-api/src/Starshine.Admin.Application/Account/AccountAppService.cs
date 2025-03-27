@@ -10,7 +10,7 @@ using Starshine.Abp.Account.Emailing;
 using Starshine.Admin.Localization;
 using Volo.Abp.ObjectExtending;
 using Starshine.Admin.Application.Contracts.Account;
-using Starshine.Admin.Application.Contracts.Account.Settings;
+using Starshine.Admin.Settings;
 
 namespace Starshine.Admin.Account
 {
@@ -101,7 +101,7 @@ namespace Starshine.Admin.Account
 
         protected virtual async Task CheckSelfRegistrationAsync()
         {
-            if (!await SettingProvider.IsTrueAsync(AccountSettingNames.IsSelfRegistrationEnabled))
+            if (!await SettingProvider.IsTrueAsync(AdminSettingNames.IsSelfRegistrationEnabled))
             {
                 throw new UserFriendlyException(L["SelfRegistrationDisabledMessage"]);
             }

@@ -16,7 +16,7 @@ using IdentityUser = Volo.Abp.Identity.IdentityUser;
 using Starshine.Admin.Consts;
 using Volo.Abp;
 using Starshine.Admin.Localization;
-using Starshine.Admin.Application.Contracts.Account.Settings;
+using Starshine.Admin.Settings;
 
 namespace Starshine.Admin.Web.Areas.Account.Controllers;
 
@@ -53,7 +53,7 @@ public class AccountController : AbpControllerBase
     }
 
     [HttpPost]
-    [Route("login2")]
+    [Route("login")]
     public virtual async Task<UserLoginOutput> Login(UserLoginInput login)
     {
         await CheckLocalLoginAsync();
@@ -198,7 +198,7 @@ public class AccountController : AbpControllerBase
 
     protected virtual async Task CheckLocalLoginAsync()
     {
-        if (!await SettingProvider.IsTrueAsync(AccountSettingNames.EnableLocalLogin))
+        if (!await SettingProvider.IsTrueAsync(AdminSettingNames.EnableLocalLogin))
         {
             throw new UserFriendlyException(L["LocalLoginDisabledMessage"]);
         }

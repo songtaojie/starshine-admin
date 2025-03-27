@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Starshine.Admin.Application.Contracts.Account.Settings;
+using Starshine.Admin.Settings;
 using Volo.Abp.Identity;
 using Volo.Abp.Settings;
 
@@ -30,7 +30,7 @@ public class LogoutModel : AccountPageModel
             return await RedirectSafelyAsync(ReturnUrl, ReturnUrlHash);
         }
 
-        if (await SettingProvider.IsTrueAsync(AccountSettingNames.EnableLocalLogin))
+        if (await SettingProvider.IsTrueAsync(AdminSettingNames.EnableLocalLogin))
         {
             return RedirectToPage("/Account/Login");
         }
